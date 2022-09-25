@@ -12,6 +12,7 @@ pub struct Input {
 impl Input {
     pub fn handle_input(&self, ks: sdl2::keyboard::KeyboardState, player: &mut player::Player) {
         if self.allow_input {
+            //maybe move the setting is_sprinting somewhere else to fix mid-tile timing?
             if ks.is_scancode_pressed(Scancode::LShift) {
                 player.is_sprinting = true;
             } else {
@@ -27,7 +28,6 @@ impl Input {
             } else if ks.is_scancode_pressed(Scancode::Down) {
                 player.move_down();
             }
-
         }
     }
 

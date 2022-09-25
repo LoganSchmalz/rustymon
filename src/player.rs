@@ -7,48 +7,90 @@ use sdl2::{
 };
 
 const PLAYER_SPEED: f64 = 1.0 / 16.0;
+const WALKING_TIME_PER_TILE: f64 = 1.0 / (1000.0 * PLAYER_SPEED / TILE_SIZE as f64);
 const PLAYER_RUN_SPEED: f64 = 2.0 / 16.0;
+const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1000.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64);
 const PLAYER_WIDTH: u32 = 16;
 const PLAYER_HEIGHT: u32 = 16;
-const UP: i8 = 0;
-const RIGHT: i8 = 1;
-const DOWN: i8 = 2;
-const LEFT: i8 = 3;
+pub enum Direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+}
+
+pub enum Leg {
+    LEFT,
+    RIGHT,
+}
+
+use Direction::{DOWN, LEFT, RIGHT, UP};
 
 pub struct Player<'a> {
     texture: sdl2::render::Texture<'a>,
+    texture_slice: sdl2::rect::Rect,
     pub pos: (f64, f64),
     pub is_sprinting: bool,
     moving_towards: Option<(i32, i32)>,
     animation_time: f64,
-    pub dir: i8,
+    pub dir: Direction,
+    current_leg: Leg,
 }
 
 impl Player<'_> {
     pub fn new(texture: sdl2::render::Texture) -> Player {
         Player {
             texture: texture,
+            texture_slice: Rect::new(0, 0, 16, 16),
             pos: (0.0, 0.0),
             is_sprinting: false,
             moving_towards: None,
             animation_time: 0.0,
             dir: DOWN,
+            current_leg: Leg::LEFT,
         }
     }
 
     pub fn update(&mut self, delta_time: &f64) {
         match self.moving_towards {
             Some((x, y)) => {
-                if self.animation_time == 0.0 {
-                    self.animation_time = 4.0;
+                if self.animation_time <= 0.0 {
+                    self.animation_time = WALKING_TIME_PER_TILE;
                 } else {
-                    self.animation_time = self.animation_time - delta_time;
+                    self.animation_time = self.animation_time - delta_time / 1000.0;
                     self.move_towards_target(delta_time);
-                    //println!("{:?}", self.moving_towards);
+                    println!("{:?}", self.animation_time);
                 }
             }
-            None => {}
+            None => {
+                self.animation_time = 0.0;
+            }
         }
+
+        self.texture_slice = if self.moving_towards == None
+            || self.animation_time > (0.75 * WALKING_TIME_PER_TILE)
+            || self.animation_time < (0.25 * WALKING_TIME_PER_TILE)
+        {
+            match self.dir {
+                UP => Rect::new(16, 0, 16, 16),
+                RIGHT => Rect::new(16, 16, 16, 16),
+                DOWN => Rect::new(0, 0, 16, 16),
+                LEFT => Rect::new(0, 16, 16, 16),
+            }
+        } else {
+            match self.dir {
+                UP => match self.current_leg {
+                    Leg::LEFT => Rect::new(16, 32, 16, 16),
+                    Leg::RIGHT => Rect::new(0, 32, 16, 16),
+                },
+                RIGHT => Rect::new(48, 16, 16, 16),
+                DOWN => match self.current_leg {
+                    Leg::LEFT => Rect::new(32, 32, 16, 16),
+                    Leg::RIGHT => Rect::new(48, 32, 16, 16),
+                },
+                LEFT => Rect::new(32, 16, 16, 16),
+            }
+        };
     }
 
     pub fn move_towards_target(&mut self, delta_time: &f64) {
@@ -56,6 +98,10 @@ impl Player<'_> {
         if (self.pos.0.round() as i32, self.pos.1.round() as i32) == (tx, ty) {
             self.pos = (self.pos.0.round(), self.pos.1.round());
             self.moving_towards = None;
+            self.current_leg = match self.current_leg {
+                Leg::LEFT => Leg::RIGHT,
+                Leg::RIGHT => Leg::LEFT,
+            };
         } else {
             let dx = tx as f64 - self.pos.0;
             let dy = ty as f64 - self.pos.1;
@@ -114,27 +160,8 @@ impl Player<'_> {
             PLAYER_WIDTH,
             PLAYER_HEIGHT,
         );
-        
-        let mut stand_texture_quad = Rect::new(16, 0, 16, 16);
-        if self.moving_towards == None {
-            match self.dir {
-                UP=>stand_texture_quad = Rect::new(16, 0, 16, 16),
-                RIGHT=>stand_texture_quad = Rect::new(16, 16, 16, 16),
-                DOWN=>stand_texture_quad = Rect::new(0, 0, 16, 16),
-                LEFT=>stand_texture_quad = Rect::new(0, 16, 16, 16),
-                _=>println!("bad"),
-            }
-        } else {
-            match self.dir {
-                UP=>stand_texture_quad = Rect::new(0, 32, 16, 16),
-                RIGHT=>stand_texture_quad = Rect::new(48, 16, 16, 16),
-                DOWN=>stand_texture_quad = Rect::new(32, 32, 16, 16),
-                LEFT=>stand_texture_quad = Rect::new(32, 16, 16, 16),
-                _=>println!("bad"),
-            }
-        }
 
-        match canvas.copy(&self.texture, stand_texture_quad, render_quad) {
+        match canvas.copy(&self.texture, self.texture_slice, render_quad) {
             Ok(_) => {}
             Err(_) => {
                 println!("bad")
