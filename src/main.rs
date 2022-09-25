@@ -6,6 +6,7 @@ mod input;
 extern crate sdl2; 
 
 use sdl2::pixels::Color;
+use sdl2::rect::Rect;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::sys::{SDL_GetPerformanceCounter, SDL_GetPerformanceFrequency};
@@ -33,6 +34,7 @@ pub fn main() {
 
 	let mut time_last: u64 = 0;
 	let mut time_now: u64 = unsafe { SDL_GetPerformanceCounter() };
+
 	'running: loop {
 		time_last = time_now;
 		time_now = unsafe { SDL_GetPerformanceCounter() };
@@ -45,8 +47,24 @@ pub fn main() {
 		println!("{:?}, {:?}", delta_time, t);
 		let i = t as u8 % 255;
 
-		canvas.set_draw_color(Color::RGB(i as u8, 64, 255 - i as u8));
+		//canvas.set_draw_color(Color::RGB(i as u8, 64, 255 - i as u8));
 		canvas.clear();
+		for i in 0..(240/TILE_SIZE) {
+			for j in 0..(160/TILE_SIZE) {
+				if (i+j) % 2 == 0 {
+					canvas.set_draw_color(Color::RGB(255,255,255));
+					canvas
+						.fill_rect(Rect::new(i*TILE_SIZE, j*TILE_SIZE, TILE_SIZE as u32, TILE_SIZE as u32))
+						.unwrap();
+				} else {
+					canvas.set_draw_color(Color::RGB(255,0,0));
+					canvas
+						.fill_rect(Rect::new(i*TILE_SIZE, j*TILE_SIZE, TILE_SIZE as u32, TILE_SIZE as u32))
+						.unwrap();
+				}
+			}
+		}
+
 		for event in event_pump.poll_iter() {
 			match event {
 				Event::Quit {..} |
