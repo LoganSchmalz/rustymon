@@ -7,13 +7,10 @@ mod render;
 extern crate sdl2;
 
 use sdl2::event::Event;
-use sdl2::image::{InitFlag, LoadTexture};
-use sdl2::keyboard::{self, Keycode};
-use sdl2::pixels::Color;
-use sdl2::rect::Rect;
-use sdl2::sys::{SDL_Delay, SDL_GetPerformanceCounter, SDL_GetPerformanceFrequency};
+use sdl2::image::LoadTexture;
+use sdl2::keyboard::Keycode;
+use sdl2::sys::{SDL_GetPerformanceCounter, SDL_GetPerformanceFrequency};
 use std::path::Path;
-use std::time::Duration;
 
 pub fn main() {
     let sdl_context = sdl2::init().unwrap();
@@ -38,16 +35,14 @@ pub fn main() {
         .unwrap();
 
     let mut event_pump = sdl_context.event_pump().unwrap();
-    let mut t: f64 = 0.0;
 
-    let mut input = input::Input { allow_input: true };
+    let input = input::Input { allow_input: true };
     let mut player: player::Player = player::Player::new(player_texture);
 
-    let mut time_last: u64 = 0;
     let mut time_now: u64 = unsafe { SDL_GetPerformanceCounter() };
 
     'running: loop {
-        time_last = time_now;
+        let time_last = time_now;
         time_now = unsafe { SDL_GetPerformanceCounter() };
         let delta_time: f64 =
             ((time_now - time_last) * 1000 / unsafe { SDL_GetPerformanceFrequency() }) as f64;

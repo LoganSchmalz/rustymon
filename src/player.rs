@@ -6,10 +6,10 @@ use sdl2::{
     video::Window,
 };
 
-const PLAYER_SPEED: f64 = 1.0 / 16.0;
-const WALKING_TIME_PER_TILE: f64 = 1.0 / (1000.0 * PLAYER_SPEED / TILE_SIZE as f64);
+const PLAYER_WALK_SPEED: f64 = 1.0 / 16.0;
+const WALKING_TIME_PER_TILE: f64 = 1.0 / (PLAYER_WALK_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
 const PLAYER_RUN_SPEED: f64 = 2.0 / 16.0;
-const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1000.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64);
+const _RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
 const PLAYER_WIDTH: u32 = 16;
 const PLAYER_HEIGHT: u32 = 16;
 pub enum Direction {
@@ -27,7 +27,7 @@ pub enum Leg {
 use Direction::{DOWN, LEFT, RIGHT, UP};
 
 pub struct Player<'a> {
-    texture: sdl2::render::Texture<'a>,
+    texture: Texture<'a>,
     texture_slice: sdl2::rect::Rect,
     pub pos: (f64, f64),
     pub is_sprinting: bool,
@@ -38,7 +38,7 @@ pub struct Player<'a> {
 }
 
 impl Player<'_> {
-    pub fn new(texture: sdl2::render::Texture) -> Player {
+    pub fn new(texture: Texture) -> Player {
         Player {
             texture: texture,
             texture_slice: Rect::new(0, 0, 16, 16),
@@ -53,13 +53,12 @@ impl Player<'_> {
 
     pub fn update(&mut self, delta_time: &f64) {
         match self.moving_towards {
-            Some((x, y)) => {
+            Some((_, _)) => {
                 if self.animation_time <= 0.0 {
                     self.animation_time = WALKING_TIME_PER_TILE;
                 } else {
-                    self.animation_time = self.animation_time - delta_time / 1000.0;
+                    self.animation_time = self.animation_time - delta_time;
                     self.move_towards_target(delta_time);
-                    println!("{:?}", self.animation_time);
                 }
             }
             None => {
@@ -109,7 +108,7 @@ impl Player<'_> {
                 if self.is_sprinting {
                     self.pos.0 + PLAYER_RUN_SPEED * delta_time * dx.signum()
                 } else {
-                    self.pos.0 + PLAYER_SPEED * delta_time * dx.signum()
+                    self.pos.0 + PLAYER_WALK_SPEED * delta_time * dx.signum()
                 }
             } else {
                 self.pos.0
@@ -118,7 +117,7 @@ impl Player<'_> {
                 if self.is_sprinting {
                     self.pos.1 + PLAYER_RUN_SPEED * delta_time * dy.signum()
                 } else {
-                    self.pos.1 + PLAYER_SPEED * delta_time * dy.signum()
+                    self.pos.1 + PLAYER_WALK_SPEED * delta_time * dy.signum()
                 }
             } else {
                 self.pos.1
@@ -161,11 +160,8 @@ impl Player<'_> {
             PLAYER_HEIGHT,
         );
 
-        match canvas.copy(&self.texture, self.texture_slice, render_quad) {
-            Ok(_) => {}
-            Err(_) => {
-                println!("bad")
-            }
-        };
+        canvas
+            .copy(&self.texture, self.texture_slice, render_quad)
+            .unwrap();
     }
 }

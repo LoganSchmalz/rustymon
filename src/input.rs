@@ -1,7 +1,4 @@
-use sdl2::{
-    keyboard::{Keycode, Scancode},
-    sys::SDL_GetKeyboardState,
-};
+use sdl2::keyboard::Scancode;
 
 use crate::player;
 
@@ -29,13 +26,5 @@ impl Input {
                 player.move_down();
             }
         }
-    }
-
-    pub fn input_off(&mut self) {
-        self.allow_input = false;
-    }
-
-    pub fn input_on(&mut self) {
-        self.allow_input = true;
     }
 }
