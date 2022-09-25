@@ -9,6 +9,13 @@ pub struct Input {
 impl Input {
     pub fn handle_input(&self, ks: sdl2::keyboard::KeyboardState, player: &mut player::Player) {
         if self.allow_input {
+            if ks.is_scancode_pressed(Scancode::LShift) {
+                player.is_sprinting = true;
+            }
+            else {
+                player.is_sprinting = false;
+            }
+
             if ks.is_scancode_pressed(Scancode::Left) {
                 player.move_left();
             } else if ks.is_scancode_pressed(Scancode::Right) {

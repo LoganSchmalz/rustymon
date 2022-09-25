@@ -4,6 +4,7 @@ use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 #[derive(Debug)]
 pub struct Player {
     pub pos: (f64, f64),
+    pub is_sprinting: bool,
     moving_towards: Option<(i32, i32)>,
     animation_time: f64,
 }
@@ -12,6 +13,7 @@ impl Player {
     pub fn new() -> Player {
         Player {
             pos: (0.0, 0.0),
+            is_sprinting: false,
             moving_towards: None,
             animation_time: 0.0,
         }
@@ -41,12 +43,20 @@ impl Player {
             let dx = tx as f64 - self.pos.0;
             let dy = ty as f64 - self.pos.1;
             let mx = if dx != 0.0 {
-                self.pos.0 + (1.0 / 16.0) * delta_time * dx.signum()
+                if self.is_sprinting { 
+                    self.pos.0 + (2.0 / 16.0) * delta_time * dx.signum()
+                } else {
+                    self.pos.0 + (1.0 / 16.0) * delta_time * dx.signum()
+                }
             } else {
                 self.pos.0
             };
             let my = if dy != 0.0 {
-                self.pos.1 + (1.0 / 16.0) * delta_time * dy.signum()
+                if self.is_sprinting {
+                    self.pos.1 + (2.0 / 16.0) * delta_time * dy.signum()
+                } else {
+                    self.pos.1 + (1.0 / 16.0) * delta_time * dy.signum()
+                }
             } else {
                 self.pos.1
             };
