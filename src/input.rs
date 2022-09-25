@@ -1,4 +1,4 @@
-use sdl2::keyboard::Keycode;
+use sdl2::{keyboard::{Keycode, Scancode}, sys::SDL_GetKeyboardState};
 
 use crate::player;
 
@@ -7,31 +7,25 @@ pub struct Input {
 }
 
 impl Input {
-    pub fn handle_input(&self, key: Keycode, player: &mut player::Player) {
+    pub fn handle_input(&self, ks: sdl2::keyboard::KeyboardState, player: &mut player::Player) {
         if self.allow_input {
-            match key {
-                Keycode::Left => {
-                    player.move_left();
-                }
-                Keycode::Right => {
-                    player.move_right();
-                }
-                Keycode::Up => {
-                    player.move_up();
-                }
-                Keycode::Down => {
-                    player.move_down();
-                }
-                _ => {}
+            if ks.is_scancode_pressed(Scancode::Left) {
+                player.move_left();
+            } else if ks.is_scancode_pressed(Scancode::Right) {
+                player.move_right();
+            } else if ks.is_scancode_pressed(Scancode::Up) {
+                player.move_up();
+            } else if ks.is_scancode_pressed(Scancode::Down) {
+                player.move_down();
             }
         }
     }
 
-	pub fn input_off(&mut self) {
-		self.allow_input = false;
-	}
+    pub fn input_off(&mut self) {
+        self.allow_input = false;
+    }
 
-	pub fn input_on(&mut self) {
-		self.allow_input = true;
-	}
+    pub fn input_on(&mut self) {
+        self.allow_input = true;
+    }
 }
