@@ -9,7 +9,9 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, self};
+use sdl2::image::{InitFlag, LoadTexture};
 use sdl2::sys::{SDL_GetPerformanceCounter, SDL_GetPerformanceFrequency, SDL_Delay};
+use std::path::Path;
 use std::time::Duration;
 
 pub fn main() {
@@ -22,7 +24,9 @@ pub fn main() {
 		.unwrap();
  
 	let mut canvas = window.into_canvas().accelerated().present_vsync().build().unwrap();
- 
+	let texture_creator = canvas.texture_creator();
+	let texture = texture_creator.load_texture(Path::new("assets/charSprite.png")).unwrap();
+
 	canvas.set_draw_color(Color::RGB(0, 255, 255));
 	canvas.clear();
 	canvas.present();
@@ -79,7 +83,7 @@ pub fn main() {
 
 		// The rest of the game loop goes here...
 		player.update(&delta_time);
-		player.render(&mut canvas);
+		player.render(&mut canvas, &texture);
 		canvas.present();
 	}
 }

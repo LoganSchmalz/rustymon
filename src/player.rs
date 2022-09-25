@@ -1,5 +1,5 @@
 use crate::TILE_SIZE;
-use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
+use sdl2::{pixels::Color, rect::Rect, render::{Canvas, Texture}, video::Window};
 
 #[derive(Debug)]
 pub struct Player {
@@ -75,15 +75,13 @@ impl Player {
         }
     }
 
-    pub fn render(&self, canvas: &mut Canvas<Window>) {
+    pub fn render(&self, canvas: &mut Canvas<Window>, texture: &Texture) {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas
-            .fill_rect(Rect::new(
-                self.pos.0 as i32 + 2,
-                self.pos.1 as i32 + 2,
-                12,
-                12,
-            ))
-            .unwrap();
+        let render_quad = Rect::new(self.pos.0 as i32, self.pos.1 as i32, 16, 16);
+		let stand_texture_quad = Rect::new(0, 0, 16, 16);
+		match canvas.copy(texture, stand_texture_quad, render_quad) {
+			Ok(_) => {}
+			Err(_) => { println!("bad") }
+		};
     }
 }
