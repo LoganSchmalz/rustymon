@@ -9,7 +9,7 @@ use sdl2::{
 const PLAYER_WALK_SPEED: f64 = 1.0 / 16.0;
 const WALKING_TIME_PER_TILE: f64 = 1.0 / (PLAYER_WALK_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
 const PLAYER_RUN_SPEED: f64 = 2.0 / 16.0;
-const _RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
+const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
 const PLAYER_WIDTH: u32 = 16;
 const PLAYER_HEIGHT: u32 = 16;
 pub enum Direction {
@@ -55,7 +55,11 @@ impl Player<'_> {
         match self.moving_towards {
             Some((_, _)) => {
                 if self.animation_time <= 0.0 {
-                    self.animation_time = WALKING_TIME_PER_TILE;
+                    self.animation_time = if self.is_sprinting {
+                        RUNNING_TIME_PER_TILE
+                    } else {
+                        WALKING_TIME_PER_TILE
+                    }
                 } else {
                     self.animation_time = self.animation_time - delta_time;
                     self.move_towards_target(delta_time);
@@ -66,9 +70,15 @@ impl Player<'_> {
             }
         }
 
+        let anim_time = if self.is_sprinting {
+            RUNNING_TIME_PER_TILE
+        } else {
+            WALKING_TIME_PER_TILE
+        };
+
         self.texture_slice = if self.moving_towards == None
-            || self.animation_time > (0.75 * WALKING_TIME_PER_TILE)
-            || self.animation_time < (0.25 * WALKING_TIME_PER_TILE)
+            || self.animation_time > (0.75 * anim_time)
+            || self.animation_time < (0.25 * anim_time)
         {
             match self.dir {
                 UP => Rect::new(16, 0, 16, 16),
