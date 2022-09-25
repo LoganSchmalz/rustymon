@@ -27,6 +27,7 @@ impl Input {
             } else if ks.is_scancode_pressed(Scancode::Down) {
                 player.move_down();
             }
+
         }
     }
 

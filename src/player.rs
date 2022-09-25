@@ -10,12 +10,18 @@ const PLAYER_SPEED: f64 = 1.0 / 16.0;
 const PLAYER_RUN_SPEED: f64 = 2.0 / 16.0;
 const PLAYER_WIDTH: u32 = 16;
 const PLAYER_HEIGHT: u32 = 16;
+const UP: i8 = 0;
+const RIGHT: i8 = 1;
+const DOWN: i8 = 2;
+const LEFT: i8 = 3;
+
 pub struct Player<'a> {
     texture: sdl2::render::Texture<'a>,
     pub pos: (f64, f64),
     pub is_sprinting: bool,
     moving_towards: Option<(i32, i32)>,
     animation_time: f64,
+    pub dir: i8,
 }
 
 impl Player<'_> {
@@ -26,6 +32,7 @@ impl Player<'_> {
             is_sprinting: false,
             moving_towards: None,
             animation_time: 0.0,
+            dir: DOWN,
         }
     }
 
@@ -76,21 +83,25 @@ impl Player<'_> {
 
     pub fn move_left(&mut self) {
         if self.moving_towards == None {
+            self.dir = LEFT;
             self.moving_towards = Some((self.pos.0 as i32 - TILE_SIZE, self.pos.1 as i32));
         }
     }
     pub fn move_right(&mut self) {
         if self.moving_towards == None {
+            self.dir = RIGHT;
             self.moving_towards = Some((self.pos.0 as i32 + TILE_SIZE, self.pos.1 as i32));
         }
     }
     pub fn move_up(&mut self) {
         if self.moving_towards == None {
+            self.dir = UP;
             self.moving_towards = Some((self.pos.0 as i32, self.pos.1 as i32 - TILE_SIZE));
         }
     }
     pub fn move_down(&mut self) {
         if self.moving_towards == None {
+            self.dir = DOWN;
             self.moving_towards = Some((self.pos.0 as i32, self.pos.1 as i32 + TILE_SIZE));
         }
     }
@@ -103,7 +114,26 @@ impl Player<'_> {
             PLAYER_WIDTH,
             PLAYER_HEIGHT,
         );
-        let stand_texture_quad = Rect::new(0, 0, 16, 16);
+        
+        let mut stand_texture_quad = Rect::new(16, 0, 16, 16);
+        if self.moving_towards == None {
+            match self.dir {
+                UP=>stand_texture_quad = Rect::new(16, 0, 16, 16),
+                RIGHT=>stand_texture_quad = Rect::new(16, 16, 16, 16),
+                DOWN=>stand_texture_quad = Rect::new(0, 0, 16, 16),
+                LEFT=>stand_texture_quad = Rect::new(0, 16, 16, 16),
+                _=>println!("bad"),
+            }
+        } else {
+            match self.dir {
+                UP=>stand_texture_quad = Rect::new(0, 32, 16, 16),
+                RIGHT=>stand_texture_quad = Rect::new(48, 16, 16, 16),
+                DOWN=>stand_texture_quad = Rect::new(32, 32, 16, 16),
+                LEFT=>stand_texture_quad = Rect::new(32, 16, 16, 16),
+                _=>println!("bad"),
+            }
+        }
+
         match canvas.copy(&self.texture, stand_texture_quad, render_quad) {
             Ok(_) => {}
             Err(_) => {
