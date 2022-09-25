@@ -1,4 +1,7 @@
-use sdl2::{keyboard::{Keycode, Scancode}, sys::SDL_GetKeyboardState};
+use sdl2::{
+    keyboard::{Keycode, Scancode},
+    sys::SDL_GetKeyboardState,
+};
 
 use crate::player;
 
@@ -11,8 +14,7 @@ impl Input {
         if self.allow_input {
             if ks.is_scancode_pressed(Scancode::LShift) {
                 player.is_sprinting = true;
-            }
-            else {
+            } else {
                 player.is_sprinting = false;
             }
 

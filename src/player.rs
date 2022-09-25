@@ -1,17 +1,27 @@
 use crate::TILE_SIZE;
-use sdl2::{pixels::Color, rect::Rect, render::{Canvas, Texture}, video::Window};
+use sdl2::{
+    pixels::Color,
+    rect::Rect,
+    render::{Canvas, Texture},
+    video::Window,
+};
 
-#[derive(Debug)]
-pub struct Player {
+const PLAYER_SPEED: f64 = 1.0 / 16.0;
+const PLAYER_RUN_SPEED: f64 = 2.0 / 16.0;
+const PLAYER_WIDTH: u32 = 16;
+const PLAYER_HEIGHT: u32 = 16;
+pub struct Player<'a> {
+    texture: sdl2::render::Texture<'a>,
     pub pos: (f64, f64),
     pub is_sprinting: bool,
     moving_towards: Option<(i32, i32)>,
     animation_time: f64,
 }
 
-impl Player {
-    pub fn new() -> Player {
+impl Player<'_> {
+    pub fn new(texture: sdl2::render::Texture) -> Player {
         Player {
+            texture: texture,
             pos: (0.0, 0.0),
             is_sprinting: false,
             moving_towards: None,
@@ -43,19 +53,19 @@ impl Player {
             let dx = tx as f64 - self.pos.0;
             let dy = ty as f64 - self.pos.1;
             let mx = if dx != 0.0 {
-                if self.is_sprinting { 
-                    self.pos.0 + (2.0 / 16.0) * delta_time * dx.signum()
+                if self.is_sprinting {
+                    self.pos.0 + PLAYER_RUN_SPEED * delta_time * dx.signum()
                 } else {
-                    self.pos.0 + (1.0 / 16.0) * delta_time * dx.signum()
+                    self.pos.0 + PLAYER_SPEED * delta_time * dx.signum()
                 }
             } else {
                 self.pos.0
             };
             let my = if dy != 0.0 {
                 if self.is_sprinting {
-                    self.pos.1 + (2.0 / 16.0) * delta_time * dy.signum()
+                    self.pos.1 + PLAYER_RUN_SPEED * delta_time * dy.signum()
                 } else {
-                    self.pos.1 + (1.0 / 16.0) * delta_time * dy.signum()
+                    self.pos.1 + PLAYER_SPEED * delta_time * dy.signum()
                 }
             } else {
                 self.pos.1
@@ -85,13 +95,20 @@ impl Player {
         }
     }
 
-    pub fn render(&self, canvas: &mut Canvas<Window>, texture: &Texture) {
+    pub fn render(&self, canvas: &mut Canvas<Window>) {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
-        let render_quad = Rect::new(self.pos.0 as i32, self.pos.1 as i32, 16, 16);
-		let stand_texture_quad = Rect::new(0, 0, 16, 16);
-		match canvas.copy(texture, stand_texture_quad, render_quad) {
-			Ok(_) => {}
-			Err(_) => { println!("bad") }
-		};
+        let render_quad = Rect::new(
+            self.pos.0 as i32,
+            self.pos.1 as i32,
+            PLAYER_WIDTH,
+            PLAYER_HEIGHT,
+        );
+        let stand_texture_quad = Rect::new(0, 0, 16, 16);
+        match canvas.copy(&self.texture, stand_texture_quad, render_quad) {
+            Ok(_) => {}
+            Err(_) => {
+                println!("bad")
+            }
+        };
     }
 }
