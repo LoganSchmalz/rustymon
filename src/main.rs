@@ -1,3 +1,6 @@
+mod player;
+mod input;
+
 extern crate sdl2; 
 
 use sdl2::pixels::Color;
@@ -21,6 +24,9 @@ pub fn main() {
 	canvas.present();
 	let mut event_pump = sdl_context.event_pump().unwrap();
 	let mut i = 0;
+
+	let mut player : player::Player = player::Player::new();
+
 	'running: loop {
 		i = (i + 1) % 255;
 		canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
@@ -31,10 +37,16 @@ pub fn main() {
 				Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
 					break 'running
 				},
+				Event::KeyDown { keycode: Some(key), .. } => {
+					input::handle_input(key, &mut player)
+				}
 				_ => {}
 			}
 		}
+
+		println!("{:?}", player);
 		// The rest of the game loop goes here...
+		player.render(&mut canvas);
 
 		canvas.present();
 		::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
