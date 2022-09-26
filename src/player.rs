@@ -67,6 +67,10 @@ impl Player<'_> {
             }
             None => {
                 self.animation_time = 0.0;
+                self.current_leg = match self.current_leg {
+                    Leg::LEFT => Leg::RIGHT,
+                    Leg::RIGHT => Leg::LEFT,
+                };
             }
         }
 
@@ -107,10 +111,6 @@ impl Player<'_> {
         if (self.pos.0.round() as i32, self.pos.1.round() as i32) == (tx, ty) {
             self.pos = (self.pos.0.round(), self.pos.1.round());
             self.moving_towards = None;
-            self.current_leg = match self.current_leg {
-                Leg::LEFT => Leg::RIGHT,
-                Leg::RIGHT => Leg::LEFT,
-            };
         } else {
             let dx = tx as f64 - self.pos.0;
             let dy = ty as f64 - self.pos.1;
