@@ -43,8 +43,6 @@ pub fn load_tilemap(mapfolder: &Path) -> TileMap {
     let size_x = dim.get(0).unwrap();
     let size_y = dim.get(1).unwrap();
 
-    println!("{:?}", dim);
-
     let floor: Vec<FloorTile> = fs::read_to_string(mapfolder.join("floor.txt"))
         .expect(&format!(
             "{}floor.txt not found",
