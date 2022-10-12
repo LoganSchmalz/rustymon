@@ -3,10 +3,15 @@ const TILE_SIZE: i32 = 16;
 mod input;
 mod player;
 mod render;
+mod tilemap;
 
 extern crate sdl2;
 
+#[macro_use]
+extern crate num_derive;
+
 use sdl2::image::LoadTexture;
+use tilemap::load_tilemap;
 use std::path::Path;
 
 pub fn main() {
@@ -40,6 +45,8 @@ pub fn main() {
     let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
 
     let mut renderer = render::Renderer::new();
+
+    let _map = load_tilemap(Path::new("maps/map0/"));
 
     'running: loop {
         let time_last = time_now;
