@@ -6,10 +6,7 @@ mod render;
 
 extern crate sdl2;
 
-use sdl2::event::Event;
 use sdl2::image::LoadTexture;
-use sdl2::keyboard::Keycode;
-use sdl2::sys::{SDL_GetPerformanceCounter, SDL_GetPerformanceFrequency};
 use std::path::Path;
 
 pub fn main() {
@@ -17,8 +14,9 @@ pub fn main() {
     let video_subsystem = sdl_context.video().unwrap();
 
     let window = video_subsystem
-        .window("rust-sdl2 demo", 240, 160)
+        .window("Rustymon", render::PIXELS_X, render::PIXELS_Y)
         .position_centered()
+        .resizable()
         .build()
         .unwrap();
 
@@ -39,27 +37,23 @@ pub fn main() {
     let input = input::Input { allow_input: true };
     let mut player: player::Player = player::Player::new(player_texture);
 
-    let mut time_now: u64 = unsafe { SDL_GetPerformanceCounter() };
+    let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
+
+    let mut renderer = render::Renderer::new();
 
     'running: loop {
         let time_last = time_now;
-        time_now = unsafe { SDL_GetPerformanceCounter() };
-        let delta_time: f64 =
-            ((time_now - time_last) * 1000 / unsafe { SDL_GetPerformanceFrequency() }) as f64;
+        time_now = sdl_context.timer().unwrap().performance_counter();
+        let delta_time: f64 = ((time_now - time_last) * 1000
+            / sdl_context.timer().unwrap().performance_frequency())
+            as f64;
 
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => break 'running,
-                _ => {}
-            }
-        }
-        input.handle_input(event_pump.keyboard_state(), &mut player);
+        match input.handle_input(&mut event_pump, &mut player, &mut renderer, &mut canvas) {
+            true => break 'running,
+            false => {}
+        };
+
         player.update(&delta_time);
-
-        render::render(&delta_time, &mut canvas, &player);
+        renderer.render(&delta_time, &mut canvas, &player);
     }
 }
