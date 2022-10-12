@@ -50,23 +50,6 @@ impl Renderer {
             }
         }
 
-        /*for i in 0..(240 / TILE_SIZE) {
-            for j in 0..(160 / TILE_SIZE) {
-                let render_quad = Rect::new(
-                    i * TILE_SIZE,
-                    j * TILE_SIZE,
-                    TILE_SIZE as u32,
-                    TILE_SIZE as u32,);
-                if (i + j) % 2 == 0 {
-                    canvas.copy(&grass1, None, render_quad)
-                    .unwrap();
-                } else {
-                    canvas.copy(&grass2, None, render_quad).unwrap();
-                }
-            }
-        }
-        */
-
         player.render(canvas);
         
         canvas.present();
