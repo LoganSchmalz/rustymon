@@ -1,9 +1,8 @@
-<<<<<<< HEAD
 use sdl2::{
     pixels::Color,
     rect::Rect,
     render::Canvas,
-    video::{FullscreenType, Window},
+    video::{FullscreenType, Window}, image::LoadTexture,
 };
 
 use crate::{player, TILE_SIZE};
