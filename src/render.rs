@@ -31,6 +31,7 @@ impl Renderer {
         let texture_creator = canvas.texture_creator();
         let grass1 = texture_creator.load_texture("assets/grass1.png").unwrap();
         let grass2 = texture_creator.load_texture("assets/grass2.png").unwrap();
+        let water1 = texture_creator.load_texture("assets/water1.png").unwrap();
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
         for i in 0..map.size_x {
@@ -43,6 +44,7 @@ impl Renderer {
                 match map.floor.get(i + j*map.size_x) {
                     Some(tilemap::FloorTile::GRASS1) => canvas.copy(&grass1, None, render_quad).unwrap(),
                     Some(tilemap::FloorTile::GRASS2) => canvas.copy(&grass2, None, render_quad).unwrap(),
+                    Some(tilemap::FloorTile::WATER1) => canvas.copy(&water1, None, render_quad).unwrap(),
                     None => {}
                 };
             }

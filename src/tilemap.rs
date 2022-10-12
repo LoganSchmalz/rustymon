@@ -6,6 +6,7 @@ use std::{fs, path::Path};
 pub enum FloorTile {
     GRASS1,
     GRASS2,
+	WATER1
 }
 
 #[derive(FromPrimitive, ToPrimitive)]
