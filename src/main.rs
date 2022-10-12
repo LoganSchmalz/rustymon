@@ -46,7 +46,7 @@ pub fn main() {
 
     let mut renderer = render::Renderer::new();
 
-    let _map = load_tilemap(Path::new("maps/map0/"));
+    let map = load_tilemap(Path::new("maps/map0/"));
 
     'running: loop {
         let time_last = time_now;
@@ -61,6 +61,6 @@ pub fn main() {
         };
 
         player.update(&delta_time);
-        renderer.render(&delta_time, &mut canvas, &player);
+        renderer.render(&delta_time, &mut canvas, &player, &map);
     }
 }

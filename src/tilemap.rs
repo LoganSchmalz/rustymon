@@ -6,7 +6,6 @@ use std::{fs, path::Path};
 pub enum FloorTile {
     GRASS1,
     GRASS2,
-    GRASS3,
 }
 
 #[derive(FromPrimitive, ToPrimitive)]
@@ -21,18 +20,18 @@ pub enum CollisionTile {
 }
 
 pub struct TileMap {
-    size_x: u32,
-    size_y: u32,
-    floor: Vec<FloorTile>,
-    objects: Vec<ObjectTile>,
-    collision: Vec<CollisionTile>,
+    pub size_x: usize,
+    pub size_y: usize,
+    pub floor: Vec<FloorTile>,
+    pub objects: Vec<ObjectTile>,
+    pub collision: Vec<CollisionTile>,
 }
 
 pub fn load_tilemap(mapfolder: &Path) -> TileMap {
-    let dim: Vec<u32> = fs::read_to_string(mapfolder.join("dim.txt"))
+    let dim: Vec<usize> = fs::read_to_string(mapfolder.join("dim.txt"))
         .expect(&format!("{}dim.txt not found", mapfolder.to_str().unwrap()))
         .split_whitespace()
-        .map(|x| x.parse::<u32>().expect("Not an integer!"))
+        .map(|x| x.parse::<usize>().expect("Not an integer!"))
         .collect();
 
     if dim.len() != 2 {

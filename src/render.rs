@@ -5,7 +5,7 @@ use sdl2::{
     video::{FullscreenType, Window}, image::LoadTexture,
 };
 
-use crate::{player, TILE_SIZE};
+use crate::{player, TILE_SIZE, tilemap};
 
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
@@ -27,13 +27,28 @@ impl Renderer {
         }
     }
 
-    pub fn render(&self, _delta_time: &f64, canvas: &mut Canvas<Window>, player: &player::Player) {
+    pub fn render(&self, _delta_time: &f64, canvas: &mut Canvas<Window>, player: &player::Player, map: &tilemap::TileMap) {
         let texture_creator = canvas.texture_creator();
         let grass1 = texture_creator.load_texture("assets/grass1.png").unwrap();
         let grass2 = texture_creator.load_texture("assets/grass2.png").unwrap();
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
-        for i in 0..(240 / TILE_SIZE) {
+        for i in 0..map.size_x {
+            for j in 0..map.size_y {
+                let render_quad = Rect::new(
+                    i as i32 * TILE_SIZE,
+                    j as i32 * TILE_SIZE,
+                    TILE_SIZE as u32,
+                    TILE_SIZE as u32,);
+                match map.floor.get(i + j*map.size_x) {
+                    Some(tilemap::FloorTile::GRASS1) => canvas.copy(&grass1, None, render_quad).unwrap(),
+                    Some(tilemap::FloorTile::GRASS2) => canvas.copy(&grass2, None, render_quad).unwrap(),
+                    None => {}
+                };
+            }
+        }
+
+        /*for i in 0..(240 / TILE_SIZE) {
             for j in 0..(160 / TILE_SIZE) {
                 let render_quad = Rect::new(
                     i * TILE_SIZE,
@@ -48,6 +63,7 @@ impl Renderer {
                 }
             }
         }
+        */
 
         player.render(canvas);
         
