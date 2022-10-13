@@ -102,12 +102,10 @@ impl Renderer {
     }
 
     pub fn next_button(&mut self) {
-        println!("{}", self.curr_button);
         self.curr_button = (self.curr_button + 1) % 3;
     }
 
     pub fn prev_button(&mut self) {
-        println!("{}", self.curr_button);
         if self.curr_button == 0 {
             self.curr_button = 2;
         } else {
