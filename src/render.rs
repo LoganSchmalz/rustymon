@@ -28,11 +28,11 @@ pub struct Renderer {
     window_y: u32,
     old_window_x: u32,
     old_window_y: u32,
-    display_screen: DisplayScreen,
-    curr_button: usize,
+    pub display_screen: DisplayScreen,
+    pub curr_button: usize,
 }
 
-static buttons: [Button; 3] = [Button::StartButton, Button::LoadButton, Button::SettingsButton];
+pub const BUTTONS: [Button; 3] = [Button::StartButton, Button::LoadButton, Button::SettingsButton];
 
 impl Renderer {
     pub fn new() -> Renderer {
@@ -55,21 +55,22 @@ impl Renderer {
             DisplayScreen::MainMenu => {
                 let main_menu = texture_creator.load_texture("assets/titlescreen.png").unwrap();
                 let mut start_button = texture_creator.load_texture("assets/STARTbutton.png").unwrap();
-                if buttons[self.curr_button] == Button::StartButton {
+                if BUTTONS[self.curr_button] == Button::StartButton {
                     start_button.set_color_mod(255, 0, 0);
                 }
                 let mut load_button = texture_creator.load_texture("assets/SAVELOADbutton.png").unwrap();
-                if buttons[self.curr_button] == Button::LoadButton {
+                if BUTTONS[self.curr_button] == Button::LoadButton {
                     load_button.set_color_mod(255, 0, 0);
                 }
                 let mut settings_button = texture_creator.load_texture("assets/SETTINGSbutton.png").unwrap();
-                if buttons[self.curr_button] == Button::SettingsButton {
+                if BUTTONS[self.curr_button] == Button::SettingsButton {
                     settings_button.set_color_mod(255, 0, 0);
                 }
-                canvas.copy(&main_menu, None, None).unwrap();
+                let screen_quad = Rect::new(0, 0, map.size_x as u32 * TILE_SIZE as u32, map.size_y as u32 * TILE_SIZE as u32);
                 let start_quad = Rect::new(100, 100, 32, 16);
                 let load_quad = Rect::new(99, 120, 16, 16);
                 let settings_quad = Rect::new(116, 120, 16, 16);
+                canvas.copy(&main_menu, None, screen_quad).unwrap();
                 canvas.copy(&start_button, None, start_quad).unwrap();
                 canvas.copy(&load_button, None, load_quad).unwrap();
                 canvas.copy(&settings_button, None, settings_quad).unwrap();
@@ -99,28 +100,6 @@ impl Renderer {
         }
         
         canvas.present();
-    }
-
-    pub fn next_button(&mut self) {
-        self.curr_button = (self.curr_button + 1) % 3;
-    }
-
-    pub fn prev_button(&mut self) {
-        if self.curr_button == 0 {
-            self.curr_button = 2;
-        } else {
-            self.curr_button = self.curr_button - 1;
-        }
-    }
-
-    pub fn select_button(&mut self) { //TODO: MOVE TO input.rs
-        if self.display_screen == DisplayScreen::MainMenu && buttons[self.curr_button] == Button::StartButton {
-            self.display_screen = DisplayScreen::OverWorld;
-        }
-    }
-
-    pub fn get_display_screen(&mut self) -> &DisplayScreen {
-        return &self.display_screen;
     }
 
     pub fn toggle_fullscreen(&mut self, canvas: &mut Canvas<Window>) {
@@ -189,7 +168,7 @@ impl Renderer {
             scale_y.floor()
         } as u32;
         canvas.set_scale(scale as f32, scale as f32).unwrap();
-        let bb_x = ((self.window_x - PIXELS_X * scale) / 2) / scale;
+        let bb_x = ((self.window_x - PIXELS_X * scale) / 2) / scale; //TODO: FIX BUG THAT CRASHES GAME WHEN YOU RESIZE SCREEN TOO SMALL
         let bb_y = ((self.window_y - PIXELS_Y * scale) / 2) / scale;
         let viewport = sdl2::rect::Rect::new(
             bb_x as i32,
