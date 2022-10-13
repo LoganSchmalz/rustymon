@@ -73,7 +73,7 @@ impl Input {
                                     }
                                 }
                                 Keycode::Space | Keycode::Return => {
-                                    if renderer.display_screen == DisplayScreen::MainMenu && BUTTONS[renderer.curr_button] == Button::StartButton {
+                                    if BUTTONS[renderer.curr_button] == Button::StartButton {
                                         renderer.display_screen = DisplayScreen::OverWorld;
                                     }
                                 }
@@ -81,7 +81,7 @@ impl Input {
                             }
                         }
                         DisplayScreen::OverWorld => {
-                            if key == Keycode::Space {
+                            if (key == Keycode::Space || key == Keycode::Return) && renderer.is_fading == false{
                                 renderer.play_fade();
                             }
                         }

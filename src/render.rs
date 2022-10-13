@@ -32,7 +32,7 @@ pub struct Renderer {
     old_window_y: u32,
     pub display_screen: DisplayScreen,
     pub curr_button: usize,
-    is_fading: bool,
+    pub is_fading: bool,
     did_trans: bool,
     fade_anim_time: f64,
     real_map: bool, //TODO: Remove this, it's just for demonstrating map transitions
