@@ -10,12 +10,28 @@ use crate::{player, TILE_SIZE, tilemap};
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
 
+pub enum DisplayScreen {
+    MainMenu,
+    OverWorld,
+}
+
+#[derive(PartialEq)]
+pub enum Button {
+    StartButton,
+    LoadButton,
+    SettingsButton,
+}
+
 pub struct Renderer {
     window_x: u32,
     window_y: u32,
     old_window_x: u32,
     old_window_y: u32,
+    display_screen: DisplayScreen,
+    curr_button: usize,
 }
+
+static buttons: [Button; 3] = [Button::StartButton, Button::LoadButton, Button::SettingsButton];
 
 impl Renderer {
     pub fn new() -> Renderer {
@@ -24,35 +40,86 @@ impl Renderer {
             window_y: PIXELS_Y,
             old_window_x: PIXELS_X,
             old_window_y: PIXELS_Y,
+            display_screen: DisplayScreen::MainMenu,
+            curr_button: 0,
         }
     }
 
     pub fn render(&self, _delta_time: &f64, canvas: &mut Canvas<Window>, player: &player::Player, map: &tilemap::TileMap) {
         let texture_creator = canvas.texture_creator();
-        let grass1 = texture_creator.load_texture("assets/grass1.png").unwrap();
-        let grass2 = texture_creator.load_texture("assets/grass2.png").unwrap();
-        let water1 = texture_creator.load_texture("assets/water1.png").unwrap();
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
-        for i in 0..map.size_x {
-            for j in 0..map.size_y {
-                let render_quad = Rect::new(
-                    i as i32 * TILE_SIZE,
-                    j as i32 * TILE_SIZE,
-                    TILE_SIZE as u32,
-                    TILE_SIZE as u32,);
-                match map.floor.get(i + j*map.size_x) {
-                    Some(tilemap::FloorTile::GRASS1) => canvas.copy(&grass1, None, render_quad).unwrap(),
-                    Some(tilemap::FloorTile::GRASS2) => canvas.copy(&grass2, None, render_quad).unwrap(),
-                    Some(tilemap::FloorTile::WATER1) => canvas.copy(&water1, None, render_quad).unwrap(),
-                    None => {}
-                };
+
+        match self.display_screen {
+            DisplayScreen::MainMenu => {
+                let main_menu = texture_creator.load_texture("assets/titlescreen.png").unwrap();
+                let mut start_button = texture_creator.load_texture("assets/STARTbutton.png").unwrap();
+                if buttons[self.curr_button] == Button::StartButton {
+                    start_button.set_color_mod(255, 0, 0);
+                }
+                let mut load_button = texture_creator.load_texture("assets/SAVELOADbutton.png").unwrap();
+                if buttons[self.curr_button] == Button::LoadButton {
+                    load_button.set_color_mod(255, 0, 0);
+                }
+                let mut settings_button = texture_creator.load_texture("assets/SETTINGSbutton.png").unwrap();
+                if buttons[self.curr_button] == Button::SettingsButton {
+                    settings_button.set_color_mod(255, 0, 0);
+                }
+                canvas.copy(&main_menu, None, None).unwrap();
+                let start_quad = Rect::new(100, 100, 32, 16);
+                let load_quad = Rect::new(99, 120, 16, 16);
+                let settings_quad = Rect::new(116, 120, 16, 16);
+                canvas.copy(&start_button, None, start_quad).unwrap();
+                canvas.copy(&load_button, None, load_quad).unwrap();
+                canvas.copy(&settings_button, None, settings_quad).unwrap();
+            }
+            DisplayScreen::OverWorld => {
+                let grass1 = texture_creator.load_texture("assets/grass1.png").unwrap();
+                let grass2 = texture_creator.load_texture("assets/grass2.png").unwrap();
+                let water1 = texture_creator.load_texture("assets/water1.png").unwrap();
+                for i in 0..map.size_x {
+                    for j in 0..map.size_y {
+                        let render_quad = Rect::new(
+                            i as i32 * TILE_SIZE,
+                            j as i32 * TILE_SIZE,
+                            TILE_SIZE as u32,
+                            TILE_SIZE as u32,);
+                        match map.floor.get(i + j*map.size_x) {
+                            Some(tilemap::FloorTile::GRASS1) => canvas.copy(&grass1, None, render_quad).unwrap(),
+                            Some(tilemap::FloorTile::GRASS2) => canvas.copy(&grass2, None, render_quad).unwrap(),
+                            Some(tilemap::FloorTile::WATER1) => canvas.copy(&water1, None, render_quad).unwrap(),
+                            None => {}
+                        };
+                    }
+                }
+
+                player.render(canvas);
             }
         }
-
-        player.render(canvas);
         
         canvas.present();
+    }
+
+    pub fn next_button(&mut self) {
+        println!("{}", self.curr_button);
+        self.curr_button = (self.curr_button + 1) % 3;
+    }
+
+    pub fn prev_button(&mut self) {
+        //println!("{}", self.curr_button);
+        //if self.curr_button == 0 {
+            self.curr_button = (self.curr_button + 1) % 3;
+        //} else {
+            //self.curr_button = self.curr_button + 1;
+        //}
+    }
+
+    pub fn select_button(&mut self) {
+        
+    }
+
+    pub fn get_display_screen(&mut self) -> &DisplayScreen {
+        return &self.display_screen;
     }
 
     pub fn toggle_fullscreen(&mut self, canvas: &mut Canvas<Window>) {

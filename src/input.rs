@@ -6,6 +6,7 @@ use sdl2::{
 };
 
 use crate::{player, render};
+use crate::render::DisplayScreen;
 
 pub struct Input {
     pub allow_input: bool,
@@ -45,20 +46,42 @@ impl Input {
         if self.allow_input {
             let ks = event_pump.keyboard_state();
             //maybe move the setting is_sprinting somewhere else to fix mid-tile timing?
-            if ks.is_scancode_pressed(Scancode::LShift) {
-                player.is_sprinting = true;
-            } else {
-                player.is_sprinting = false;
-            }
+            
+            match renderer.get_display_screen() {
+                DisplayScreen::MainMenu => {
+                    if ks.is_scancode_pressed(Scancode::Space) || ks.is_scancode_pressed(Scancode::Return) {
+                        renderer.select_button();
+                    }
 
-            if ks.is_scancode_pressed(Scancode::Left) {
-                player.move_left();
-            } else if ks.is_scancode_pressed(Scancode::Right) {
-                player.move_right();
-            } else if ks.is_scancode_pressed(Scancode::Up) {
-                player.move_up();
-            } else if ks.is_scancode_pressed(Scancode::Down) {
-                player.move_down();
+                    if ks.is_scancode_pressed(Scancode::Left) {
+                        renderer.prev_button();
+                    } else if ks.is_scancode_pressed(Scancode::Right) {
+                        renderer.next_button();
+                    } else if ks.is_scancode_pressed(Scancode::Up) {
+                        renderer.prev_button();
+                    } else if ks.is_scancode_pressed(Scancode::Down) {
+                        renderer.next_button();
+                    }
+                }
+                DisplayScreen::OverWorld => {
+                    if ks.is_scancode_pressed(Scancode::LShift) {
+                        player.is_sprinting = true;
+                    } else {
+                        player.is_sprinting = false;
+                    }
+
+                    if ks.is_scancode_pressed(Scancode::Left) {
+                        player.move_left();
+                    } else if ks.is_scancode_pressed(Scancode::Right) {
+                        player.move_right();
+                    } else if ks.is_scancode_pressed(Scancode::Up) {
+                        player.move_up();
+                    } else if ks.is_scancode_pressed(Scancode::Down) {
+                        player.move_down();
+                    }
+                }
+
+
             }
         }
 
