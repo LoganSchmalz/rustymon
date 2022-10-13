@@ -47,37 +47,45 @@ impl Input {
                     keycode: Some(key),
                     ..
                 } => {
-                    if renderer.display_screen == DisplayScreen::MainMenu {
-                        match key {
-                            Keycode::Up => {
-                                if renderer.curr_button == 0 {
-                                    renderer.curr_button = 2;
-                                } else {
-                                    renderer.curr_button -= 1;
+                    match renderer.display_screen {
+                        DisplayScreen::MainMenu => {
+                            match key {
+                                Keycode::Up => {
+                                    if renderer.curr_button == 0 {
+                                        renderer.curr_button = 2;
+                                    } else {
+                                        renderer.curr_button -= 1;
+                                    }
                                 }
-                            }
-                            Keycode::Left => {
-                                match BUTTONS[renderer.curr_button] {
-                                    Button::StartButton => renderer.curr_button = 1, //BUTTONS[1] == Button::LoadButton
-                                    Button::LoadButton => renderer.curr_button = 0, //BUTTONS[0] == Button::StartButton
-                                    Button::SettingsButton => renderer.curr_button = 1, //BUTTONS[1] == Button::LoadButton
+                                Keycode::Left => {
+                                    match BUTTONS[renderer.curr_button] {
+                                        Button::StartButton => renderer.curr_button = 1, //BUTTONS[1] == Button::LoadButton
+                                        Button::LoadButton => renderer.curr_button = 0, //BUTTONS[0] == Button::StartButton
+                                        Button::SettingsButton => renderer.curr_button = 1, //BUTTONS[1] == Button::LoadButton
+                                    }
                                 }
-                            }
-                            Keycode::Down => renderer.curr_button = (renderer.curr_button + 1) % 3,
-                            Keycode::Right => {
-                                match BUTTONS[renderer.curr_button] {
-                                    Button::StartButton => renderer.curr_button = 2, //BUTTONS[2] == Button::SettingsButton
-                                    Button::LoadButton => renderer.curr_button = 2, //BUTTONS[2] == Button::SettingsButton
-                                    Button::SettingsButton => renderer.curr_button = 0, //BUTTONS[0] == Button::StartButton
+                                Keycode::Down => renderer.curr_button = (renderer.curr_button + 1) % 3,
+                                Keycode::Right => {
+                                    match BUTTONS[renderer.curr_button] {
+                                        Button::StartButton => renderer.curr_button = 2, //BUTTONS[2] == Button::SettingsButton
+                                        Button::LoadButton => renderer.curr_button = 2, //BUTTONS[2] == Button::SettingsButton
+                                        Button::SettingsButton => renderer.curr_button = 0, //BUTTONS[0] == Button::StartButton
+                                    }
                                 }
-                            }
-                            Keycode::Space | Keycode::Return => {
-                                if renderer.display_screen == DisplayScreen::MainMenu && BUTTONS[renderer.curr_button] == Button::StartButton {
-                                    renderer.display_screen = DisplayScreen::OverWorld;
+                                Keycode::Space | Keycode::Return => {
+                                    if renderer.display_screen == DisplayScreen::MainMenu && BUTTONS[renderer.curr_button] == Button::StartButton {
+                                        renderer.display_screen = DisplayScreen::OverWorld;
+                                    }
                                 }
+                                _ => {}
                             }
-                            _ => {}
                         }
+                        DisplayScreen::OverWorld => {
+                            if key == Keycode::Space {
+                                renderer.play_fade();
+                            }
+                        }
+                        //_ => {}
                     }
                 }
                 _ => {}

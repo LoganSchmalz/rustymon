@@ -9,6 +9,8 @@ use crate::{player, TILE_SIZE, tilemap};
 
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
+const FADE_FRAMES: i32 = 14;
+const FADE_TIME: f64 = FADE_FRAMES as f64 * 64.0;
 
 #[derive(PartialEq)]
 pub enum DisplayScreen {
@@ -30,6 +32,8 @@ pub struct Renderer {
     old_window_y: u32,
     pub display_screen: DisplayScreen,
     pub curr_button: usize,
+    is_fading: bool,
+    fade_anim_time: f64,
 }
 
 pub const BUTTONS: [Button; 3] = [Button::StartButton, Button::LoadButton, Button::SettingsButton];
@@ -43,10 +47,12 @@ impl Renderer {
             old_window_y: PIXELS_Y,
             display_screen: DisplayScreen::MainMenu,
             curr_button: 0,
+            is_fading: false,
+            fade_anim_time: FADE_TIME,
         }
     }
 
-    pub fn render(&self, _delta_time: &f64, canvas: &mut Canvas<Window>, player: &player::Player, map: &tilemap::TileMap) {
+    pub fn render(&mut self, _delta_time: &f64, canvas: &mut Canvas<Window>, player: &player::Player, map: &tilemap::TileMap) {
         let texture_creator = canvas.texture_creator();
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
@@ -96,10 +102,28 @@ impl Renderer {
                 }
 
                 player.render(canvas);
+
+                if self.is_fading {
+                    self.fade_anim_time = self.fade_anim_time - _delta_time;
+                    if self.fade_anim_time <= 0.0 {
+                        self.is_fading = false;
+                    } else {
+                        //might be timing issues here (starts at -_delta_time instead of the actual beginning)
+                        let fade_texture = texture_creator.load_texture("assets/gooWipe.png").unwrap();
+                        let screen_quad = Rect::new(0, 0, map.size_x as u32 * TILE_SIZE as u32, map.size_y as u32 * TILE_SIZE as u32); //TODO: change height and width of screen_quad to not require math
+                        let fade_slice = Rect::new(240 * (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round() as i32, 0, 240, 160);
+                        canvas.copy(&fade_texture, fade_slice, screen_quad).unwrap();
+                    }
+                }
             }
         }
         
         canvas.present();
+    }
+
+    pub fn play_fade(&mut self) {
+        self.is_fading = true;
+        self.fade_anim_time = FADE_TIME;
     }
 
     pub fn toggle_fullscreen(&mut self, canvas: &mut Canvas<Window>) {
