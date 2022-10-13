@@ -33,7 +33,9 @@ pub struct Renderer {
     pub display_screen: DisplayScreen,
     pub curr_button: usize,
     is_fading: bool,
+    did_trans: bool,
     fade_anim_time: f64,
+    real_map: bool, //TODO: Remove this, it's just for demonstrating map transitions
 }
 
 pub const BUTTONS: [Button; 3] = [Button::StartButton, Button::LoadButton, Button::SettingsButton];
@@ -48,7 +50,9 @@ impl Renderer {
             display_screen: DisplayScreen::MainMenu,
             curr_button: 0,
             is_fading: false,
+            did_trans: false,
             fade_anim_time: FADE_TIME,
+            real_map: true,
         }
     }
 
@@ -85,19 +89,32 @@ impl Renderer {
                 let grass1 = texture_creator.load_texture("assets/grass1.png").unwrap();
                 let grass2 = texture_creator.load_texture("assets/grass2.png").unwrap();
                 let water1 = texture_creator.load_texture("assets/water1.png").unwrap();
-                for i in 0..map.size_x {
-                    for j in 0..map.size_y {
-                        let render_quad = Rect::new(
-                            i as i32 * TILE_SIZE,
-                            j as i32 * TILE_SIZE,
-                            TILE_SIZE as u32,
-                            TILE_SIZE as u32,);
-                        match map.floor.get(i + j*map.size_x) {
-                            Some(tilemap::FloorTile::GRASS1) => canvas.copy(&grass1, None, render_quad).unwrap(),
-                            Some(tilemap::FloorTile::GRASS2) => canvas.copy(&grass2, None, render_quad).unwrap(),
-                            Some(tilemap::FloorTile::WATER1) => canvas.copy(&water1, None, render_quad).unwrap(),
-                            None => {}
-                        };
+                if self.real_map {//TODO: Remove this if else block, it's just for demonstrating map transitions (keep everything under this if but not under the else)
+                    for i in 0..map.size_x {
+                        for j in 0..map.size_y {
+                            let render_quad = Rect::new(
+                                i as i32 * TILE_SIZE,
+                                j as i32 * TILE_SIZE,
+                                TILE_SIZE as u32,
+                                TILE_SIZE as u32,);
+                            match map.floor.get(i + j*map.size_x) {
+                                Some(tilemap::FloorTile::GRASS1) => canvas.copy(&grass1, None, render_quad).unwrap(),
+                                Some(tilemap::FloorTile::GRASS2) => canvas.copy(&grass2, None, render_quad).unwrap(),
+                                Some(tilemap::FloorTile::WATER1) => canvas.copy(&water1, None, render_quad).unwrap(),
+                                None => {}
+                            };
+                        }
+                    }
+                } else {
+                    for i in 0..map.size_x {
+                        for j in 0..map.size_y {
+                            let render_quad = Rect::new(
+                                i as i32 * TILE_SIZE,
+                                j as i32 * TILE_SIZE,
+                                TILE_SIZE as u32,
+                                TILE_SIZE as u32,);
+                            canvas.copy(&water1, None, render_quad).unwrap();
+                        }
                     }
                 }
 
@@ -109,10 +126,16 @@ impl Renderer {
                         self.is_fading = false;
                     } else {
                         //might be timing issues here (starts at -_delta_time instead of the actual beginning)
+                        let curr_fade_frame: i32 = (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round() as i32;
                         let fade_texture = texture_creator.load_texture("assets/gooWipe.png").unwrap();
                         let screen_quad = Rect::new(0, 0, map.size_x as u32 * TILE_SIZE as u32, map.size_y as u32 * TILE_SIZE as u32); //TODO: change height and width of screen_quad to not require math
-                        let fade_slice = Rect::new(240 * (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round() as i32, 0, 240, 160);
+                        let fade_slice = Rect::new(240 * curr_fade_frame, 0, 240, 160);
                         canvas.copy(&fade_texture, fade_slice, screen_quad).unwrap();
+                        //TODO: Remove this next bit, it's just for demonstrating map transitions
+                        if (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round() as i32 > FADE_FRAMES / 2  && !self.did_trans{
+                            self.real_map = !self.real_map;
+                            self.did_trans = true;
+                        }
                     }
                 }
             }
@@ -123,6 +146,7 @@ impl Renderer {
 
     pub fn play_fade(&mut self) {
         self.is_fading = true;
+        self.did_trans = false;
         self.fade_anim_time = FADE_TIME;
     }
 
