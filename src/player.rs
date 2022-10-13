@@ -9,9 +9,12 @@ use sdl2::{
 const PLAYER_WALK_SPEED: f64 = 1.0 / 16.0;
 const WALKING_TIME_PER_TILE: f64 = 1.0 / (PLAYER_WALK_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
 const PLAYER_RUN_SPEED: f64 = 2.0 / 16.0;
-const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
+pub const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
 const PLAYER_WIDTH: u32 = 16;
 const PLAYER_HEIGHT: u32 = 16;
+const ROTATION_TIME: f64 = RUNNING_TIME_PER_TILE;
+
+#[derive(PartialEq, Clone, Copy)]
 pub enum Direction {
     UP,
     DOWN,
@@ -35,6 +38,8 @@ pub struct Player<'a> {
     animation_time: f64,
     pub dir: Direction,
     current_leg: Leg,
+    is_moving: bool,
+    rotation_timer: f64,
 }
 
 impl Player<'_> {
@@ -48,6 +53,8 @@ impl Player<'_> {
             animation_time: 0.0,
             dir: DOWN,
             current_leg: Leg::LEFT,
+            is_moving: false,
+            rotation_timer: 0.0,
         }
     }
 
@@ -67,11 +74,11 @@ impl Player<'_> {
             }
             None => {
                 self.animation_time = 0.0;
-                self.current_leg = match self.current_leg {
-                    Leg::LEFT => Leg::RIGHT,
-                    Leg::RIGHT => Leg::LEFT,
-                };
             }
+        }
+
+        if self.rotation_timer < ROTATION_TIME {
+            self.rotation_timer += delta_time;
         }
 
         let anim_time = if self.is_sprinting {
@@ -111,6 +118,10 @@ impl Player<'_> {
         if (self.pos.0.round() as i32, self.pos.1.round() as i32) == (tx, ty) {
             self.pos = (self.pos.0.round(), self.pos.1.round());
             self.moving_towards = None;
+            self.current_leg = match self.current_leg {
+                Leg::LEFT => Leg::RIGHT,
+                Leg::RIGHT => Leg::LEFT,
+            };
         } else {
             let dx = tx as f64 - self.pos.0;
             let dy = ty as f64 - self.pos.1;
@@ -136,28 +147,43 @@ impl Player<'_> {
         }
     }
 
-    pub fn move_left(&mut self) {
-        if self.moving_towards == None {
-            self.dir = LEFT;
-            self.moving_towards = Some((self.pos.0 as i32 - TILE_SIZE, self.pos.1 as i32));
+    pub fn walk(&mut self, direction: Direction) {
+        if direction == self.dir && self.rotation_timer >= ROTATION_TIME {
+            self.is_moving = true;
+            if self.moving_towards == None {
+                match direction {
+                    LEFT => {
+                        self.moving_towards =
+                            Some((self.pos.0 as i32 - TILE_SIZE, self.pos.1 as i32))
+                    }
+                    RIGHT => {
+                        self.moving_towards =
+                            Some((self.pos.0 as i32 + TILE_SIZE, self.pos.1 as i32))
+                    }
+                    UP => {
+                        self.moving_towards =
+                            Some((self.pos.0 as i32, self.pos.1 as i32 - TILE_SIZE))
+                    }
+                    DOWN => {
+                        self.moving_towards =
+                            Some((self.pos.0 as i32, self.pos.1 as i32 + TILE_SIZE))
+                    }
+                }
+            }
+        } else if direction != self.dir {
+            if self.is_moving && self.moving_towards == None {
+                self.dir = direction;
+                self.rotation_timer = ROTATION_TIME;
+            } else if !self.is_moving {
+                self.dir = direction;
+                self.rotation_timer = 0.0;
+            }
         }
     }
-    pub fn move_right(&mut self) {
+
+    pub fn stop_walk(&mut self) {
         if self.moving_towards == None {
-            self.dir = RIGHT;
-            self.moving_towards = Some((self.pos.0 as i32 + TILE_SIZE, self.pos.1 as i32));
-        }
-    }
-    pub fn move_up(&mut self) {
-        if self.moving_towards == None {
-            self.dir = UP;
-            self.moving_towards = Some((self.pos.0 as i32, self.pos.1 as i32 - TILE_SIZE));
-        }
-    }
-    pub fn move_down(&mut self) {
-        if self.moving_towards == None {
-            self.dir = DOWN;
-            self.moving_towards = Some((self.pos.0 as i32, self.pos.1 as i32 + TILE_SIZE));
+            self.is_moving = false;
         }
     }
 

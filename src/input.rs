@@ -12,6 +12,10 @@ pub struct Input {
 }
 
 impl Input {
+    pub fn new() -> Input {
+        Input { allow_input: true }
+    }
+
     pub fn handle_input(
         &self,
         event_pump: &mut sdl2::EventPump,
@@ -52,13 +56,15 @@ impl Input {
             }
 
             if ks.is_scancode_pressed(Scancode::Left) {
-                player.move_left();
+                player.walk(player::Direction::LEFT);
             } else if ks.is_scancode_pressed(Scancode::Right) {
-                player.move_right();
+                player.walk(player::Direction::RIGHT);
             } else if ks.is_scancode_pressed(Scancode::Up) {
-                player.move_up();
+                player.walk(player::Direction::UP);
             } else if ks.is_scancode_pressed(Scancode::Down) {
-                player.move_down();
+                player.walk(player::Direction::DOWN);
+            } else {
+                player.stop_walk();
             }
         }
 

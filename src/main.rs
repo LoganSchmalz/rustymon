@@ -39,7 +39,7 @@ pub fn main() {
 
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    let input = input::Input { allow_input: true };
+    let mut input = input::Input::new();
     let mut player: player::Player = player::Player::new(player_texture);
 
     let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
