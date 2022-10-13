@@ -10,6 +10,7 @@ use crate::{player, TILE_SIZE, tilemap};
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
 
+#[derive(PartialEq)]
 pub enum DisplayScreen {
     MainMenu,
     OverWorld,
@@ -106,16 +107,18 @@ impl Renderer {
     }
 
     pub fn prev_button(&mut self) {
-        //println!("{}", self.curr_button);
-        //if self.curr_button == 0 {
-            self.curr_button = (self.curr_button + 1) % 3;
-        //} else {
-            //self.curr_button = self.curr_button + 1;
-        //}
+        println!("{}", self.curr_button);
+        if self.curr_button == 0 {
+            self.curr_button = 2;
+        } else {
+            self.curr_button = self.curr_button - 1;
+        }
     }
 
-    pub fn select_button(&mut self) {
-        
+    pub fn select_button(&mut self) { //TODO: MOVE TO input.rs
+        if self.display_screen == DisplayScreen::MainMenu && buttons[self.curr_button] == Button::StartButton {
+            self.display_screen = DisplayScreen::OverWorld;
+        }
     }
 
     pub fn get_display_screen(&mut self) -> &DisplayScreen {

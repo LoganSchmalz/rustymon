@@ -43,6 +43,19 @@ impl Input {
                 } => {
                     renderer.toggle_fullscreen(canvas);
                 }
+                Event::KeyDown {
+                    keycode: Some(key),
+                    ..
+                } => {
+                    if renderer.get_display_screen() == &DisplayScreen::MainMenu {
+                        match key {
+                            Keycode::Up | Keycode::Left => renderer.prev_button(),
+                            Keycode::Down | Keycode::Right => renderer.next_button(),
+                            Keycode::Space | Keycode::Return => renderer.select_button(),
+                            _ => {}
+                        }
+                    }
+                }
                 _ => {}
             }
         }
@@ -53,7 +66,7 @@ impl Input {
             
             match renderer.get_display_screen() {
                 DisplayScreen::MainMenu => {
-                    if ks.is_scancode_pressed(Scancode::Space) || ks.is_scancode_pressed(Scancode::Return) {
+                    /*if ks.is_scancode_pressed(Scancode::Space) || ks.is_scancode_pressed(Scancode::Return) {
                         renderer.select_button();
                     }
 
@@ -65,7 +78,7 @@ impl Input {
                         renderer.prev_button();
                     } else if ks.is_scancode_pressed(Scancode::Down) {
                         renderer.next_button();
-                    }
+                    }*/
                 }
                 DisplayScreen::OverWorld => {
                     if ks.is_scancode_pressed(Scancode::LShift) {
