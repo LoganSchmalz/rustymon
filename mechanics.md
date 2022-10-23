@@ -44,8 +44,33 @@ Dark and Light Types' movesets are completely ineffective against one another, b
 
 # Statistic Mecahnics
 
+- Health Points (HP): Health-depletion is the core component to pokemon battles; if a creature's health drops to zero, they faint and must be revived. Health point totals can range from ~15 to greater than 100, and tends to scale with a creature's experience level.
+
+- Attack: The attack statistic determines foundationally how much damage a certain move does.
+
+- Defense: The defense statistic determines foundationally how much damage other moves do to itself.
+
+- Speed: This statistic determines the first-actor in a battle, but in creature battles this statistic might be shadowed by special moves, abilities, etc. Speed also determines the creature's ability to evade attacks of others.
+
+- Accuracy: This statistic determines the accuracy of a certain move, ie, the chance that it will land a hit on the opposing creature. This statistic is not specific to a single creature, and is instead reset to 100% at the beginning of each battle. Moves themselves will also have an accuracy statistic that alters the chance of a move landing.
+
 # Battle Mechanics
 
 Battles in Rustymon can occur between a minimum of two creatures, or can be paired battles (2 v 2). Battles are turn-based and the creature who attacks first is based on a variety of factors (in order of precidence):
     
-1. 
+1. A given creature's calculated speed statistics are the first indicator of who attacks first, unless players are switching out to different creatures which will always happen first. *See above Statistic Mechanics section for information about how the speed is calculated.*
+
+2. Eventually, we will flesh-out specfic abilities which can give creatures additional priority in battle. That information will go here.
+
+3. If the speed statistics are the same for all creatures, the game will break the tie at random.
+
+Critical hits occur based on the critical hit stage ratio during a battle. This ratio is calculated based on a stage variable that might increase based on move's critical hit ratio (CHR), the ability of certain creatures, the affect of certain settings, and the ability of certain item, and create friendliness.
+
+The base critical hit ratio is 1:16.
+
+Damage taken is calculated from on a base formula (framed after the calculation in later generations of Pokemon):
+
+    D = floor(floor(floor((2 * Level / 5) + 2) * Power * Attack / Defense) / 50) + 2
+
+Level is the level of the creature. Attack is the attack multiplier statistic. Power is the move's power statistic. Defense is the defense statistic of the opposing creature. 
+
