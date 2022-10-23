@@ -136,20 +136,49 @@ impl Player {
                 };
                 match direction {
                     LEFT => {
-                        self.moving_towards =
-                            Some((self.pos.0 as i32 - TILE_SIZE, self.pos.1 as i32))
+                        if (self.pos.0 / TILE_SIZE as f64) - 1.0 < 0.0 {
+                            return;
+                        }
+                        match map.collision.get((self.pos.0 / TILE_SIZE as f64) as usize - 1 + (self.pos.1 / TILE_SIZE as f64) as usize * map.size_x) {
+                            Some(tilemap::CollisionTile::NONE) => {
+                                self.moving_towards =
+                                    Some((self.pos.0 as i32 - TILE_SIZE, self.pos.1 as i32))
+                            }
+                            _ => {}
+                        }
                     }
                     RIGHT => {
-                        self.moving_towards =
-                            Some((self.pos.0 as i32 + TILE_SIZE, self.pos.1 as i32))
+                        if (self.pos.0 / TILE_SIZE as f64) as usize + 1 >= map.size_x {
+                            return;
+                        }
+                        match map.collision.get((self.pos.0 / TILE_SIZE as f64) as usize + 1 + (self.pos.1 / TILE_SIZE as f64) as usize * map.size_x) {
+                            Some(tilemap::CollisionTile::NONE) => {
+                                self.moving_towards =
+                                    Some((self.pos.0 as i32 + TILE_SIZE, self.pos.1 as i32))
+                                }
+                            _ => {}
+                        }
                     }
                     UP => {
-                        self.moving_towards =
-                            Some((self.pos.0 as i32, self.pos.1 as i32 - TILE_SIZE))
+                        if (self.pos.1 / TILE_SIZE as f64) - 1.0 <= 0.0 {
+                            return;
+                        }
+                        match map.collision.get((self.pos.0 / TILE_SIZE as f64) as usize + ((self.pos.1 / TILE_SIZE as f64) - 1.0) as usize * map.size_x) {
+                            Some(tilemap::CollisionTile::NONE) => {
+                                self.moving_towards =
+                                    Some((self.pos.0 as i32, self.pos.1 as i32 - TILE_SIZE))
+                            }
+                            _ => {}
+                        }
                     }
                     DOWN => {
-                        self.moving_towards =
-                            Some((self.pos.0 as i32, self.pos.1 as i32 + TILE_SIZE))
+                        match map.collision.get((self.pos.0 / TILE_SIZE as f64) as usize + ((self.pos.1 / TILE_SIZE as f64) + 1.0) as usize * map.size_x) {
+                            Some(tilemap::CollisionTile::NONE) => {
+                                self.moving_towards =
+                                    Some((self.pos.0 as i32, self.pos.1 as i32 + TILE_SIZE))
+                            }
+                            _ => {}
+                        }
                     }
                 }
             }
