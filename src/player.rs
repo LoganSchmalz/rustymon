@@ -51,16 +51,16 @@ impl Player {
     pub fn update(&mut self, delta_time: &f64) {
         match self.moving_towards {
             Some((_, _)) => {
-                if self.animation_time <= 0.0 {
+                /*if self.animation_time < 0.0 {
                     self.animation_time = if self.is_sprinting {
                         RUNNING_TIME_PER_TILE
                     } else {
                         WALKING_TIME_PER_TILE
                     }
-                } else {
-                    self.animation_time = self.animation_time - delta_time;
-                    self.move_towards_target(delta_time);
-                }
+                } else {*/
+                self.animation_time = self.animation_time - delta_time;
+                self.move_towards_target(delta_time);
+                //}
             }
             None => {
                 self.animation_time = 0.0;
@@ -79,10 +79,17 @@ impl Player {
 
         //if we are on tile
         if (self.pos.0, self.pos.1) == (tx as f64, ty as f64) {
+            //self.animation_time = 0.0;
             self.moving_towards = None;
             self.current_leg = match self.current_leg {
-                Leg::LEFT => { println!("switch right {:?}", delta_time);Leg::RIGHT},
-                Leg::RIGHT => { println!("switch left {:?}", delta_time);Leg::LEFT },
+                Leg::LEFT => {
+                    println!("switch right {:?}", delta_time);
+                    Leg::RIGHT
+                }
+                Leg::RIGHT => {
+                    println!("switch left {:?}", delta_time);
+                    Leg::LEFT
+                }
             };
         } else {
             let speed = if self.is_sprinting {
@@ -121,6 +128,11 @@ impl Player {
         if direction == self.dir && self.rotation_timer >= ROTATION_TIME {
             self.is_moving = true;
             if self.moving_towards == None {
+                self.animation_time = if self.is_sprinting {
+                    RUNNING_TIME_PER_TILE
+                } else {
+                    WALKING_TIME_PER_TILE
+                };
                 match direction {
                     LEFT => {
                         self.moving_towards =
@@ -148,6 +160,12 @@ impl Player {
                 self.dir = direction;
                 self.rotation_timer = 0.0;
             }
+        }
+    }
+
+    pub fn sprint(&mut self, set_sprinting: bool) {
+        if self.moving_towards == None {
+            self.is_sprinting = set_sprinting;
         }
     }
 

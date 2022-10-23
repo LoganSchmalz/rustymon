@@ -96,9 +96,9 @@ impl Input {
             
             if renderer.display_screen == DisplayScreen::OverWorld {
                 if ks.is_scancode_pressed(Scancode::LShift) {
-                    player.is_sprinting = true;
+                    player.sprint(true);
                 } else {
-                    player.is_sprinting = false;
+                    player.sprint(false);
                 }
 
                 if ks.is_scancode_pressed(Scancode::Left) {
