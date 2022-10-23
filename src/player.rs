@@ -81,8 +81,8 @@ impl Player {
         if (self.pos.0, self.pos.1) == (tx as f64, ty as f64) {
             self.moving_towards = None;
             self.current_leg = match self.current_leg {
-                Leg::LEFT => Leg::RIGHT,
-                Leg::RIGHT => Leg::LEFT,
+                Leg::LEFT => { println!("switch right {:?}", delta_time);Leg::RIGHT},
+                Leg::RIGHT => { println!("switch left {:?}", delta_time);Leg::LEFT },
             };
         } else {
             let speed = if self.is_sprinting {

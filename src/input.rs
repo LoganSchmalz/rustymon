@@ -1,8 +1,6 @@
 use sdl2::{
     event::{Event, WindowEvent},
-    keyboard::{Keycode, Scancode},
-    render::Canvas,
-    video::Window,
+    keyboard::{Keycode, Scancode}, render::Canvas, video::Window,
 };
 
 use crate::{player, render};
@@ -20,9 +18,9 @@ impl Input {
     pub fn handle_input(
         &self,
         event_pump: &mut sdl2::EventPump,
+        canvas: &mut Canvas<Window>,
         player: &mut player::Player,
         renderer: &mut render::Renderer,
-        canvas: &mut Canvas<Window>,
     ) -> bool {
         for event in event_pump.poll_iter() {
             match event {

@@ -10,6 +10,7 @@ extern crate sdl2;
 #[macro_use]
 extern crate num_derive;
 
+use render::Textures;
 use tilemap::load_tilemap;
 use std::path::Path;
 
@@ -38,6 +39,8 @@ pub fn main() {
 
     let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
 
+    let texture_creator = canvas.texture_creator();
+    let mut textures = Textures::load(&texture_creator);
     let mut renderer = render::Renderer::new();
 
     let map = load_tilemap(Path::new("maps/map0/"));
@@ -49,12 +52,14 @@ pub fn main() {
             / sdl_context.timer().unwrap().performance_frequency())
             as f64;
 
-        match input.handle_input(&mut event_pump, &mut player, &mut renderer, &mut canvas) {
+        match input.handle_input(&mut event_pump, &mut canvas, &mut player, &mut renderer) {
             true => break 'running,
             false => {}
         };
 
+        println!("{:?}", delta_time);
+
         player.update(&delta_time);
-        renderer.render(&delta_time, &mut canvas, &player, &map);
+        renderer.render(&mut canvas, &mut textures, &delta_time, &player, &map);
     }
 }

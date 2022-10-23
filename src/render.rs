@@ -2,8 +2,8 @@ use sdl2::{
     image::LoadTexture,
     pixels::Color,
     rect::Rect,
-    render::Canvas,
-    video::{FullscreenType, Window},
+    render::{Canvas, Texture, TextureCreator},
+    video::{FullscreenType, Window, WindowContext},
 };
 
 use crate::{player, tilemap, TILE_SIZE};
@@ -45,6 +45,43 @@ pub const BUTTONS: [Button; 3] = [
     Button::SettingsButton,
 ];
 
+pub struct Textures<'a> {
+    main_menu: Texture<'a>,
+    start_button: Texture<'a>,
+    load_button: Texture<'a>,
+    settings_button: Texture<'a>,
+    fade_texture: Texture<'a>,
+    player: Texture<'a>,
+    grass1: Texture<'a>,
+    grass2: Texture<'a>,
+    water1: Texture<'a>,
+}
+
+impl<'a> Textures<'a> {
+    pub fn load(creator: &'a TextureCreator<WindowContext>) -> Self {
+        let main_menu = creator.load_texture("assets/titlescreen.png").unwrap();
+        let start_button = creator.load_texture("assets/STARTbutton.png").unwrap();
+        let load_button = creator.load_texture("assets/SAVELOADbutton.png").unwrap();
+        let settings_button = creator.load_texture("assets/SETTINGSbutton.png").unwrap();
+        let fade_texture = creator.load_texture("assets/gooWipe.png").unwrap();
+        let player = creator.load_texture("assets/charSprite.png").unwrap();
+        let grass1 = creator.load_texture("assets/grass1.png").unwrap();
+        let grass2 = creator.load_texture("assets/grass2.png").unwrap();
+        let water1 = creator.load_texture("assets/water1.png").unwrap();
+        Textures {
+            main_menu,
+            start_button,
+            load_button,
+            settings_button,
+            fade_texture,
+            player,
+            grass1,
+            grass2,
+            water1,
+        }
+    }
+}
+
 impl Renderer {
     pub fn new() -> Renderer {
         Renderer {
@@ -61,44 +98,45 @@ impl Renderer {
         }
     }
 
-    pub fn render_main_menu(&self, canvas: &mut Canvas<Window>) {
-        let texture_creator = canvas.texture_creator();
-        let main_menu = texture_creator
-            .load_texture("assets/titlescreen.png")
-            .unwrap();
-        let mut start_button = texture_creator
-            .load_texture("assets/STARTbutton.png")
-            .unwrap();
+    pub fn render_main_menu(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures) {
         if BUTTONS[self.curr_button] == Button::StartButton {
-            start_button.set_color_mod(255, 0, 0);
+            textures.start_button.set_color_mod(255, 0, 0);
+        } else {
+            textures.start_button.set_color_mod(255, 255, 255);
         }
-        let mut load_button = texture_creator
-            .load_texture("assets/SAVELOADbutton.png")
-            .unwrap();
+
         if BUTTONS[self.curr_button] == Button::LoadButton {
-            load_button.set_color_mod(255, 0, 0);
+            textures.load_button.set_color_mod(255, 0, 0);
+        } else {
+            textures.load_button.set_color_mod(255, 255, 255);
         }
-        let mut settings_button = texture_creator
-            .load_texture("assets/SETTINGSbutton.png")
-            .unwrap();
+
         if BUTTONS[self.curr_button] == Button::SettingsButton {
-            settings_button.set_color_mod(255, 0, 0);
+            textures.settings_button.set_color_mod(255, 0, 0);
+        } else {
+            textures.settings_button.set_color_mod(255, 255, 255);
         }
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
         let start_quad = Rect::new(100, 100, 32, 16);
         let load_quad = Rect::new(99, 120, 16, 16);
         let settings_quad = Rect::new(116, 120, 16, 16);
-        canvas.copy(&main_menu, None, screen_quad).unwrap();
-        canvas.copy(&start_button, None, start_quad).unwrap();
-        canvas.copy(&load_button, None, load_quad).unwrap();
-        canvas.copy(&settings_button, None, settings_quad).unwrap();
+        canvas.copy(&textures.main_menu, None, screen_quad).unwrap();
+        canvas
+            .copy(&textures.start_button, None, start_quad)
+            .unwrap();
+        canvas.copy(&textures.load_button, None, load_quad).unwrap();
+        canvas
+            .copy(&textures.settings_button, None, settings_quad)
+            .unwrap();
     }
 
-    pub fn render_overworld_tiles(&self, canvas: &mut Canvas<Window>, map: &tilemap::TileMap, camera_offset: (i32, i32)) {
-        let texture_creator = canvas.texture_creator();
-        let grass1 = texture_creator.load_texture("assets/grass1.png").unwrap();
-        let grass2 = texture_creator.load_texture("assets/grass2.png").unwrap();
-        let water1 = texture_creator.load_texture("assets/water1.png").unwrap();
+    pub fn render_overworld_tiles(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        textures: &mut Textures,
+        map: &tilemap::TileMap,
+        camera_offset: (i32, i32),
+    ) {
         if self.real_map {
             //TODO: Remove this if else block, it's just for demonstrating map transitions (keep everything under this if but not under the else)
             for i in 0..map.size_x {
@@ -111,13 +149,13 @@ impl Renderer {
                     );
                     match map.floor.get(i + j * map.size_x) {
                         Some(tilemap::FloorTile::GRASS1) => {
-                            canvas.copy(&grass1, None, render_quad).unwrap()
+                            canvas.copy(&textures.grass1, None, render_quad).unwrap()
                         }
                         Some(tilemap::FloorTile::GRASS2) => {
-                            canvas.copy(&grass2, None, render_quad).unwrap()
+                            canvas.copy(&textures.grass2, None, render_quad).unwrap()
                         }
                         Some(tilemap::FloorTile::WATER1) => {
-                            canvas.copy(&water1, None, render_quad).unwrap()
+                            canvas.copy(&textures.water1, None, render_quad).unwrap()
                         }
                         None => {}
                     };
@@ -132,15 +170,13 @@ impl Renderer {
                         TILE_SIZE as u32,
                         TILE_SIZE as u32,
                     );
-                    canvas.copy(&water1, None, render_quad).unwrap();
+                    canvas.copy(&textures.water1, None, render_quad).unwrap();
                 }
             }
         }
     }
 
-    pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, delta_time: &f64) {
-        let texture_creator = canvas.texture_creator();
-
+    pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64) {
         if self.is_fading {
             self.fade_anim_time = self.fade_anim_time - delta_time;
             if self.fade_anim_time <= 0.0 {
@@ -150,10 +186,11 @@ impl Renderer {
                 let curr_fade_frame: i32 = (FADE_FRAMES as f64
                     * (1.0 - (self.fade_anim_time / FADE_TIME) as f64))
                     .round() as i32;
-                let fade_texture = texture_creator.load_texture("assets/gooWipe.png").unwrap();
                 let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //TODO: change height and width of screen_quad to not require math
                 let fade_slice = Rect::new(240 * curr_fade_frame, 0, 240, 160);
-                canvas.copy(&fade_texture, fade_slice, screen_quad).unwrap();
+                canvas
+                    .copy(&textures.fade_texture, fade_slice, screen_quad)
+                    .unwrap();
                 //TODO: Remove this next bit, it's just for demonstrating map transitions
                 if (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round()
                     as i32
@@ -167,7 +204,7 @@ impl Renderer {
         }
     }
 
-    pub fn render_player(&self, canvas: &mut Canvas<Window>, player : &player::Player) {
+    pub fn render_player(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, player: &player::Player) {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         let render_quad = Rect::new(
             (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as i32,
@@ -175,39 +212,33 @@ impl Renderer {
             player::PLAYER_WIDTH,
             player::PLAYER_HEIGHT,
         );
-
-        let texture_creator = canvas.texture_creator();
-        let player_texture = texture_creator
-        .load_texture("assets/charSprite.png")
-        .unwrap();
-
+        /*let render_quad = Rect::new(
+            player.pos.0 as i32,
+            player.pos.1 as i32,
+            player::PLAYER_WIDTH,
+            player::PLAYER_HEIGHT,
+        );*/
         canvas
-            .copy(&player_texture, player.get_texture(), render_quad)
+            .copy(&textures.player, player.get_texture(), render_quad)
             .unwrap();
     }
 
-    pub fn render(
-        &mut self,
-        delta_time: &f64,
-        canvas: &mut Canvas<Window>,
-        player: &player::Player,
-        map: &tilemap::TileMap,
-    ) {
+    pub fn render(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, player: &player::Player, map: &tilemap::TileMap) {
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
 
         match self.display_screen {
             DisplayScreen::MainMenu => {
-                self.render_main_menu(canvas);
+                self.render_main_menu(canvas, textures);
             }
             DisplayScreen::OverWorld => {
                 let camera_offset = (
-                    ((player.pos.0 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32),
-                    ((player.pos.1 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32)
+                    (player.pos.0 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
+                    (player.pos.1 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32,
                 );
-                self.render_overworld_tiles(canvas, map, camera_offset);
-                self.render_player(canvas, player);
-                self.render_transition(canvas, delta_time);
+                self.render_overworld_tiles(canvas, textures, map, camera_offset);
+                self.render_player(canvas, textures, player);
+                self.render_transition(canvas, textures, delta_time);
             }
         }
 
