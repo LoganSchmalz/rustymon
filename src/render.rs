@@ -308,8 +308,8 @@ impl Renderer {
         let viewport = sdl2::rect::Rect::new(
             bb_x as i32,
             bb_y as i32,
-            self.window_x - bb_x,
-            self.window_y - bb_y,
+            10,
+            10,
         );
         canvas.set_viewport(viewport);
     }
@@ -326,13 +326,14 @@ impl Renderer {
             scale_y.floor()
         } as u32;
         canvas.set_scale(scale as f32, scale as f32).unwrap();
+        // put top left corner of renderer at top left scaled of "screen" to maintain aspect ratio
         let bb_x = ((self.window_x - PIXELS_X * scale) / 2) / scale; //TODO: FIX BUG THAT CRASHES GAME WHEN YOU RESIZE SCREEN TOO SMALL
         let bb_y = ((self.window_y - PIXELS_Y * scale) / 2) / scale;
         let viewport = sdl2::rect::Rect::new(
             bb_x as i32,
             bb_y as i32,
-            self.window_x - bb_x,
-            self.window_y - bb_y,
+            PIXELS_X,
+            PIXELS_Y,
         );
         canvas.set_viewport(viewport);
     }
