@@ -1,17 +1,12 @@
 use crate::TILE_SIZE;
-use sdl2::{
-    pixels::Color,
-    rect::Rect,
-    render::{Canvas, Texture},
-    video::Window,
-};
+use sdl2::rect::Rect;
 
 const PLAYER_WALK_SPEED: f64 = 1.0 / 16.0;
 const WALKING_TIME_PER_TILE: f64 = 1.0 / (PLAYER_WALK_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
 const PLAYER_RUN_SPEED: f64 = 2.0 / 16.0;
 pub const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
-const PLAYER_WIDTH: u32 = 16;
-const PLAYER_HEIGHT: u32 = 16;
+pub const PLAYER_WIDTH: u32 = 16;
+pub const PLAYER_HEIGHT: u32 = 16;
 const ROTATION_TIME: f64 = RUNNING_TIME_PER_TILE;
 
 #[derive(PartialEq, Clone, Copy)]
@@ -28,10 +23,7 @@ pub enum Leg {
 }
 
 use Direction::{DOWN, LEFT, RIGHT, UP};
-
-pub struct Player<'a> {
-    texture: Texture<'a>,
-    texture_slice: sdl2::rect::Rect,
+pub struct Player {
     pub pos: (f64, f64),
     pub is_sprinting: bool,
     moving_towards: Option<(i32, i32)>,
@@ -42,11 +34,9 @@ pub struct Player<'a> {
     rotation_timer: f64,
 }
 
-impl Player<'_> {
-    pub fn new(texture: Texture) -> Player {
+impl Player {
+    pub fn new() -> Player {
         Player {
-            texture: texture,
-            texture_slice: Rect::new(0, 0, 16, 16),
             pos: (0.0, 0.0),
             is_sprinting: false,
             moving_towards: None,
@@ -80,70 +70,50 @@ impl Player<'_> {
         if self.rotation_timer < ROTATION_TIME {
             self.rotation_timer += delta_time;
         }
-
-        let anim_time = if self.is_sprinting {
-            RUNNING_TIME_PER_TILE
-        } else {
-            WALKING_TIME_PER_TILE
-        };
-
-        self.texture_slice = if self.moving_towards == None
-            || self.animation_time > (0.75 * anim_time)
-            || self.animation_time < (0.25 * anim_time)
-        {
-            match self.dir {
-                UP => Rect::new(16, 0, 16, 16),
-                RIGHT => Rect::new(16, 16, 16, 16),
-                DOWN => Rect::new(0, 0, 16, 16),
-                LEFT => Rect::new(0, 16, 16, 16),
-            }
-        } else {
-            match self.dir {
-                UP => match self.current_leg {
-                    Leg::LEFT => Rect::new(16, 32, 16, 16),
-                    Leg::RIGHT => Rect::new(0, 32, 16, 16),
-                },
-                RIGHT => Rect::new(48, 16, 16, 16),
-                DOWN => match self.current_leg {
-                    Leg::LEFT => Rect::new(32, 32, 16, 16),
-                    Leg::RIGHT => Rect::new(48, 32, 16, 16),
-                },
-                LEFT => Rect::new(32, 16, 16, 16),
-            }
-        };
     }
 
     pub fn move_towards_target(&mut self, delta_time: &f64) {
+        //concept from https://gamedev.stackexchange.com/questions/31410/keeping-player-aligned-to-grid-in-pacman
+
         let (tx, ty) = self.moving_towards.unwrap();
-        if (self.pos.0.round() as i32, self.pos.1.round() as i32) == (tx, ty) {
-            self.pos = (self.pos.0.round(), self.pos.1.round());
+
+        //if we are on tile
+        if (self.pos.0, self.pos.1) == (tx as f64, ty as f64) {
             self.moving_towards = None;
             self.current_leg = match self.current_leg {
                 Leg::LEFT => Leg::RIGHT,
                 Leg::RIGHT => Leg::LEFT,
             };
         } else {
+            let speed = if self.is_sprinting {
+                PLAYER_RUN_SPEED
+            } else {
+                PLAYER_WALK_SPEED
+            };
+
+            //compute direction (non-normalized vector)
             let dx = tx as f64 - self.pos.0;
             let dy = ty as f64 - self.pos.1;
+            //compute move distance (signum normalizes)
             let mx = if dx != 0.0 {
-                if self.is_sprinting {
-                    self.pos.0 + PLAYER_RUN_SPEED * delta_time * dx.signum()
-                } else {
-                    self.pos.0 + PLAYER_WALK_SPEED * delta_time * dx.signum()
-                }
+                speed * delta_time * dx.signum()
             } else {
-                self.pos.0
+                0.0
             };
             let my = if dy != 0.0 {
-                if self.is_sprinting {
-                    self.pos.1 + PLAYER_RUN_SPEED * delta_time * dy.signum()
-                } else {
-                    self.pos.1 + PLAYER_WALK_SPEED * delta_time * dy.signum()
-                }
+                speed * delta_time * dy.signum()
             } else {
-                self.pos.1
+                0.0
             };
-            self.pos = (mx, my);
+            //set new position
+            self.pos = (self.pos.0 + mx, self.pos.1 + my);
+
+            //check if we have passed the tile we were trying to get to
+            if dx != 0.0 && (tx as f64 - self.pos.0).signum() != dx.signum()
+                || dy != 0.0 && (ty as f64 - self.pos.1).signum() != dy.signum()
+            {
+                self.pos = (tx as f64, ty as f64);
+            }
         }
     }
 
@@ -187,17 +157,36 @@ impl Player<'_> {
         }
     }
 
-    pub fn render(&self, canvas: &mut Canvas<Window>) {
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        let render_quad = Rect::new(
-            self.pos.0 as i32,
-            self.pos.1 as i32,
-            PLAYER_WIDTH,
-            PLAYER_HEIGHT,
-        );
+    pub fn get_texture(&self) -> sdl2::rect::Rect {
+        let anim_time = if self.is_sprinting {
+            RUNNING_TIME_PER_TILE
+        } else {
+            WALKING_TIME_PER_TILE
+        };
 
-        canvas
-            .copy(&self.texture, self.texture_slice, render_quad)
-            .unwrap();
+        if self.moving_towards == None
+            || self.animation_time > (0.75 * anim_time)
+            || self.animation_time < (0.25 * anim_time)
+        {
+            match self.dir {
+                UP => Rect::new(16, 0, 16, 16),
+                RIGHT => Rect::new(16, 16, 16, 16),
+                DOWN => Rect::new(0, 0, 16, 16),
+                LEFT => Rect::new(0, 16, 16, 16),
+            }
+        } else {
+            match self.dir {
+                UP => match self.current_leg {
+                    Leg::LEFT => Rect::new(16, 32, 16, 16),
+                    Leg::RIGHT => Rect::new(0, 32, 16, 16),
+                },
+                RIGHT => Rect::new(48, 16, 16, 16),
+                DOWN => match self.current_leg {
+                    Leg::LEFT => Rect::new(32, 32, 16, 16),
+                    Leg::RIGHT => Rect::new(48, 32, 16, 16),
+                },
+                LEFT => Rect::new(32, 16, 16, 16),
+            }
+        }
     }
 }

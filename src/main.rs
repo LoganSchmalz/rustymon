@@ -10,7 +10,6 @@ extern crate sdl2;
 #[macro_use]
 extern crate num_derive;
 
-use sdl2::image::LoadTexture;
 use tilemap::load_tilemap;
 use std::path::Path;
 
@@ -32,15 +31,10 @@ pub fn main() {
         .build()
         .unwrap();
 
-    let texture_creator = canvas.texture_creator();
-    let player_texture = texture_creator
-        .load_texture(Path::new("assets/charSprite.png"))
-        .unwrap();
-
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    let mut input = input::Input::new();
-    let mut player: player::Player = player::Player::new(player_texture);
+    let input = input::Input::new();
+    let mut player: player::Player = player::Player::new();
 
     let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
 
