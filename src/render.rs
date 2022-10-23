@@ -5,8 +5,10 @@ use sdl2::{
     render::{Canvas, Texture, TextureCreator},
     video::{FullscreenType, Window, WindowContext},
 };
+use std::path::Path;
 
 use crate::{player, tilemap, TILE_SIZE};
+use tilemap::load_tilemap;
 
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
@@ -140,52 +142,37 @@ impl Renderer {
         map: &tilemap::TileMap,
         camera_offset: (i32, i32),
     ) {
-        if self.real_map {
-            //TODO: Remove this if else block, it's just for demonstrating map transitions (keep everything under this if but not under the else)
-            for i in 0..map.size_x {
-                for j in 0..map.size_y {
-                    let render_quad = Rect::new(
-                        i as i32 * TILE_SIZE - camera_offset.0,
-                        j as i32 * TILE_SIZE - camera_offset.1,
-                        TILE_SIZE as u32,
-                        TILE_SIZE as u32,
-                    );
-                    match map.floor.get(i + j * map.size_x) {
-                        Some(tilemap::FloorTile::GRASS1) => {
-                            canvas.copy(&textures.grass1, None, render_quad).unwrap()
-                        }
-                        Some(tilemap::FloorTile::GRASS2) => {
-                            canvas.copy(&textures.grass2, None, render_quad).unwrap()
-                        }
-                        Some(tilemap::FloorTile::WATER1) => {
-                            canvas.copy(&textures.water1, None, render_quad).unwrap()
-                        }
-                        None => {}
-                    };
-                    match map.objects.get(i + j * map.size_x) {
-                        Some(tilemap::ObjectTile::BERRY) => {
-                            canvas.copy(&textures.berry, None, render_quad).unwrap()
-                        }
-                        _ => {}
-                    };
-                }
-            }
-        } else {
-            for i in 0..map.size_x {
-                for j in 0..map.size_y {
-                    let render_quad = Rect::new(
-                        i as i32 * TILE_SIZE,
-                        j as i32 * TILE_SIZE,
-                        TILE_SIZE as u32,
-                        TILE_SIZE as u32,
-                    );
-                    canvas.copy(&textures.water1, None, render_quad).unwrap();
-                }
+        for i in 0..map.size_x {
+            for j in 0..map.size_y {
+                let render_quad = Rect::new(
+                    i as i32 * TILE_SIZE - camera_offset.0,
+                    j as i32 * TILE_SIZE - camera_offset.1,
+                    TILE_SIZE as u32,
+                    TILE_SIZE as u32,
+                );
+                match map.floor.get(i + j * map.size_x) {
+                    Some(tilemap::FloorTile::GRASS1) => {
+                        canvas.copy(&textures.grass1, None, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::GRASS2) => {
+                        canvas.copy(&textures.grass2, None, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WATER1) => {
+                        canvas.copy(&textures.water1, None, render_quad).unwrap()
+                    }
+                    None => {}
+                };
+                match map.objects.get(i + j * map.size_x) {
+                    Some(tilemap::ObjectTile::BERRY) => {
+                        canvas.copy(&textures.berry, None, render_quad).unwrap()
+                    }
+                    _ => {}
+                };
             }
         }
     }
 
-    pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64) {
+    pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, map: &mut tilemap::TileMap) {
         if self.is_fading {
             self.fade_anim_time = self.fade_anim_time - delta_time;
             if self.fade_anim_time <= 0.0 {
@@ -200,13 +187,16 @@ impl Renderer {
                 canvas
                     .copy(&textures.fade_texture, fade_slice, screen_quad)
                     .unwrap();
-                //TODO: Remove this next bit, it's just for demonstrating map transitions
                 if (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round()
                     as i32
                     > FADE_FRAMES / 2
                     && !self.did_trans
                 {
-                    self.real_map = !self.real_map;
+                    match map.map_id {
+                        0 => *map = load_tilemap(Path::new("save/maps/map1/"), 1),
+                        1 => *map = load_tilemap(Path::new("save/maps/map0/"), 0),
+                        _ => panic!("Trying to load map that doesn't exist"),
+                    }
                     self.did_trans = true;
                 }
             }
@@ -232,7 +222,7 @@ impl Renderer {
             .unwrap();
     }
 
-    pub fn render(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, player: &player::Player, map: &tilemap::TileMap) {
+    pub fn render(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, player: &player::Player, map: &mut tilemap::TileMap) {
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
 
@@ -247,7 +237,7 @@ impl Renderer {
                 );
                 self.render_overworld_tiles(canvas, textures, map, camera_offset);
                 self.render_player(canvas, textures, player);
-                self.render_transition(canvas, textures, delta_time);
+                self.render_transition(canvas, textures, delta_time, map);
             }
         }
 

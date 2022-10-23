@@ -84,11 +84,9 @@ impl Player {
             self.moving_towards = None;
             self.current_leg = match self.current_leg {
                 Leg::LEFT => {
-                    println!("switch right {:?}", delta_time);
                     Leg::RIGHT
                 }
                 Leg::RIGHT => {
-                    println!("switch left {:?}", delta_time);
                     Leg::LEFT
                 }
             };
@@ -160,7 +158,7 @@ impl Player {
                         }
                     }
                     UP => {
-                        if (self.pos.1 / TILE_SIZE as f64) - 1.0 <= 0.0 {
+                        if (self.pos.1 / TILE_SIZE as f64) - 1.0 < 0.0 {
                             return;
                         }
                         match map.collision.get((self.pos.0 / TILE_SIZE as f64) as usize + ((self.pos.1 / TILE_SIZE as f64) - 1.0) as usize * map.size_x) {

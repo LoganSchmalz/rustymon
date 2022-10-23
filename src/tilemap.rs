@@ -27,9 +27,11 @@ pub struct TileMap {
     pub floor: Vec<FloorTile>,
     pub objects: Vec<ObjectTile>,
     pub collision: Vec<CollisionTile>,
+    pub map_id: i32,
 }
 
-pub fn load_tilemap(mapfolder: &Path) -> TileMap {
+pub fn load_tilemap(mapfolder: &Path, id: i32) -> TileMap {
+    let map_id = id;
     let dim: Vec<usize> = fs::read_to_string(mapfolder.join("dim.txt"))
         .expect(&format!("{}dim.txt not found", mapfolder.to_str().unwrap()))
         .split_whitespace()
@@ -109,6 +111,7 @@ pub fn load_tilemap(mapfolder: &Path) -> TileMap {
 		size_y: *size_y,
 		floor,
 		objects,
-		collision
+		collision,
+        map_id,
 	}
 }
