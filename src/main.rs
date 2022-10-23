@@ -12,7 +12,15 @@ extern crate num_derive;
 
 use render::Textures;
 use tilemap::load_tilemap;
-use std::path::Path;
+use std::{fs, path::Path};
+
+
+pub fn init_map_save(map_name: String) {
+    fs::copy("maps/".to_owned() + &map_name + "/collision.txt", "save/maps/".to_owned() + &map_name + "/collision.txt").expect("Missing collision file");
+    fs::copy("maps/".to_owned() + &map_name + "/dim.txt", "save/maps/".to_owned() + &map_name + "/dim.txt").expect("Missing dim file");
+    fs::copy("maps/".to_owned() + &map_name + "/floor.txt", "save/maps/".to_owned() + &map_name + "/floor.txt").expect("Missing floor file");
+    fs::copy("maps/".to_owned() + &map_name + "/objects.txt", "save/maps/".to_owned() + &map_name + "/objects.txt").expect("Missing objects file");
+}
 
 pub fn main() {
     let sdl_context = sdl2::init().unwrap();
@@ -43,7 +51,11 @@ pub fn main() {
     let mut textures = Textures::load(&texture_creator);
     let mut renderer = render::Renderer::new();
 
-    let mut map = load_tilemap(Path::new("maps/map0/"));
+    //load original maps into current save
+    init_map_save("map0".to_string());
+    init_map_save("map1".to_string());
+    
+    let mut map = load_tilemap(Path::new("save/maps/map0/"), 0);
 
     'running: loop {
         let time_last = time_now;
@@ -60,6 +72,6 @@ pub fn main() {
         //println!("{:?}", delta_time);
 
         player.update(&delta_time);
-        renderer.render(&mut canvas, &mut textures, &delta_time, &player, &map);
+        renderer.render(&mut canvas, &mut textures, &delta_time, &player, &mut map);
     }
 }
