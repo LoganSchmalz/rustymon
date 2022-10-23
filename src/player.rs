@@ -1,4 +1,5 @@
 use crate::TILE_SIZE;
+use crate::tilemap;
 use sdl2::rect::Rect;
 
 const PLAYER_WALK_SPEED: f64 = 1.0 / 16.0;
@@ -124,7 +125,7 @@ impl Player {
         }
     }
 
-    pub fn walk(&mut self, direction: Direction) {
+    pub fn walk(&mut self, direction: Direction, map: &mut tilemap::TileMap) {
         if direction == self.dir && self.rotation_timer >= ROTATION_TIME {
             self.is_moving = true;
             if self.moving_towards == None {

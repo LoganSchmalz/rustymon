@@ -43,7 +43,7 @@ pub fn main() {
     let mut textures = Textures::load(&texture_creator);
     let mut renderer = render::Renderer::new();
 
-    let map = load_tilemap(Path::new("maps/map0/"));
+    let mut map = load_tilemap(Path::new("maps/map0/"));
 
     'running: loop {
         let time_last = time_now;
@@ -52,12 +52,12 @@ pub fn main() {
             / sdl_context.timer().unwrap().performance_frequency())
             as f64;
 
-        match input.handle_input(&mut event_pump, &mut canvas, &mut player, &mut renderer) {
+        match input.handle_input(&mut event_pump, &mut canvas, &mut player, &mut renderer, &mut map) {
             true => break 'running,
             false => {}
         };
 
-        println!("{:?}", delta_time);
+        //println!("{:?}", delta_time);
 
         player.update(&delta_time);
         renderer.render(&mut canvas, &mut textures, &delta_time, &player, &map);

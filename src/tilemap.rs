@@ -12,6 +12,7 @@ pub enum FloorTile {
 #[derive(FromPrimitive, ToPrimitive)]
 pub enum ObjectTile {
     NONE,
+    BERRY,
 }
 
 #[derive(FromPrimitive, ToPrimitive)]

@@ -3,7 +3,7 @@ use sdl2::{
     keyboard::{Keycode, Scancode}, render::Canvas, video::Window,
 };
 
-use crate::{player, render};
+use crate::{player, render, tilemap};
 use crate::render::{DisplayScreen, Button, BUTTONS};
 
 pub struct Input {
@@ -21,6 +21,7 @@ impl Input {
         canvas: &mut Canvas<Window>,
         player: &mut player::Player,
         renderer: &mut render::Renderer,
+        mut map: &mut tilemap::TileMap,
     ) -> bool {
         for event in event_pump.poll_iter() {
             match event {
@@ -102,13 +103,13 @@ impl Input {
                 }
 
                 if ks.is_scancode_pressed(Scancode::Left) {
-                    player.walk(player::Direction::LEFT);
+                    player.walk(player::Direction::LEFT, &mut map);
                 } else if ks.is_scancode_pressed(Scancode::Right) {
-                    player.walk(player::Direction::RIGHT);
+                    player.walk(player::Direction::RIGHT, &mut map);
                 } else if ks.is_scancode_pressed(Scancode::Up) {
-                    player.walk(player::Direction::UP);
+                    player.walk(player::Direction::UP, &mut map);
                 } else if ks.is_scancode_pressed(Scancode::Down) {
-                    player.walk(player::Direction::DOWN);
+                    player.walk(player::Direction::DOWN, &mut map);
                 } else {
                     player.stop_walk();
                 }
