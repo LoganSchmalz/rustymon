@@ -16,11 +16,10 @@ use std::{fs, path::Path};
 
 
 pub fn init_map_save(map_name: String) {
-    println!("{}{}{}", "maps/".to_owned(), &map_name, "/dim.txt");
-    fs::copy("maps/".to_owned() + &map_name + "/collision.txt", "save/maps/".to_owned() + &map_name + "/collision.txt");
-    fs::copy("maps/".to_owned() + &map_name + "/dim.txt", "save/maps/".to_owned() + &map_name + "/dim.txt");
-    fs::copy("maps/".to_owned() + &map_name + "/floor.txt", "save/maps/".to_owned() + &map_name + "/floor.txt");
-    fs::copy("maps/".to_owned() + &map_name + "/objects.txt", "save/maps/".to_owned() + &map_name + "/objects.txt");
+    fs::copy("maps/".to_owned() + &map_name + "/collision.txt", "save/maps/".to_owned() + &map_name + "/collision.txt").expect("Missing collision file");
+    fs::copy("maps/".to_owned() + &map_name + "/dim.txt", "save/maps/".to_owned() + &map_name + "/dim.txt").expect("Missing dim file");
+    fs::copy("maps/".to_owned() + &map_name + "/floor.txt", "save/maps/".to_owned() + &map_name + "/floor.txt").expect("Missing floor file");
+    fs::copy("maps/".to_owned() + &map_name + "/objects.txt", "save/maps/".to_owned() + &map_name + "/objects.txt").expect("Missing objects file");
 }
 
 pub fn main() {

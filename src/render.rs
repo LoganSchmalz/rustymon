@@ -38,7 +38,6 @@ pub struct Renderer {
     pub is_fading: bool,
     did_trans: bool,
     fade_anim_time: f64,
-    real_map: bool, //TODO: Remove this, it's just for demonstrating map transitions
 }
 
 pub const BUTTONS: [Button; 3] = [
@@ -99,7 +98,6 @@ impl Renderer {
             is_fading: false,
             did_trans: false,
             fade_anim_time: FADE_TIME,
-            real_map: true,
         }
     }
 
