@@ -94,7 +94,7 @@ impl Renderer {
         canvas.copy(&settings_button, None, settings_quad).unwrap();
     }
 
-    pub fn render_overworld_tiles(&self, canvas: &mut Canvas<Window>, map: &tilemap::TileMap) {
+    pub fn render_overworld_tiles(&self, canvas: &mut Canvas<Window>, map: &tilemap::TileMap, camera_offset: (i32, i32)) {
         let texture_creator = canvas.texture_creator();
         let grass1 = texture_creator.load_texture("assets/grass1.png").unwrap();
         let grass2 = texture_creator.load_texture("assets/grass2.png").unwrap();
@@ -104,8 +104,8 @@ impl Renderer {
             for i in 0..map.size_x {
                 for j in 0..map.size_y {
                     let render_quad = Rect::new(
-                        i as i32 * TILE_SIZE,
-                        j as i32 * TILE_SIZE,
+                        i as i32 * TILE_SIZE - camera_offset.0,
+                        j as i32 * TILE_SIZE - camera_offset.1,
                         TILE_SIZE as u32,
                         TILE_SIZE as u32,
                     );
@@ -170,8 +170,8 @@ impl Renderer {
     pub fn render_player(&self, canvas: &mut Canvas<Window>, player : &player::Player) {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         let render_quad = Rect::new(
-            player.pos.0 as i32,
-            player.pos.1 as i32,
+            (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as i32,
+            (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as i32,
             player::PLAYER_WIDTH,
             player::PLAYER_HEIGHT,
         );
@@ -201,7 +201,11 @@ impl Renderer {
                 self.render_main_menu(canvas);
             }
             DisplayScreen::OverWorld => {
-                self.render_overworld_tiles(canvas, map);
+                let camera_offset = (
+                    ((player.pos.0 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32),
+                    ((player.pos.1 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32)
+                );
+                self.render_overworld_tiles(canvas, map, camera_offset);
                 self.render_player(canvas, player);
                 self.render_transition(canvas, delta_time);
             }
