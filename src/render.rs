@@ -143,6 +143,10 @@ impl Renderer {
         map: &tilemap::TileMap,
         camera_offset: (i32, i32),
     ) {
+        let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        canvas.fill_rect(screen_quad);
+
         for i in 0..map.size_x {
             for j in 0..map.size_y {
                 let render_quad = Rect::new(
@@ -197,8 +201,8 @@ impl Renderer {
                     && !self.did_trans
                 {
                     match map.map_id {
-                        0 => *map = load_tilemap(Path::new("save/maps/map1/"), 1),
-                        1 => *map = load_tilemap(Path::new("save/maps/map0/"), 0),
+                        0 => *map = load_tilemap(Path::new("maps/map1/"), 1),
+                        1 => *map = load_tilemap(Path::new("maps/map0/"), 0),
                         _ => panic!("Trying to load map that doesn't exist"),
                     }
                     self.did_trans = true;

@@ -17,6 +17,7 @@ use std::{fs, path::Path};
 
 
 pub fn init_map_save(map_name: String) {
+    //TODO: DEAD CODE
     fs::copy("maps/".to_owned() + &map_name + "/collision.txt", "save/maps/".to_owned() + &map_name + "/collision.txt").expect("Missing collision file");
     fs::copy("maps/".to_owned() + &map_name + "/dim.txt", "save/maps/".to_owned() + &map_name + "/dim.txt").expect("Missing dim file");
     fs::copy("maps/".to_owned() + &map_name + "/floor.txt", "save/maps/".to_owned() + &map_name + "/floor.txt").expect("Missing floor file");
@@ -55,10 +56,11 @@ pub fn main() {
     let mut renderer = render::Renderer::new();
 
     //load original maps into current save
+    //TODO: CHANGE THIS SAVING FUNCTIONALITY WE'RE NOT EVEN USING IT ANYMORE
     init_map_save("map0".to_string());
     init_map_save("map1".to_string());
     
-    let mut map = load_tilemap(Path::new("save/maps/map0/"), 0);
+    let mut map = load_tilemap(Path::new("maps/map0/"), 0);
 
     'running: loop {
         let time_last = time_now;
