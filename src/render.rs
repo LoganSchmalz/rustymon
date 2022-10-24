@@ -143,9 +143,10 @@ impl Renderer {
         map: &tilemap::TileMap,
         camera_offset: (i32, i32),
     ) {
+        //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
         canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.fill_rect(screen_quad);
+        canvas.fill_rect(screen_quad).unwrap();
 
         for i in 0..map.size_x {
             for j in 0..map.size_y {

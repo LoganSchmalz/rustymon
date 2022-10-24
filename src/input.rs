@@ -84,7 +84,7 @@ impl Input {
                         DisplayScreen::OverWorld => {
                             if key == Keycode::Space || key == Keycode::Return {
                                 
-                                let mut temp_pos: usize = 0;
+                                let temp_pos: usize;
 
                                 match player.dir {
                                     Direction::LEFT => {
