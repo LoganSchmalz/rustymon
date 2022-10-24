@@ -27,12 +27,14 @@ pub fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
-    let window = video_subsystem
+    let mut window = video_subsystem
         .window("Rustymon", render::PIXELS_X, render::PIXELS_Y)
         .position_centered()
         .resizable()
         .build()
         .unwrap();
+
+    window.set_minimum_size(render::PIXELS_X, render::PIXELS_Y).unwrap();
 
     let mut canvas = window
         .into_canvas()
