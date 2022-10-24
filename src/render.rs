@@ -57,6 +57,7 @@ pub struct Textures<'a> {
     grass2: Texture<'a>,
     water1: Texture<'a>,
     berry: Texture<'a>,
+    door1: Texture<'a>,
 }
 
 impl<'a> Textures<'a> {
@@ -71,6 +72,7 @@ impl<'a> Textures<'a> {
         let grass2 = creator.load_texture("assets/grass2.png").unwrap();
         let water1 = creator.load_texture("assets/water1.png").unwrap();
         let berry = creator.load_texture("assets/berry.png").unwrap();
+        let door1 = creator.load_texture("assets/door1.png").unwrap();
         Textures {
             main_menu,
             start_button,
@@ -82,6 +84,7 @@ impl<'a> Textures<'a> {
             grass2,
             water1,
             berry,
+            door1,
         }
     }
 }
@@ -163,6 +166,9 @@ impl Renderer {
                 match map.objects.get(i + j * map.size_x) {
                     Some(tilemap::ObjectTile::BERRY) => {
                         canvas.copy(&textures.berry, None, render_quad).unwrap()
+                    }
+                    Some(tilemap::ObjectTile::DOOR) => {
+                        canvas.copy(&textures.door1, None, render_quad).unwrap()
                     }
                     _ => {}
                 };

@@ -113,7 +113,7 @@ impl Input {
                                     }
                                 }
 
-                                objects::object_interact(temp_pos, &mut map)
+                                objects::object_interact(temp_pos, &mut map, renderer);
                             }
                         }
                         //_ => {}
