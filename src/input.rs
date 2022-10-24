@@ -3,8 +3,10 @@ use sdl2::{
     keyboard::{Keycode, Scancode}, render::Canvas, video::Window,
 };
 
-use crate::{player, render, tilemap};
+use crate::{player, render, tilemap, objects};
 use crate::render::{DisplayScreen, Button, BUTTONS};
+use crate::player::Direction;
+use crate::TILE_SIZE;
 
 pub struct Input {
     pub allow_input: bool,
@@ -80,8 +82,38 @@ impl Input {
                             }
                         }
                         DisplayScreen::OverWorld => {
-                            if (key == Keycode::Space || key == Keycode::Return) && renderer.is_fading == false{
-                                renderer.play_fade();
+                            if key == Keycode::Space || key == Keycode::Return {
+                                
+                                let mut temp_pos: usize = 0;
+
+                                match player.dir {
+                                    Direction::LEFT => {
+                                        if (player.pos.0 / TILE_SIZE as f64) - 1.0 < 0.0 {
+                                            break;
+                                        }
+                                        temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize - 1 + (player.pos.1 / TILE_SIZE as f64) as usize * map.size_x;
+                                    }
+                                    Direction::RIGHT => {
+                                        if (player.pos.0 / TILE_SIZE as f64) as usize + 1 >= map.size_x {
+                                            break;
+                                        }
+                                        temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize + 1 + (player.pos.1 / TILE_SIZE as f64) as usize * map.size_x;
+                                    }
+                                    Direction::UP => {
+                                        if (player.pos.1 / TILE_SIZE as f64) - 1.0 < 0.0 {
+                                            break;
+                                        }
+                                        temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize + ((player.pos.1 / TILE_SIZE as f64) - 1.0) as usize * map.size_x;
+                                    }
+                                    Direction::DOWN => {
+                                        if (player.pos.1 / TILE_SIZE as f64) as usize + 1 >= map.size_y {
+                                            break;
+                                        }
+                                        temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize + ((player.pos.1 / TILE_SIZE as f64) + 1.0) as usize * map.size_x;
+                                    }
+                                }
+
+                                objects::object_interact(temp_pos, &mut map)
                             }
                         }
                         //_ => {}

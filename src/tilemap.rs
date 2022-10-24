@@ -19,6 +19,7 @@ pub enum ObjectTile {
 pub enum CollisionTile {
     NONE,
     WALL,
+    DOOR,
 }
 
 pub struct TileMap {

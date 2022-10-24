@@ -170,6 +170,9 @@ impl Player {
                         }
                     }
                     DOWN => {
+                        if (self.pos.1 / TILE_SIZE as f64) as usize + 1 >= map.size_y {
+                            return;
+                        }
                         match map.collision.get((self.pos.0 / TILE_SIZE as f64) as usize + ((self.pos.1 / TILE_SIZE as f64) + 1.0) as usize * map.size_x) {
                             Some(tilemap::CollisionTile::NONE) => {
                                 self.moving_towards =

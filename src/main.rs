@@ -4,6 +4,7 @@ mod input;
 mod player;
 mod render;
 mod tilemap;
+mod objects;
 
 extern crate sdl2;
 
