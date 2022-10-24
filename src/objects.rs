@@ -9,7 +9,7 @@ pub fn object_interact(pos: usize, map: &mut tilemap::TileMap) {
             map.collision[pos] = CollisionTile::NONE;
         }
 
-        Some(tilemap::ObjectFile::DOOR) => {
+        Some(tilemap::ObjectTile::DOOR) => {
 
         }
 
