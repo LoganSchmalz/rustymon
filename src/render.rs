@@ -213,40 +213,40 @@ impl Renderer {
                     Some(tilemap::FloorTile::WATER1) => {
                         canvas.copy(&textures.water1, None, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WG_TL) => {
+                    Some(tilemap::FloorTile::WGTL) => {
                         canvas.copy(&textures.water_grass, tile_rects.wg_tl, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WG_T) => {
+                    Some(tilemap::FloorTile::WGT) => {
                         canvas.copy(&textures.water_grass, tile_rects.wg_t, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WG_TR) => {
+                    Some(tilemap::FloorTile::WGTR) => {
                         canvas.copy(&textures.water_grass, tile_rects.wg_tr, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WG_R) => {
+                    Some(tilemap::FloorTile::WGR) => {
                         canvas.copy(&textures.water_grass, tile_rects.wg_r, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WG_BR) => {
+                    Some(tilemap::FloorTile::WGBR) => {
                         canvas.copy(&textures.water_grass, tile_rects.wg_br, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WG_B) => {
+                    Some(tilemap::FloorTile::WGB) => {
                         canvas.copy(&textures.water_grass, tile_rects.wg_b, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WG_BL) => {
+                    Some(tilemap::FloorTile::WGBL) => {
                         canvas.copy(&textures.water_grass, tile_rects.wg_bl, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WG_L) => {
+                    Some(tilemap::FloorTile::WGL) => {
                         canvas.copy(&textures.water_grass, tile_rects.wg_l, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::GW_TL) => {
+                    Some(tilemap::FloorTile::GWTL) => {
                         canvas.copy(&textures.water_grass, tile_rects.gw_tl, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::GW_TR) => {
+                    Some(tilemap::FloorTile::GWTR) => {
                         canvas.copy(&textures.water_grass, tile_rects.gw_tr, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::GW_BR) => {
+                    Some(tilemap::FloorTile::GWBR) => {
                         canvas.copy(&textures.water_grass, tile_rects.gw_br, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::GW_BL) => {
+                    Some(tilemap::FloorTile::GWBL) => {
                         canvas.copy(&textures.water_grass, tile_rects.gw_bl, render_quad).unwrap()
                     }
                     None => {}
@@ -259,10 +259,10 @@ impl Renderer {
                     Some(tilemap::ObjectTile::DOOR) => {
                         canvas.copy(&textures.door1, None, render_quad).unwrap()
                     }
-                    Some(tilemap::ObjectTile::WOOD_L) => {
+                    Some(tilemap::ObjectTile::WOODL) => {
                         canvas.copy(&textures.wood, tile_rects.wood_l, render_quad).unwrap()
                     }
-                    Some(tilemap::ObjectTile::WOOD_R) => {
+                    Some(tilemap::ObjectTile::WOODR) => {
                         canvas.copy(&textures.wood, tile_rects.wood_r, render_quad).unwrap()
                     }
                     _ => {}
