@@ -4,9 +4,21 @@ use std::{fs, path::Path};
 
 #[derive(FromPrimitive, ToPrimitive, Debug)]
 pub enum FloorTile {
-    GRASS1,
-    GRASS2,
-	WATER1
+    GRASS1, //0
+    GRASS2, //1
+	WATER1, //2
+    WG_TL,  //3
+    WG_T,   //4
+    WG_TR,  //5
+    WG_R,   //6
+    WG_BR,  //7
+    WG_B,   //8
+    WG_BL,  //9
+    WG_L,   //10
+    GW_TL,  //11
+    GW_TR,  //12
+    GW_BR,  //13
+    GW_BL,  //14
 }
 
 #[derive(FromPrimitive, ToPrimitive)]
@@ -14,6 +26,8 @@ pub enum ObjectTile {
     NONE,
     BERRY,
     DOOR,
+    WOOD_L,
+    WOOD_R,
 }
 
 #[derive(FromPrimitive, ToPrimitive)]

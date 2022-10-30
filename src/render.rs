@@ -58,6 +58,8 @@ pub struct Textures<'a> {
     water1: Texture<'a>,
     berry: Texture<'a>,
     door1: Texture<'a>,
+    water_grass: Texture<'a>,
+    wood: Texture<'a>,
 }
 
 impl<'a> Textures<'a> {
@@ -73,6 +75,8 @@ impl<'a> Textures<'a> {
         let water1 = creator.load_texture("assets/water1.png").unwrap();
         let berry = creator.load_texture("assets/berry.png").unwrap();
         let door1 = creator.load_texture("assets/door1.png").unwrap();
+        let water_grass = creator.load_texture("assets/water-grass.png").unwrap();
+        let wood = creator.load_texture("assets/woodcorners.png").unwrap();
         Textures {
             main_menu,
             start_button,
@@ -85,6 +89,46 @@ impl<'a> Textures<'a> {
             water1,
             berry,
             door1,
+            water_grass,
+            wood,
+        }
+    }
+}
+
+pub struct TileRect {
+    wg_tl: Rect,
+    wg_t: Rect,
+    wg_tr: Rect,
+    wg_r: Rect,
+    wg_br: Rect,
+    wg_b: Rect,
+    wg_bl: Rect,
+    wg_l: Rect,
+    gw_tl: Rect,
+    gw_tr: Rect,
+    gw_br: Rect,
+    gw_bl: Rect,
+    wood_l: Rect,
+    wood_r: Rect,
+}
+
+impl TileRect {
+    pub fn new() -> TileRect {
+        TileRect {
+            wg_tl: Rect::new(0, 0, 16, 16),
+            wg_t: Rect::new(16, 0, 16, 16),
+            wg_tr: Rect::new(32, 0, 16, 16),
+            wg_r: Rect::new(32, 16, 16, 16),
+            wg_br: Rect::new(32, 32, 16, 16),
+            wg_b: Rect::new(16, 32, 16, 16),
+            wg_bl: Rect::new(0, 32, 16, 16),
+            wg_l: Rect::new(0, 16, 16, 16),
+            gw_tl: Rect::new(48, 0, 16, 16),
+            gw_tr: Rect::new(80, 0, 16, 16),
+            gw_br: Rect::new(80, 32, 16, 16),
+            gw_bl: Rect::new(48, 32, 16, 16),
+            wood_l: Rect::new(0, 0, 16, 16),
+            wood_r: Rect::new(32, 0, 16, 16),
         }
     }
 }
@@ -126,6 +170,7 @@ impl Renderer {
         let start_quad = Rect::new(100, 100, 32, 16);
         let load_quad = Rect::new(99, 120, 16, 16);
         let settings_quad = Rect::new(116, 120, 16, 16);
+
         canvas.copy(&textures.main_menu, None, screen_quad).unwrap();
         canvas
             .copy(&textures.start_button, None, start_quad)
@@ -147,6 +192,8 @@ impl Renderer {
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.fill_rect(screen_quad).unwrap();
+        
+        let tile_rects = TileRect::new();
 
         for i in 0..map.size_x {
             for j in 0..map.size_y {
@@ -166,7 +213,44 @@ impl Renderer {
                     Some(tilemap::FloorTile::WATER1) => {
                         canvas.copy(&textures.water1, None, render_quad).unwrap()
                     }
+                    Some(tilemap::FloorTile::WG_TL) => {
+                        canvas.copy(&textures.water_grass, tile_rects.wg_tl, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WG_T) => {
+                        canvas.copy(&textures.water_grass, tile_rects.wg_t, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WG_TR) => {
+                        canvas.copy(&textures.water_grass, tile_rects.wg_tr, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WG_R) => {
+                        canvas.copy(&textures.water_grass, tile_rects.wg_r, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WG_BR) => {
+                        canvas.copy(&textures.water_grass, tile_rects.wg_br, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WG_B) => {
+                        canvas.copy(&textures.water_grass, tile_rects.wg_b, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WG_BL) => {
+                        canvas.copy(&textures.water_grass, tile_rects.wg_bl, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WG_L) => {
+                        canvas.copy(&textures.water_grass, tile_rects.wg_l, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::GW_TL) => {
+                        canvas.copy(&textures.water_grass, tile_rects.gw_tl, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::GW_TR) => {
+                        canvas.copy(&textures.water_grass, tile_rects.gw_tr, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::GW_BR) => {
+                        canvas.copy(&textures.water_grass, tile_rects.gw_br, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::GW_BL) => {
+                        canvas.copy(&textures.water_grass, tile_rects.gw_bl, render_quad).unwrap()
+                    }
                     None => {}
+
                 };
                 match map.objects.get(i + j * map.size_x) {
                     Some(tilemap::ObjectTile::BERRY) => {
@@ -174,6 +258,12 @@ impl Renderer {
                     }
                     Some(tilemap::ObjectTile::DOOR) => {
                         canvas.copy(&textures.door1, None, render_quad).unwrap()
+                    }
+                    Some(tilemap::ObjectTile::WOOD_L) => {
+                        canvas.copy(&textures.wood, tile_rects.wood_l, render_quad).unwrap()
+                    }
+                    Some(tilemap::ObjectTile::WOOD_R) => {
+                        canvas.copy(&textures.wood, tile_rects.wood_r, render_quad).unwrap()
                     }
                     _ => {}
                 };

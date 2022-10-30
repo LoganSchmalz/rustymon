@@ -38,7 +38,7 @@ pub struct Player {
 impl Player {
     pub fn new() -> Player {
         Player {
-            pos: (0.0, 0.0),
+            pos: (TILE_SIZE as f64, TILE_SIZE as f64),
             is_sprinting: false,
             moving_towards: None,
             animation_time: 0.0,
