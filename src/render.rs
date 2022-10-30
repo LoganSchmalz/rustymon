@@ -69,7 +69,7 @@ impl<'a> Textures<'a> {
         let load_button = creator.load_texture("assets/SAVELOADbutton.png").unwrap();
         let settings_button = creator.load_texture("assets/SETTINGSbutton.png").unwrap();
         let fade_texture = creator.load_texture("assets/gooWipe.png").unwrap();
-        let player = creator.load_texture("assets/charSprite.png").unwrap();
+        let player = creator.load_texture("assets/newcharsprite.png").unwrap();
         let grass1 = creator.load_texture("assets/grass1.png").unwrap();
         let grass2 = creator.load_texture("assets/grass2.png").unwrap();
         let water1 = creator.load_texture("assets/water1.png").unwrap();
