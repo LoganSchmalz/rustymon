@@ -42,7 +42,7 @@
 - List of available items to purchase
     - Highlighting items presents item description
 
-**Main Menu**: Approach a shopkeeper to open the menu
+**Main Menu**: Open on start
 - Start game
     - New Save
     - Load Save
