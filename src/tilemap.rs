@@ -19,6 +19,7 @@ pub enum FloorTile {
     GWTR,  //12
     GWBR,  //13
     GWBL,  //14
+    FB1,  //15
 }
 
 #[derive(FromPrimitive, ToPrimitive)]
