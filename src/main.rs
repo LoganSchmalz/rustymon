@@ -5,15 +5,17 @@ mod player;
 mod render;
 mod tilemap;
 mod objects;
+mod menu;
 
 extern crate sdl2;
 
 #[macro_use]
 extern crate num_derive;
 
+use menu::{main_menu::MainMenu, MenuManager};
 use render::Textures;
 use tilemap::load_tilemap;
-use std::{fs, path::Path};
+use std::{fs, path::Path, rc::Rc, cell::RefCell};
 
 
 pub fn init_map_save(map_name: String) {
@@ -54,6 +56,8 @@ pub fn main() {
     let texture_creator = canvas.texture_creator();
     let mut textures = Textures::load(&texture_creator);
     let mut renderer = render::Renderer::new();
+    let mut menu_man = menu::MenuManager::new();
+    //menu_man.borrow_mut().open_menu(Box::new(MainMenu));
 
     //load original maps into current save
     //TODO: CHANGE THIS SAVING FUNCTIONALITY WE'RE NOT EVEN USING IT ANYMORE
@@ -69,7 +73,7 @@ pub fn main() {
             / sdl_context.timer().unwrap().performance_frequency())
             as f64;
 
-        match input.handle_input(&mut event_pump, &mut canvas, &mut player, &mut renderer, &mut map) {
+        match input.handle_input(&mut event_pump, &mut canvas, &mut player, &mut renderer, &mut map, &mut menu_man) {
             true => break 'running,
             false => {}
         };
@@ -77,6 +81,6 @@ pub fn main() {
         //println!("{:?}", delta_time);
 
         player.update(&delta_time);
-        renderer.render(&mut canvas, &mut textures, &delta_time, &player, &mut map);
+        renderer.render(&mut canvas, &mut textures, &delta_time, &player, &mut map, &mut menu_man);
     }
 }

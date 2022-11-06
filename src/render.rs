@@ -7,7 +7,7 @@ use sdl2::{
 };
 use std::path::Path;
 
-use crate::{player, tilemap, TILE_SIZE};
+use crate::{menu, player, tilemap, TILE_SIZE};
 use tilemap::load_tilemap;
 
 pub const PIXELS_X: u32 = 240;
@@ -21,36 +21,21 @@ pub enum DisplayScreen {
     OverWorld,
 }
 
-#[derive(PartialEq)]
-pub enum Button {
-    StartButton,
-    LoadButton,
-    SettingsButton,
-}
-
 pub struct Renderer {
     window_x: u32,
     window_y: u32,
     old_window_x: u32,
     old_window_y: u32,
-    pub display_screen: DisplayScreen,
-    pub curr_button: usize,
     pub is_fading: bool,
     did_trans: bool,
     fade_anim_time: f64,
 }
 
-pub const BUTTONS: [Button; 3] = [
-    Button::StartButton,
-    Button::LoadButton,
-    Button::SettingsButton,
-];
-
 pub struct Textures<'a> {
-    main_menu: Texture<'a>,
-    start_button: Texture<'a>,
-    load_button: Texture<'a>,
-    settings_button: Texture<'a>,
+    pub main_menu: Texture<'a>,
+    pub start_button: Texture<'a>,
+    pub load_button: Texture<'a>,
+    pub settings_button: Texture<'a>,
     fade_texture: Texture<'a>,
     player: Texture<'a>,
     grass1: Texture<'a>,
@@ -140,45 +125,10 @@ impl Renderer {
             window_y: PIXELS_Y,
             old_window_x: PIXELS_X,
             old_window_y: PIXELS_Y,
-            display_screen: DisplayScreen::MainMenu,
-            curr_button: 0,
             is_fading: false,
             did_trans: false,
             fade_anim_time: FADE_TIME,
         }
-    }
-
-    pub fn render_main_menu(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures) {
-        if BUTTONS[self.curr_button] == Button::StartButton {
-            textures.start_button.set_color_mod(255, 0, 0);
-        } else {
-            textures.start_button.set_color_mod(255, 255, 255);
-        }
-
-        if BUTTONS[self.curr_button] == Button::LoadButton {
-            textures.load_button.set_color_mod(255, 0, 0);
-        } else {
-            textures.load_button.set_color_mod(255, 255, 255);
-        }
-
-        if BUTTONS[self.curr_button] == Button::SettingsButton {
-            textures.settings_button.set_color_mod(255, 0, 0);
-        } else {
-            textures.settings_button.set_color_mod(255, 255, 255);
-        }
-        let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
-        let start_quad = Rect::new(100, 100, 32, 16);
-        let load_quad = Rect::new(99, 120, 16, 16);
-        let settings_quad = Rect::new(116, 120, 16, 16);
-
-        canvas.copy(&textures.main_menu, None, screen_quad).unwrap();
-        canvas
-            .copy(&textures.start_button, None, start_quad)
-            .unwrap();
-        canvas.copy(&textures.load_button, None, load_quad).unwrap();
-        canvas
-            .copy(&textures.settings_button, None, settings_quad)
-            .unwrap();
     }
 
     pub fn render_overworld_tiles(
@@ -192,7 +142,7 @@ impl Renderer {
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.fill_rect(screen_quad).unwrap();
-        
+
         let tile_rects = TileRect::new();
 
         for i in 0..map.size_x {
@@ -213,44 +163,43 @@ impl Renderer {
                     Some(tilemap::FloorTile::WATER1) => {
                         canvas.copy(&textures.water1, None, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WGTL) => {
-                        canvas.copy(&textures.water_grass, tile_rects.wg_tl, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::WGT) => {
-                        canvas.copy(&textures.water_grass, tile_rects.wg_t, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::WGTR) => {
-                        canvas.copy(&textures.water_grass, tile_rects.wg_tr, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::WGR) => {
-                        canvas.copy(&textures.water_grass, tile_rects.wg_r, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::WGBR) => {
-                        canvas.copy(&textures.water_grass, tile_rects.wg_br, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::WGB) => {
-                        canvas.copy(&textures.water_grass, tile_rects.wg_b, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::WGBL) => {
-                        canvas.copy(&textures.water_grass, tile_rects.wg_bl, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::WGL) => {
-                        canvas.copy(&textures.water_grass, tile_rects.wg_l, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::GWTL) => {
-                        canvas.copy(&textures.water_grass, tile_rects.gw_tl, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::GWTR) => {
-                        canvas.copy(&textures.water_grass, tile_rects.gw_tr, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::GWBR) => {
-                        canvas.copy(&textures.water_grass, tile_rects.gw_br, render_quad).unwrap()
-                    }
-                    Some(tilemap::FloorTile::GWBL) => {
-                        canvas.copy(&textures.water_grass, tile_rects.gw_bl, render_quad).unwrap()
-                    }
+                    Some(tilemap::FloorTile::WGTL) => canvas
+                        .copy(&textures.water_grass, tile_rects.wg_tl, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::WGT) => canvas
+                        .copy(&textures.water_grass, tile_rects.wg_t, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::WGTR) => canvas
+                        .copy(&textures.water_grass, tile_rects.wg_tr, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::WGR) => canvas
+                        .copy(&textures.water_grass, tile_rects.wg_r, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::WGBR) => canvas
+                        .copy(&textures.water_grass, tile_rects.wg_br, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::WGB) => canvas
+                        .copy(&textures.water_grass, tile_rects.wg_b, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::WGBL) => canvas
+                        .copy(&textures.water_grass, tile_rects.wg_bl, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::WGL) => canvas
+                        .copy(&textures.water_grass, tile_rects.wg_l, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::GWTL) => canvas
+                        .copy(&textures.water_grass, tile_rects.gw_tl, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::GWTR) => canvas
+                        .copy(&textures.water_grass, tile_rects.gw_tr, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::GWBR) => canvas
+                        .copy(&textures.water_grass, tile_rects.gw_br, render_quad)
+                        .unwrap(),
+                    Some(tilemap::FloorTile::GWBL) => canvas
+                        .copy(&textures.water_grass, tile_rects.gw_bl, render_quad)
+                        .unwrap(),
                     None => {}
-
                 };
                 match map.objects.get(i + j * map.size_x) {
                     Some(tilemap::ObjectTile::BERRY) => {
@@ -259,19 +208,25 @@ impl Renderer {
                     Some(tilemap::ObjectTile::DOOR) => {
                         canvas.copy(&textures.door1, None, render_quad).unwrap()
                     }
-                    Some(tilemap::ObjectTile::WOODL) => {
-                        canvas.copy(&textures.wood, tile_rects.wood_l, render_quad).unwrap()
-                    }
-                    Some(tilemap::ObjectTile::WOODR) => {
-                        canvas.copy(&textures.wood, tile_rects.wood_r, render_quad).unwrap()
-                    }
+                    Some(tilemap::ObjectTile::WOODL) => canvas
+                        .copy(&textures.wood, tile_rects.wood_l, render_quad)
+                        .unwrap(),
+                    Some(tilemap::ObjectTile::WOODR) => canvas
+                        .copy(&textures.wood, tile_rects.wood_r, render_quad)
+                        .unwrap(),
                     _ => {}
                 };
             }
         }
     }
 
-    pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, map: &mut tilemap::TileMap) {
+    pub fn render_transition(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        textures: &mut Textures,
+        delta_time: &f64,
+        map: &mut tilemap::TileMap,
+    ) {
         if self.is_fading {
             self.fade_anim_time = self.fade_anim_time - delta_time;
             if self.fade_anim_time <= 0.0 {
@@ -302,7 +257,12 @@ impl Renderer {
         }
     }
 
-    pub fn render_player(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, player: &player::Player) {
+    pub fn render_player(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        textures: &mut Textures,
+        player: &player::Player,
+    ) {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         let render_quad = Rect::new(
             (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as i32,
@@ -321,24 +281,58 @@ impl Renderer {
             .unwrap();
     }
 
-    pub fn render(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, player: &player::Player, map: &mut tilemap::TileMap) {
+    pub fn render_menus(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        textures: &mut Textures,
+        menu_man: &mut menu::MenuManager,
+    ) {
+        menu_man.render(canvas, textures);
+    }
+    /*pub fn render_menus(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        textures: &mut Textures,
+        menu_man: &menu::Menu_Manager,
+    ) {
+        canvas.set_draw_color(Color::RGB(255, 255, 255));
+        match menu.get_menu() {
+            Menu_State::MAIN_MENU => {
+                //self.render_main_menu(canvas, textures);
+            }
+            Menu_State::TEXTBOX => {
+                let render_quad = Rect::new(
+                    (1 * PIXELS_X / 16) as i32,
+                    (11 * PIXELS_Y / 16) as i32,
+                    PIXELS_X * 14 / 16,
+                    PIXELS_Y * 4 / 16,
+                );
+                canvas.fill_rect(render_quad);
+            }
+            _ => {}
+        }
+    }*/
+
+    pub fn render(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        textures: &mut Textures,
+        delta_time: &f64,
+        player: &player::Player,
+        map: &mut tilemap::TileMap,
+        menu_man: &mut menu::MenuManager,
+    ) {
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
 
-        match self.display_screen {
-            DisplayScreen::MainMenu => {
-                self.render_main_menu(canvas, textures);
-            }
-            DisplayScreen::OverWorld => {
-                let camera_offset = (
-                    (player.pos.0 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
-                    (player.pos.1 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32,
-                );
-                self.render_overworld_tiles(canvas, textures, map, camera_offset);
-                self.render_player(canvas, textures, player);
-                self.render_transition(canvas, textures, delta_time, map);
-            }
-        }
+        let camera_offset = (
+            (player.pos.0 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
+            (player.pos.1 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32,
+        );
+        self.render_overworld_tiles(canvas, textures, map, camera_offset);
+        self.render_player(canvas, textures, player);
+        self.render_menus(canvas, textures, menu_man);
+        self.render_transition(canvas, textures, delta_time, map);
 
         canvas.present();
     }
@@ -394,12 +388,7 @@ impl Renderer {
         canvas.set_scale(scale as f32, scale as f32).unwrap();
         let bb_x = ((self.window_x - PIXELS_X * scale) / 2) / scale;
         let bb_y = ((self.window_y - PIXELS_Y * scale) / 2) / scale;
-        let viewport = sdl2::rect::Rect::new(
-            bb_x as i32,
-            bb_y as i32,
-            10,
-            10,
-        );
+        let viewport = sdl2::rect::Rect::new(bb_x as i32, bb_y as i32, 10, 10);
         canvas.set_viewport(viewport);
     }
 
@@ -418,12 +407,7 @@ impl Renderer {
         // put top left corner of renderer at top left scaled of "screen" to maintain aspect ratio
         let bb_x = ((self.window_x - PIXELS_X * scale) / 2) / scale; //TODO: FIX BUG THAT CRASHES GAME WHEN YOU RESIZE SCREEN TOO SMALL
         let bb_y = ((self.window_y - PIXELS_Y * scale) / 2) / scale;
-        let viewport = sdl2::rect::Rect::new(
-            bb_x as i32,
-            bb_y as i32,
-            PIXELS_X,
-            PIXELS_Y,
-        );
+        let viewport = sdl2::rect::Rect::new(bb_x as i32, bb_y as i32, PIXELS_X, PIXELS_Y);
         canvas.set_viewport(viewport);
     }
 }
