@@ -111,7 +111,7 @@ impl Input {
                                 }
                             }
 
-                            objects::object_interact(temp_pos, &mut map, renderer);
+                            objects::object_interact(temp_pos, &mut map, renderer, menu_man);
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 use sdl2::{render::Canvas, video::Window};
 
 pub mod main_menu;
+pub mod textbox;
 use crate::render::Textures;
 
 use self::main_menu::MainMenu;
@@ -15,7 +16,7 @@ pub enum Action {
     REJECT,
 }
 
-trait Menu_Item {
+pub trait Menu_Item {
     fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures);
     fn update(&mut self, action: Action);
 }

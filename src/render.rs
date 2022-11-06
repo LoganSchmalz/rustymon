@@ -8,14 +8,14 @@ use sdl2::{
 };
 use std::path::Path;
 
-use crate::{menu, player, tilemap, TILE_SIZE};
+use crate::{menu::{self, MenuManager}, player, tilemap, TILE_SIZE};
 use tilemap::load_tilemap;
 
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
 const FADE_FRAMES: i32 = 14;
 const FADE_TIME: f64 = FADE_FRAMES as f64 * 64.0;
-const TEXT_TIME: f64 = 2.0;
+const TEXT_TIME: f64 = 500.0;
 
 #[derive(PartialEq)]
 pub enum DisplayScreen {
@@ -254,11 +254,12 @@ impl Renderer {
         }
     }
 
-    pub fn render_text(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &mut Fonts, delta_time: &f64) {
+    pub fn render_text(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &mut Fonts, delta_time: &f64, menu_man: &mut MenuManager) {
         if self.display_text {
             self.text_display_time = self.text_display_time - delta_time;
             if self.text_display_time <= 0.0 {
                 self.display_text = false;
+                menu_man.close_menu();
             } else {
                 let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41 as u32);
                 let text_quad = Rect::new(10, (PIXELS_Y - 41) as i32 + 10, PIXELS_X - 20, 41 - 20 as u32);
@@ -277,7 +278,7 @@ impl Renderer {
 
     pub fn play_text(&mut self) {
         self.display_text = true;
-        self.text_display_time = FADE_TIME;
+        self.text_display_time = TEXT_TIME;
     }
 
     pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, map: &mut tilemap::TileMap) {
@@ -386,7 +387,7 @@ impl Renderer {
         self.render_overworld_tiles(canvas, textures, map, camera_offset);
         self.render_player(canvas, textures, player);
         self.render_menus(canvas, textures, menu_man);
-        self.render_text(canvas, textures, fonts, delta_time);
+        self.render_text(canvas, textures, fonts, delta_time, menu_man);
         self.render_transition(canvas, textures, delta_time, map);
 
         canvas.present();
