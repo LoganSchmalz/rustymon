@@ -4,6 +4,7 @@ use sdl2::{
     rect::Rect,
     render::{Canvas, Texture, TextureCreator},
     video::{FullscreenType, Window, WindowContext},
+    ttf::{Sdl2TtfContext, Font},
 };
 use std::path::Path;
 
@@ -14,6 +15,7 @@ pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
 const FADE_FRAMES: i32 = 14;
 const FADE_TIME: f64 = FADE_FRAMES as f64 * 64.0;
+const TEXT_TIME: f64 = 2.0;
 
 #[derive(PartialEq)]
 pub enum DisplayScreen {
@@ -38,6 +40,8 @@ pub struct Renderer {
     pub is_fading: bool,
     did_trans: bool,
     fade_anim_time: f64,
+    display_text: bool,
+    text_display_time: f64,
 }
 
 pub const BUTTONS: [Button; 3] = [
@@ -59,6 +63,20 @@ pub struct Textures<'a> {
     fade_texture: Texture<'a>,
     //Characters
     player: Texture<'a>,
+}
+
+pub struct Fonts<'ttf_module, 'rwops> {
+    press_start_2p: Font<'ttf_module, 'rwops>,
+}
+
+impl<'ttf_module, 'rwops> Fonts<'ttf_module, 'rwops> {
+    pub fn load(font_loader: &'ttf_module Sdl2TtfContext) -> Self {
+        let press_start_2p = font_loader.load_font("assets/PressStart2P-Regular.ttf", 120).unwrap();
+
+        Fonts {
+            press_start_2p,
+        }
+    }
 }
 
 impl<'a> Textures<'a> {
@@ -152,6 +170,8 @@ impl Renderer {
             is_fading: false,
             did_trans: false,
             fade_anim_time: FADE_TIME,
+            display_text: false,
+            text_display_time: TEXT_TIME,
         }
     }
 
@@ -281,6 +301,32 @@ impl Renderer {
         }
     }
 
+    pub fn render_text(&mut self, canvas: &mut Canvas<Window>, fonts: &mut Fonts, delta_time: &f64) {
+        if self.display_text {
+            self.text_display_time = self.text_display_time - delta_time;
+            if self.text_display_time <= 0.0 {
+                self.display_text = false;
+            } else {
+                let render_quad = Rect::new(0, (PIXELS_Y * 4 / 5) as i32, PIXELS_X, (PIXELS_Y / 5 ) as u32);
+
+                let surface = fonts.press_start_2p
+                .render("Don't Eat Me!")
+                .blended(Color::RGB(255, 255, 255)).unwrap();
+                let creator = canvas.texture_creator();
+                let texture = creator
+                .create_texture_from_surface(&surface).unwrap();
+                canvas.set_draw_color(Color::RGB(135, 206, 235));
+                canvas.fill_rect(render_quad).unwrap();
+                canvas.copy(&texture, None, render_quad).unwrap();
+            }
+        }
+    }
+
+    pub fn play_text(&mut self) {
+        self.display_text = true;
+        self.text_display_time = FADE_TIME;
+    }
+
     pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, map: &mut tilemap::TileMap) {
         if self.is_fading {
             self.fade_anim_time = self.fade_anim_time - delta_time;
@@ -331,7 +377,7 @@ impl Renderer {
             .unwrap();
     }
 
-    pub fn render(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, player: &player::Player, map: &mut tilemap::TileMap) {
+    pub fn render(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &mut Fonts, delta_time: &f64, player: &player::Player, map: &mut tilemap::TileMap) {
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
 
@@ -346,6 +392,7 @@ impl Renderer {
                 );
                 self.render_overworld_tiles(canvas, textures, map, camera_offset);
                 self.render_player(canvas, textures, player);
+                self.render_text(canvas, fonts, delta_time);
                 self.render_transition(canvas, textures, delta_time, map);
             }
         }
