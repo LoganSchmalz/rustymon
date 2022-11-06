@@ -30,21 +30,21 @@ use Main_Menu_Button::*;
 impl Menu_Item for MainMenu {
 	fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures,) {
 		if self.curr_button == StartButton {
-            textures.start_button.set_color_mod(255, 0, 0);
-        } else {
             textures.start_button.set_color_mod(223, 3, 67);
+        } else {
+            textures.start_button.set_color_mod(255, 255, 255);
         }
 
         if self.curr_button == LoadButton {
-            textures.load_button.set_color_mod(255, 0, 0);
-        } else {
             textures.load_button.set_color_mod(223, 3, 67);
+        } else {
+            textures.load_button.set_color_mod(255, 255, 255);
         }
 
         if self.curr_button == SettingsButton {
-            textures.settings_button.set_color_mod(255, 0, 0);
-        } else {
             textures.settings_button.set_color_mod(223, 3, 67);
+        } else {
+            textures.settings_button.set_color_mod(255, 255, 255);
         }
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
         let start_quad = Rect::new(82, 100, 75, 24);
