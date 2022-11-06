@@ -177,26 +177,26 @@ impl Renderer {
 
     pub fn render_main_menu(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures) {
         if BUTTONS[self.curr_button] == Button::StartButton {
-            textures.start_button.set_color_mod(255, 0, 0);
+            textures.start_button.set_color_mod(223, 3, 67);
         } else {
             textures.start_button.set_color_mod(255, 255, 255);
         }
 
         if BUTTONS[self.curr_button] == Button::LoadButton {
-            textures.load_button.set_color_mod(255, 0, 0);
+            textures.load_button.set_color_mod(223, 3, 67);
         } else {
             textures.load_button.set_color_mod(255, 255, 255);
         }
 
         if BUTTONS[self.curr_button] == Button::SettingsButton {
-            textures.settings_button.set_color_mod(255, 0, 0);
+            textures.settings_button.set_color_mod(223, 3, 67);
         } else {
             textures.settings_button.set_color_mod(255, 255, 255);
         }
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
-        let start_quad = Rect::new(100, 100, 32, 16);
-        let load_quad = Rect::new(99, 120, 16, 16);
-        let settings_quad = Rect::new(116, 120, 16, 16);
+        let start_quad = Rect::new(82, 100, 75, 24);
+        let load_quad = Rect::new(102, 122, 16, 16);
+        let settings_quad = Rect::new(121, 122, 16, 16);
 
         canvas.copy(&textures.main_menu, None, screen_quad).unwrap();
         canvas
