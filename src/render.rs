@@ -63,6 +63,8 @@ pub struct Textures<'a> {
     fade_texture: Texture<'a>,
     //Characters
     player: Texture<'a>,
+    //Text Box
+    text_box: Texture<'a>,
 }
 
 pub struct Fonts<'ttf_module, 'rwops> {
@@ -89,6 +91,7 @@ impl<'a> Textures<'a> {
         let settings_button = creator.load_texture("assets/SETTINGSbutton.png").unwrap();
         let fade_texture = creator.load_texture("assets/gooWipe.png").unwrap();
         let player = creator.load_texture("assets/newcharsprite.png").unwrap();
+        let text_box = creator.load_texture("assets/text_box.png").unwrap();
 
         Textures {
             tilesprites,
@@ -99,6 +102,7 @@ impl<'a> Textures<'a> {
             settings_button,
             fade_texture,
             player,
+            text_box,
         }
     }
 }
@@ -301,23 +305,23 @@ impl Renderer {
         }
     }
 
-    pub fn render_text(&mut self, canvas: &mut Canvas<Window>, fonts: &mut Fonts, delta_time: &f64) {
+    pub fn render_text(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &mut Fonts, delta_time: &f64) {
         if self.display_text {
             self.text_display_time = self.text_display_time - delta_time;
             if self.text_display_time <= 0.0 {
                 self.display_text = false;
             } else {
-                let render_quad = Rect::new(0, (PIXELS_Y * 4 / 5) as i32, PIXELS_X, (PIXELS_Y / 5 ) as u32);
+                let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41 as u32);
+                let text_quad = Rect::new(10, (PIXELS_Y - 41) as i32 + 10, PIXELS_X - 20, 41 - 20 as u32);
 
                 let surface = fonts.press_start_2p
                 .render("Don't Eat Me!")
-                .blended(Color::RGB(255, 255, 255)).unwrap();
+                .blended(Color::RGB(179, 145, 133)).unwrap();
                 let creator = canvas.texture_creator();
                 let texture = creator
                 .create_texture_from_surface(&surface).unwrap();
-                canvas.set_draw_color(Color::RGB(135, 206, 235));
-                canvas.fill_rect(render_quad).unwrap();
-                canvas.copy(&texture, None, render_quad).unwrap();
+                canvas.copy(&textures.text_box, None, box_quad).unwrap();
+                canvas.copy(&texture, None, text_quad).unwrap();
             }
         }
     }
@@ -392,7 +396,7 @@ impl Renderer {
                 );
                 self.render_overworld_tiles(canvas, textures, map, camera_offset);
                 self.render_player(canvas, textures, player);
-                self.render_text(canvas, fonts, delta_time);
+                self.render_text(canvas, textures, fonts, delta_time);
                 self.render_transition(canvas, textures, delta_time, map);
             }
         }
@@ -401,6 +405,7 @@ impl Renderer {
     }
 
     pub fn play_fade(&mut self) {
+        //TODO LOCK PLAYER WHEN FADE IS PLAYING SO THEY CANT WALK ON WATER
         self.is_fading = true;
         self.did_trans = false;
         self.fade_anim_time = FADE_TIME;
