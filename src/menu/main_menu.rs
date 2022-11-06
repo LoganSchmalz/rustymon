@@ -32,24 +32,24 @@ impl Menu_Item for MainMenu {
 		if self.curr_button == StartButton {
             textures.start_button.set_color_mod(255, 0, 0);
         } else {
-            textures.start_button.set_color_mod(255, 255, 255);
+            textures.start_button.set_color_mod(223, 3, 67);
         }
 
         if self.curr_button == LoadButton {
             textures.load_button.set_color_mod(255, 0, 0);
         } else {
-            textures.load_button.set_color_mod(255, 255, 255);
+            textures.load_button.set_color_mod(223, 3, 67);
         }
 
         if self.curr_button == SettingsButton {
             textures.settings_button.set_color_mod(255, 0, 0);
         } else {
-            textures.settings_button.set_color_mod(255, 255, 255);
+            textures.settings_button.set_color_mod(223, 3, 67);
         }
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
-        let start_quad = Rect::new(100, 100, 32, 16);
-        let load_quad = Rect::new(99, 120, 16, 16);
-        let settings_quad = Rect::new(116, 120, 16, 16);
+        let start_quad = Rect::new(82, 100, 75, 24);
+        let load_quad = Rect::new(102, 122, 16, 16);
+        let settings_quad = Rect::new(121, 122, 16, 16);
 
         canvas.copy(&textures.main_menu, None, screen_quad).unwrap();
         canvas
