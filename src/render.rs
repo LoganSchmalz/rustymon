@@ -4,6 +4,7 @@ use sdl2::{
     rect::Rect,
     render::{Canvas, Texture, TextureCreator},
     video::{FullscreenType, Window, WindowContext},
+    ttf::{Sdl2TtfContext, Font},
 };
 use std::path::Path;
 
@@ -14,6 +15,7 @@ pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
 const FADE_FRAMES: i32 = 14;
 const FADE_TIME: f64 = FADE_FRAMES as f64 * 64.0;
+const TEXT_TIME: f64 = 2.0;
 
 #[derive(PartialEq)]
 pub enum DisplayScreen {
@@ -29,58 +31,72 @@ pub struct Renderer {
     pub is_fading: bool,
     did_trans: bool,
     fade_anim_time: f64,
+    display_text: bool,
+    text_display_time: f64,
 }
 
 pub struct Textures<'a> {
+    //Sprite sheets
+    tilesprites: Texture<'a>,
+    objectsprites: Texture<'a>,
+    //Main menu assets
     pub main_menu: Texture<'a>,
     pub start_button: Texture<'a>,
     pub load_button: Texture<'a>,
     pub settings_button: Texture<'a>,
+    //Transitions
     fade_texture: Texture<'a>,
+    //Characters
     player: Texture<'a>,
-    grass1: Texture<'a>,
-    grass2: Texture<'a>,
-    water1: Texture<'a>,
-    berry: Texture<'a>,
-    door1: Texture<'a>,
-    water_grass: Texture<'a>,
-    wood: Texture<'a>,
+    //Text Box
+    text_box: Texture<'a>,
+}
+
+pub struct Fonts<'ttf_module, 'rwops> {
+    press_start_2p: Font<'ttf_module, 'rwops>,
+}
+
+impl<'ttf_module, 'rwops> Fonts<'ttf_module, 'rwops> {
+    pub fn load(font_loader: &'ttf_module Sdl2TtfContext) -> Self {
+        let press_start_2p = font_loader.load_font("assets/PressStart2P-Regular.ttf", 120).unwrap();
+
+        Fonts {
+            press_start_2p,
+        }
+    }
 }
 
 impl<'a> Textures<'a> {
     pub fn load(creator: &'a TextureCreator<WindowContext>) -> Self {
+        let tilesprites = creator.load_texture("assets/tilesprites.png").unwrap();
+        let objectsprites = creator.load_texture("assets/objectsprites.png").unwrap();
         let main_menu = creator.load_texture("assets/titlescreen.png").unwrap();
         let start_button = creator.load_texture("assets/STARTbutton.png").unwrap();
         let load_button = creator.load_texture("assets/SAVELOADbutton.png").unwrap();
         let settings_button = creator.load_texture("assets/SETTINGSbutton.png").unwrap();
         let fade_texture = creator.load_texture("assets/gooWipe.png").unwrap();
         let player = creator.load_texture("assets/newcharsprite.png").unwrap();
-        let grass1 = creator.load_texture("assets/grass1.png").unwrap();
-        let grass2 = creator.load_texture("assets/grass2.png").unwrap();
-        let water1 = creator.load_texture("assets/water1.png").unwrap();
-        let berry = creator.load_texture("assets/berry.png").unwrap();
-        let door1 = creator.load_texture("assets/door1.png").unwrap();
-        let water_grass = creator.load_texture("assets/water-grass.png").unwrap();
-        let wood = creator.load_texture("assets/woodcorners.png").unwrap();
+        let text_box = creator.load_texture("assets/text_box.png").unwrap();
+
         Textures {
+            tilesprites,
+            objectsprites,
             main_menu,
             start_button,
             load_button,
             settings_button,
             fade_texture,
             player,
-            grass1,
-            grass2,
-            water1,
-            berry,
-            door1,
-            water_grass,
-            wood,
+            text_box,
         }
     }
 }
 
 pub struct TileRect {
+    //Tile sprites
+    g1: Rect,
+    g2: Rect,
+    w1: Rect,
     wg_tl: Rect,
     wg_t: Rect,
     wg_tr: Rect,
@@ -95,25 +111,38 @@ pub struct TileRect {
     gw_bl: Rect,
     wood_l: Rect,
     wood_r: Rect,
+    door1: Rect,
+    fb1: Rect,
+    //Object sprites
+    berry1: Rect,
 }
 
 impl TileRect {
     pub fn new() -> TileRect {
         TileRect {
-            wg_tl: Rect::new(0, 0, 16, 16),
-            wg_t: Rect::new(16, 0, 16, 16),
-            wg_tr: Rect::new(32, 0, 16, 16),
-            wg_r: Rect::new(32, 16, 16, 16),
-            wg_br: Rect::new(32, 32, 16, 16),
-            wg_b: Rect::new(16, 32, 16, 16),
-            wg_bl: Rect::new(0, 32, 16, 16),
-            wg_l: Rect::new(0, 16, 16, 16),
-            gw_tl: Rect::new(48, 0, 16, 16),
-            gw_tr: Rect::new(80, 0, 16, 16),
-            gw_br: Rect::new(80, 32, 16, 16),
-            gw_bl: Rect::new(48, 32, 16, 16),
-            wood_l: Rect::new(0, 0, 16, 16),
-            wood_r: Rect::new(32, 0, 16, 16),
+            //Rect::new(x, y, width, height)
+            //Tile sprites
+            g1: Rect::new(32, 0, 16, 16), //Grass 1
+            g2: Rect::new(48, 0, 16, 16), //Grass 2
+            w1: Rect::new(16, 64, 16, 16), //Water 1
+            wg_tl: Rect::new(0, 48, 16, 16), //Water-Grass Top Left
+            wg_t: Rect::new(16, 48, 16, 16), //Water-Grass Top
+            wg_tr: Rect::new(32, 48, 16, 16), //Water-Grass Top Right
+            wg_l: Rect::new(0, 64, 16, 16), //Water-Grass Left
+            wg_r: Rect::new(32, 64, 16, 16), //Water-Grass Right
+            wg_bl: Rect::new(0, 80, 16, 16), //Water-Grass Bottom Left
+            wg_b: Rect::new(16, 80, 16, 16), //Water-Grass Bottom
+            wg_br: Rect::new(32, 80, 16, 16), //Water-Grass Bottom Right
+            gw_tl: Rect::new(48, 48, 16, 16), //Grass-Water Top Left
+            gw_tr: Rect::new(80, 48, 16, 16), //Grass-Water Top Right
+            gw_bl: Rect::new(48, 80, 16, 16), //Grass-Water Bottom Left
+            gw_br: Rect::new(80, 80, 16, 16), //Grass-Water Bottom Right
+            wood_l: Rect::new(128, 0, 16, 16), //Wood Left
+            wood_r: Rect::new(160, 0, 16, 16), //Wood Right
+            door1: Rect::new(96, 0, 16, 16), //Door 1
+            fb1: Rect::new(112, 0, 16, 16), //Floor Base 1
+            //Object sprites
+            berry1: Rect::new(0, 0, 16, 16), //Berry 1
         }
     }
 }
@@ -128,6 +157,8 @@ impl Renderer {
             is_fading: false,
             did_trans: false,
             fade_anim_time: FADE_TIME,
+            display_text: false,
+            text_display_time: TEXT_TIME,
         }
     }
 
@@ -155,78 +186,101 @@ impl Renderer {
                 );
                 match map.floor.get(i + j * map.size_x) {
                     Some(tilemap::FloorTile::GRASS1) => {
-                        canvas.copy(&textures.grass1, None, render_quad).unwrap()
+                        canvas.copy(&textures.tilesprites, tile_rects.g1, render_quad).unwrap()
                     }
                     Some(tilemap::FloorTile::GRASS2) => {
-                        canvas.copy(&textures.grass2, None, render_quad).unwrap()
+                        canvas.copy(&textures.tilesprites, tile_rects.g2, render_quad).unwrap()
                     }
                     Some(tilemap::FloorTile::WATER1) => {
-                        canvas.copy(&textures.water1, None, render_quad).unwrap()
+                        canvas.copy(&textures.tilesprites, tile_rects.w1, render_quad).unwrap()
                     }
-                    Some(tilemap::FloorTile::WGTL) => canvas
-                        .copy(&textures.water_grass, tile_rects.wg_tl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::WGT) => canvas
-                        .copy(&textures.water_grass, tile_rects.wg_t, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::WGTR) => canvas
-                        .copy(&textures.water_grass, tile_rects.wg_tr, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::WGR) => canvas
-                        .copy(&textures.water_grass, tile_rects.wg_r, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::WGBR) => canvas
-                        .copy(&textures.water_grass, tile_rects.wg_br, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::WGB) => canvas
-                        .copy(&textures.water_grass, tile_rects.wg_b, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::WGBL) => canvas
-                        .copy(&textures.water_grass, tile_rects.wg_bl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::WGL) => canvas
-                        .copy(&textures.water_grass, tile_rects.wg_l, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::GWTL) => canvas
-                        .copy(&textures.water_grass, tile_rects.gw_tl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::GWTR) => canvas
-                        .copy(&textures.water_grass, tile_rects.gw_tr, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::GWBR) => canvas
-                        .copy(&textures.water_grass, tile_rects.gw_br, render_quad)
-                        .unwrap(),
-                    Some(tilemap::FloorTile::GWBL) => canvas
-                        .copy(&textures.water_grass, tile_rects.gw_bl, render_quad)
-                        .unwrap(),
+                    Some(tilemap::FloorTile::WGTL) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wg_tl, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WGT) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wg_t, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WGTR) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wg_tr, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WGR) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wg_r, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WGBR) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wg_br, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WGB) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wg_b, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WGBL) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wg_bl, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::WGL) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wg_l, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::GWTL) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.gw_tl, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::GWTR) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.gw_tr, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::GWBR) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.gw_br, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::GWBL) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.gw_bl, render_quad).unwrap()
+                    }
+                    Some(tilemap::FloorTile::FB1) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.fb1, render_quad).unwrap()
+                    }
                     None => {}
                 };
                 match map.objects.get(i + j * map.size_x) {
                     Some(tilemap::ObjectTile::BERRY) => {
-                        canvas.copy(&textures.berry, None, render_quad).unwrap()
+                        canvas.copy(&textures.objectsprites, tile_rects.berry1, render_quad).unwrap()
                     }
                     Some(tilemap::ObjectTile::DOOR) => {
-                        canvas.copy(&textures.door1, None, render_quad).unwrap()
+                        canvas.copy(&textures.tilesprites, tile_rects.door1, render_quad).unwrap()
                     }
-                    Some(tilemap::ObjectTile::WOODL) => canvas
-                        .copy(&textures.wood, tile_rects.wood_l, render_quad)
-                        .unwrap(),
-                    Some(tilemap::ObjectTile::WOODR) => canvas
-                        .copy(&textures.wood, tile_rects.wood_r, render_quad)
-                        .unwrap(),
+                    Some(tilemap::ObjectTile::WOODL) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wood_l, render_quad).unwrap()
+                    }
+                    Some(tilemap::ObjectTile::WOODR) => {
+                        canvas.copy(&textures.tilesprites, tile_rects.wood_r, render_quad).unwrap()
+                    }
                     _ => {}
                 };
             }
         }
     }
 
-    pub fn render_transition(
-        &mut self,
-        canvas: &mut Canvas<Window>,
-        textures: &mut Textures,
-        delta_time: &f64,
-        map: &mut tilemap::TileMap,
-    ) {
+    pub fn render_text(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &mut Fonts, delta_time: &f64) {
+        if self.display_text {
+            self.text_display_time = self.text_display_time - delta_time;
+            if self.text_display_time <= 0.0 {
+                self.display_text = false;
+            } else {
+                let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41 as u32);
+                let text_quad = Rect::new(10, (PIXELS_Y - 41) as i32 + 10, PIXELS_X - 20, 41 - 20 as u32);
+
+                let surface = fonts.press_start_2p
+                .render("Don't Eat Me!")
+                .blended(Color::RGB(179, 145, 133)).unwrap();
+                let creator = canvas.texture_creator();
+                let texture = creator
+                .create_texture_from_surface(&surface).unwrap();
+                canvas.copy(&textures.text_box, None, box_quad).unwrap();
+                canvas.copy(&texture, None, text_quad).unwrap();
+            }
+        }
+    }
+
+    pub fn play_text(&mut self) {
+        self.display_text = true;
+        self.text_display_time = FADE_TIME;
+    }
+
+    pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, map: &mut tilemap::TileMap) {
         if self.is_fading {
             self.fade_anim_time = self.fade_anim_time - delta_time;
             if self.fade_anim_time <= 0.0 {
@@ -316,7 +370,7 @@ impl Renderer {
     pub fn render(
         &mut self,
         canvas: &mut Canvas<Window>,
-        textures: &mut Textures,
+        textures: &mut Textures,fonts: &mut Fonts,
         delta_time: &f64,
         player: &player::Player,
         map: &mut tilemap::TileMap,
@@ -332,12 +386,14 @@ impl Renderer {
         self.render_overworld_tiles(canvas, textures, map, camera_offset);
         self.render_player(canvas, textures, player);
         self.render_menus(canvas, textures, menu_man);
+        self.render_text(canvas, textures, fonts, delta_time);
         self.render_transition(canvas, textures, delta_time, map);
 
         canvas.present();
     }
 
     pub fn play_fade(&mut self) {
+        //TODO LOCK PLAYER WHEN FADE IS PLAYING SO THEY CANT WALK ON WATER
         self.is_fading = true;
         self.did_trans = false;
         self.fade_anim_time = FADE_TIME;

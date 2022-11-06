@@ -13,7 +13,7 @@ extern crate sdl2;
 extern crate num_derive;
 
 use menu::{main_menu::MainMenu, MenuManager};
-use render::Textures;
+use render::{Textures, Fonts};
 use tilemap::load_tilemap;
 use std::{fs, path::Path, rc::Rc, cell::RefCell};
 
@@ -55,6 +55,9 @@ pub fn main() {
 
     let texture_creator = canvas.texture_creator();
     let mut textures = Textures::load(&texture_creator);
+    let ttf_context = sdl2::ttf::init();
+    let font_loader = ttf_context.expect("Missing ttf context");
+    let mut fonts = Fonts::load(&font_loader);
     let mut renderer = render::Renderer::new();
     let mut menu_man = menu::MenuManager::new();
     //menu_man.borrow_mut().open_menu(Box::new(MainMenu));
@@ -81,6 +84,6 @@ pub fn main() {
         //println!("{:?}", delta_time);
 
         player.update(&delta_time);
-        renderer.render(&mut canvas, &mut textures, &delta_time, &player, &mut map, &mut menu_man);
+        renderer.render(&mut canvas, &mut textures, &mut fonts, &delta_time, &player, &mut map, &mut menu_man);
     }
 }
