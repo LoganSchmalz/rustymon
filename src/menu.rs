@@ -16,13 +16,13 @@ pub enum Action {
     REJECT,
 }
 
-pub trait Menu_Item {
+pub trait MenuItem {
     fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures);
-    fn update(&mut self, action: Action);
+    fn update(&mut self, action: Action) -> bool; // returns true if menu should close after interaction
 }
 
 pub struct MenuManager {
-    menus: Vec<Box<dyn Menu_Item>>, // this is a stack
+    menus: Vec<Box<dyn MenuItem>>, // this is a stack
 }
 
 impl MenuManager {
@@ -32,7 +32,7 @@ impl MenuManager {
         }
     }
 
-    pub fn open_menu(&mut self, next_menu: Box<dyn Menu_Item>) {
+    pub fn open_menu(&mut self, next_menu: Box<dyn MenuItem>) {
         self.menus.push(next_menu);
     }
 
@@ -46,13 +46,13 @@ impl MenuManager {
 
     pub fn interact(&mut self, action: Action) {
         if self.is_open() {
-            if action == Action::REJECT {
+            let curr_menu = self
+                .menus
+                .last_mut()
+                .expect("Tried to change menu with no menus open");
+            let should_close = curr_menu.update(action);
+            if should_close {
                 self.close_menu();
-            } else {
-                self.menus
-                    .last_mut()
-                    .expect("Tried to change menu with no menus open")
-                    .update(action);
             }
         }
     }

@@ -2,7 +2,7 @@ use sdl2::{render::Canvas, video::Window};
 
 use crate::render::Textures;
 
-use super::{Menu_Item, Action};
+use super::{MenuItem, Action, MenuManager};
 
 pub struct Textbox {
 }
@@ -14,10 +14,11 @@ impl Textbox {
 	}
 }
 
-impl Menu_Item for Textbox {
+impl MenuItem for Textbox {
 	fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures,) {
 	}
 
-	fn update(&mut self, action: Action) {
+	fn update(&mut self, action: Action) -> bool {
+		true
 	}
 }

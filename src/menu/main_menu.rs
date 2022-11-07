@@ -4,7 +4,7 @@ use sdl2::{video::Window, render::Canvas, rect::Rect};
 
 use crate::render::{Textures, PIXELS_X, PIXELS_Y};
 
-use super::{Menu_Item, Action, MenuManager};
+use super::{MenuItem, Action, MenuManager};
 
 #[derive(PartialEq)]
 pub enum Main_Menu_Button {
@@ -27,7 +27,7 @@ impl MainMenu {
 
 use Main_Menu_Button::*;
 
-impl Menu_Item for MainMenu {
+impl MenuItem for MainMenu {
 	fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures,) {
 		if self.curr_button == StartButton {
             textures.start_button.set_color_mod(223, 3, 67);
@@ -61,11 +61,11 @@ impl Menu_Item for MainMenu {
             .unwrap();
 	}
 
-	fn update(&mut self, action: Action) {
-		println!("{:?}", action);
+	fn update(&mut self, action: Action) -> bool {
 		match action {
 			Action::SELECT => {
 				if self.curr_button == StartButton {
+					return true;
 				}
 			}
 			Action::LEFT => {
@@ -98,5 +98,6 @@ impl Menu_Item for MainMenu {
 			}
 			_ => {}
 		}
+		return true;
 	}
 }
