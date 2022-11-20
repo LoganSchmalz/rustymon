@@ -54,33 +54,31 @@ impl Input {
 
                 match player.dir {
                     Direction::LEFT => {
-                        /*if (player.pos.0 / TILE_SIZE as f64) - 1.0 < 0.0 {
-                            break;
-                        }*/
+                        if (player.pos.0 / TILE_SIZE as f64) - 1.0 < 0.0 {
+                            return;
+                        }
                         temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize - 1
                             + (player.pos.1 / TILE_SIZE as f64) as usize * map.size_x;
                     }
                     Direction::RIGHT => {
-                        /*if (player.pos.0 / TILE_SIZE as f64) as usize + 1 >= map.size_x
-                        {
-                            break;
-                        }*/
+                        if (player.pos.0 / TILE_SIZE as f64) as usize + 1 >= map.size_x {
+                            return;
+                        }
                         temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize
                             + 1
                             + (player.pos.1 / TILE_SIZE as f64) as usize * map.size_x;
                     }
                     Direction::UP => {
-                        /*if (player.pos.1 / TILE_SIZE as f64) - 1.0 < 0.0 {
-                            break;
-                        }*/
+                        if (player.pos.1 / TILE_SIZE as f64) - 1.0 < 0.0 {
+                            return;
+                        }
                         temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize
                             + ((player.pos.1 / TILE_SIZE as f64) - 1.0) as usize * map.size_x;
                     }
                     Direction::DOWN => {
-                        /* if (player.pos.1 / TILE_SIZE as f64) as usize + 1 >= map.size_y
-                        {
-                            break;
-                        }*/
+                        if (player.pos.1 / TILE_SIZE as f64) as usize + 1 >= map.size_y {
+                            return;
+                        }
                         temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize
                             + ((player.pos.1 / TILE_SIZE as f64) + 1.0) as usize * map.size_x;
                     }
