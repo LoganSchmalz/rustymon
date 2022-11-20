@@ -98,6 +98,6 @@ impl MenuItem for MainMenu {
 			}
 			_ => {}
 		}
-		return true;
+		false
 	}
 }
