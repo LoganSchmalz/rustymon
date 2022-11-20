@@ -18,6 +18,79 @@ impl Input {
         Input { allow_input: true }
     }
 
+    pub fn handle_keydown(
+        &self,
+        key: Keycode,
+        player: &mut player::Player,
+        renderer: &mut render::Renderer,
+        mut map: &mut tilemap::TileMap,
+        menu_man: &mut menu::MenuManager,
+    ) -> () {
+        if menu_man.is_open() {
+            match key {
+                Keycode::Up => {
+                    menu_man.interact(menu::Action::UP);
+                }
+                Keycode::Left => {
+                    menu_man.interact(menu::Action::LEFT);
+                }
+                Keycode::Down => {
+                    menu_man.interact(menu::Action::DOWN);
+                }
+                Keycode::Right => {
+                    menu_man.interact(menu::Action::RIGHT);
+                }
+                Keycode::Space | Keycode::Return => {
+                    menu_man.interact(menu::Action::ACCEPT);
+                }
+                Keycode::X => {
+                    menu_man.interact(menu::Action::REJECT);
+                }
+                _ => {}
+            }
+        } else {
+            if key == Keycode::Space || key == Keycode::Return {
+                let temp_pos: usize;
+
+                match player.dir {
+                    Direction::LEFT => {
+                        /*if (player.pos.0 / TILE_SIZE as f64) - 1.0 < 0.0 {
+                            break;
+                        }*/
+                        temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize - 1
+                            + (player.pos.1 / TILE_SIZE as f64) as usize * map.size_x;
+                    }
+                    Direction::RIGHT => {
+                        /*if (player.pos.0 / TILE_SIZE as f64) as usize + 1 >= map.size_x
+                        {
+                            break;
+                        }*/
+                        temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize
+                            + 1
+                            + (player.pos.1 / TILE_SIZE as f64) as usize * map.size_x;
+                    }
+                    Direction::UP => {
+                        /*if (player.pos.1 / TILE_SIZE as f64) - 1.0 < 0.0 {
+                            break;
+                        }*/
+                        temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize
+                            + ((player.pos.1 / TILE_SIZE as f64) - 1.0) as usize * map.size_x;
+                    }
+                    Direction::DOWN => {
+                        /* if (player.pos.1 / TILE_SIZE as f64) as usize + 1 >= map.size_y
+                        {
+                            break;
+                        }*/
+                        temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize
+                            + ((player.pos.1 / TILE_SIZE as f64) + 1.0) as usize * map.size_x;
+                    }
+                }
+
+                objects::object_interact(temp_pos, &mut map, renderer, menu_man);
+            }
+        }
+    }
+
     pub fn handle_input(
         &self,
         event_pump: &mut sdl2::EventPump,
@@ -39,7 +112,9 @@ impl Input {
                 | Event::KeyDown {
                     keycode: Some(Keycode::Escape),
                     ..
-                } => return true,
+                } => {
+                    return true;
+                }
                 Event::KeyDown {
                     keycode: Some(Keycode::F11),
                     ..
@@ -49,71 +124,7 @@ impl Input {
                 Event::KeyDown {
                     keycode: Some(key), ..
                 } => {
-                    if menu_man.is_open() {
-                        match key {
-                            Keycode::Up => {
-                                menu_man.interact(menu::Action::UP);
-                            }
-                            Keycode::Left => {
-                                menu_man.interact(menu::Action::LEFT);
-                            }
-                            Keycode::Down => {
-                                menu_man.interact(menu::Action::DOWN);
-                            }
-                            Keycode::Right => {
-                                menu_man.interact(menu::Action::RIGHT);
-                            }
-                            Keycode::Space | Keycode::Return => {
-                                menu_man.interact(menu::Action::ACCEPT);
-                            }
-                            Keycode::X => {
-                                menu_man.interact(menu::Action::REJECT);
-                            }
-                            _ => {}
-                        }
-                    } else {
-                        if key == Keycode::Space || key == Keycode::Return {
-                            let temp_pos: usize;
-
-                            match player.dir {
-                                Direction::LEFT => {
-                                    if (player.pos.0 / TILE_SIZE as f64) - 1.0 < 0.0 {
-                                        break;
-                                    }
-                                    temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize - 1
-                                        + (player.pos.1 / TILE_SIZE as f64) as usize * map.size_x;
-                                }
-                                Direction::RIGHT => {
-                                    if (player.pos.0 / TILE_SIZE as f64) as usize + 1 >= map.size_x
-                                    {
-                                        break;
-                                    }
-                                    temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize
-                                        + 1
-                                        + (player.pos.1 / TILE_SIZE as f64) as usize * map.size_x;
-                                }
-                                Direction::UP => {
-                                    if (player.pos.1 / TILE_SIZE as f64) - 1.0 < 0.0 {
-                                        break;
-                                    }
-                                    temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize
-                                        + ((player.pos.1 / TILE_SIZE as f64) - 1.0) as usize
-                                            * map.size_x;
-                                }
-                                Direction::DOWN => {
-                                    if (player.pos.1 / TILE_SIZE as f64) as usize + 1 >= map.size_y
-                                    {
-                                        break;
-                                    }
-                                    temp_pos = (player.pos.0 / TILE_SIZE as f64) as usize
-                                        + ((player.pos.1 / TILE_SIZE as f64) + 1.0) as usize
-                                            * map.size_x;
-                                }
-                            }
-
-                            objects::object_interact(temp_pos, &mut map, renderer, menu_man);
-                        }
-                    }
+                    self.handle_keydown(key, player, renderer, map, menu_man);
                 }
                 _ => {}
             }
@@ -121,7 +132,6 @@ impl Input {
 
         if self.allow_input {
             let ks = event_pump.keyboard_state();
-            //maybe move the setting is_sprinting somewhere else to fix mid-tile timing?
 
             if !menu_man.is_open() {
                 if ks.is_scancode_pressed(Scancode::LShift) {
