@@ -64,7 +64,7 @@ impl Input {
                                 menu_man.interact(menu::Action::RIGHT);
                             }
                             Keycode::Space | Keycode::Return => {
-                                menu_man.interact(menu::Action::SELECT);
+                                menu_man.interact(menu::Action::ACCEPT);
                             }
                             Keycode::X => {
                                 menu_man.interact(menu::Action::REJECT);

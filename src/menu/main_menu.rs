@@ -63,7 +63,7 @@ impl MenuItem for MainMenu {
 
 	fn update(&mut self, action: Action) -> bool {
 		match action {
-			Action::SELECT => {
+			Action::ACCEPT => {
 				if self.curr_button == StartButton {
 					return true;
 				}

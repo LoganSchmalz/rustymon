@@ -12,8 +12,9 @@ pub enum Action {
     DOWN,
     LEFT,
     RIGHT,
-    SELECT,
+    ACCEPT,
     REJECT,
+    START
 }
 
 pub trait MenuItem {
