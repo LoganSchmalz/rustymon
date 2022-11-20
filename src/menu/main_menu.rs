@@ -2,7 +2,7 @@ use std::{cell::RefCell};
 
 use sdl2::{video::Window, render::Canvas, rect::Rect};
 
-use crate::render::{Textures, PIXELS_X, PIXELS_Y};
+use crate::render::{Textures, Fonts, PIXELS_X, PIXELS_Y};
 
 use super::{MenuItem, Action, MenuManager};
 
@@ -28,7 +28,7 @@ impl MainMenu {
 use Main_Menu_Button::*;
 
 impl MenuItem for MainMenu {
-	fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures,) {
+	fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &Fonts) {
 		if self.curr_button == StartButton {
             textures.start_button.set_color_mod(223, 3, 67);
         } else {

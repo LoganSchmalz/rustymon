@@ -31,8 +31,6 @@ pub struct Renderer {
     pub is_fading: bool,
     did_trans: bool,
     fade_anim_time: f64,
-    display_text: bool,
-    text_display_time: f64,
 }
 
 pub struct Textures<'a> {
@@ -49,11 +47,11 @@ pub struct Textures<'a> {
     //Characters
     player: Texture<'a>,
     //Text Box
-    text_box: Texture<'a>,
+    pub text_box: Texture<'a>,
 }
 
 pub struct Fonts<'ttf_module, 'rwops> {
-    press_start_2p: Font<'ttf_module, 'rwops>,
+    pub press_start_2p: Font<'ttf_module, 'rwops>,
 }
 
 impl<'ttf_module, 'rwops> Fonts<'ttf_module, 'rwops> {
@@ -157,8 +155,6 @@ impl Renderer {
             is_fading: false,
             did_trans: false,
             fade_anim_time: FADE_TIME,
-            display_text: false,
-            text_display_time: TEXT_TIME,
         }
     }
 
@@ -254,33 +250,6 @@ impl Renderer {
         }
     }
 
-    pub fn render_text(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &mut Fonts, delta_time: &f64, menu_man: &mut MenuManager) {
-        if self.display_text {
-            self.text_display_time = self.text_display_time - delta_time;
-            if self.text_display_time <= 0.0 {
-                self.display_text = false;
-                menu_man.close_menu();
-            } else {
-                let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41 as u32);
-                let text_quad = Rect::new(10, (PIXELS_Y - 41) as i32 + 10, PIXELS_X - 20, 41 - 20 as u32);
-
-                let surface = fonts.press_start_2p
-                .render("Don't Eat Me!")
-                .blended(Color::RGB(179, 145, 133)).unwrap();
-                let creator = canvas.texture_creator();
-                let texture = creator
-                .create_texture_from_surface(&surface).unwrap();
-                canvas.copy(&textures.text_box, None, box_quad).unwrap();
-                canvas.copy(&texture, None, text_quad).unwrap();
-            }
-        }
-    }
-
-    pub fn play_text(&mut self) {
-        self.display_text = true;
-        self.text_display_time = TEXT_TIME;
-    }
-
     pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, map: &mut tilemap::TileMap) {
         if self.is_fading {
             self.fade_anim_time = self.fade_anim_time - delta_time;
@@ -340,9 +309,10 @@ impl Renderer {
         &mut self,
         canvas: &mut Canvas<Window>,
         textures: &mut Textures,
+        fonts: &Fonts,
         menu_man: &mut menu::MenuManager,
     ) {
-        menu_man.render(canvas, textures);
+        menu_man.render(canvas, textures, fonts);
     }
     /*pub fn render_menus(
         &mut self,
@@ -386,8 +356,7 @@ impl Renderer {
         );
         self.render_overworld_tiles(canvas, textures, map, camera_offset);
         self.render_player(canvas, textures, player);
-        self.render_menus(canvas, textures, menu_man);
-        self.render_text(canvas, textures, fonts, delta_time, menu_man);
+        self.render_menus(canvas, textures, fonts, menu_man);
         self.render_transition(canvas, textures, delta_time, map);
 
         canvas.present();
