@@ -8,19 +8,19 @@ use sdl2::{
 };
 use std::path::Path;
 
-use crate::{menu::{self, MenuManager}, player, tilemap, TILE_SIZE};
+use crate::{menu, player, tilemap, TILE_SIZE};
 use tilemap::load_tilemap;
 
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
 const FADE_FRAMES: i32 = 14;
 const FADE_TIME: f64 = FADE_FRAMES as f64 * 64.0;
-const TEXT_TIME: f64 = 500.0;
+const _TEXT_TIME: f64 = 500.0;
 
 #[derive(PartialEq)]
 pub enum DisplayScreen {
-    MainMenu,
-    OverWorld,
+    _MainMenu,
+    _OverWorld,
 }
 
 pub struct Renderer {

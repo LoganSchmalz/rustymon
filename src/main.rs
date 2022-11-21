@@ -12,10 +12,9 @@ extern crate sdl2;
 #[macro_use]
 extern crate num_derive;
 
-use menu::{main_menu::MainMenu, MenuManager};
 use render::{Textures, Fonts};
 use tilemap::load_tilemap;
-use std::{fs, path::Path, rc::Rc, cell::RefCell};
+use std::{fs, path::Path};
 
 
 pub fn init_map_save(map_name: String) {

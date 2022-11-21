@@ -2,7 +2,7 @@ use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 
 use crate::render::{Fonts, Textures, PIXELS_X, PIXELS_Y};
 
-use super::{Action, MenuItem, MenuManager};
+use super::{Action, MenuItem};
 
 pub struct Textbox {
     text: String,

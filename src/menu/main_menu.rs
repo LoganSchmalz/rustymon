@@ -1,20 +1,18 @@
-use std::{cell::RefCell};
-
 use sdl2::{video::Window, render::Canvas, rect::Rect};
 
 use crate::render::{Textures, Fonts, PIXELS_X, PIXELS_Y};
 
-use super::{MenuItem, Action, MenuManager};
+use super::{MenuItem, Action};
 
 #[derive(PartialEq)]
-pub enum Main_Menu_Button {
+pub enum MainMenuButton {
 	StartButton,
     LoadButton,
     SettingsButton,
 }
 
 pub struct MainMenu {
-	curr_button: Main_Menu_Button
+	curr_button: MainMenuButton
 }
 
 impl MainMenu {
@@ -25,10 +23,10 @@ impl MainMenu {
 	}
 }
 
-use Main_Menu_Button::*;
+use MainMenuButton::*;
 
 impl MenuItem for MainMenu {
-	fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &Fonts) {
+	fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures, _fonts: &Fonts) {
 		if self.curr_button == StartButton {
             textures.start_button.set_color_mod(223, 3, 67);
         } else {
