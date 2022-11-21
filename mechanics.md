@@ -74,3 +74,7 @@ Damage taken is calculated from on a base formula (framed after the calculation 
 
 Level is the level of the creature. Attack is the attack multiplier statistic. Power is the move's power statistic. Defense is the defense statistic of the opposing creature. 
 
+# Interaction Mechanics
+
+- Capturing: The creatures are captured and released via totems, imbued with power from the spirits. Totems are not purchasable, but they can be earned from spirits and sometimes found lying around, forgotten. Totems can be upgraded, either by spirits themselves or those with the blessing of a spirit.
+- Encountering: Specific tiles will hide the creatures. Upon walking in them, there is a chance that one will encounter a creature. The kind of creature encountered will depend on the area of the world that the player is in. The player can also call upon the spririts to endow him with an attracting energy that will make creature encounters more common, and possibly occur in tiles that do not hide the creatures.
