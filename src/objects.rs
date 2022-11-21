@@ -18,6 +18,7 @@ pub fn object_interact(pos: usize, map: &mut tilemap::TileMap, renderer: &mut re
         }
 
         Some(tilemap::ObjectTile::DAD) => {
+            renderer.npc_turn();
             menu_man.open_menu(Box::new(Textbox::new("Hi hungry, I'm dad!".to_string())));
         }
 

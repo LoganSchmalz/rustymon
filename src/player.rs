@@ -2,8 +2,8 @@ use crate::TILE_SIZE;
 use crate::tilemap;
 use sdl2::rect::Rect;
 
-const PLAYER_WALK_SPEED: f64 = 1.0 / 16.0;
-const WALKING_TIME_PER_TILE: f64 = 1.0 / (PLAYER_WALK_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
+pub const PLAYER_WALK_SPEED: f64 = 1.0 / 16.0;
+pub const WALKING_TIME_PER_TILE: f64 = 1.0 / (PLAYER_WALK_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
 const PLAYER_RUN_SPEED: f64 = 2.0 / 16.0;
 pub const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
 pub const PLAYER_WIDTH: u32 = 16;

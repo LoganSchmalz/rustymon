@@ -6,6 +6,7 @@ mod render;
 mod tilemap;
 mod objects;
 mod menu;
+mod npc;
 
 extern crate sdl2;
 
@@ -50,6 +51,8 @@ pub fn main() {
     let input = input::Input::new();
     let mut player: player::Player = player::Player::new();
 
+    let mut npc: npc::Npc = npc::Npc::new();
+
     let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
 
     let texture_creator = canvas.texture_creator();
@@ -83,6 +86,7 @@ pub fn main() {
         //println!("{:?}", delta_time);
 
         player.update(&delta_time);
-        renderer.render(&mut canvas, &mut textures, &mut fonts, &delta_time, &player, &mut map, &mut menu_man);
+        npc.update(&delta_time);
+        renderer.render(&mut canvas, &mut textures, &mut fonts, &delta_time, &player, &npc, &mut map, &mut menu_man);
     }
 }

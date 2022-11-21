@@ -8,8 +8,9 @@ use sdl2::{
 };
 use std::path::Path;
 
-use crate::{menu, player, tilemap, TILE_SIZE};
+use crate::{menu, player, tilemap, TILE_SIZE, npc};
 use tilemap::load_tilemap;
+use player::Direction;
 
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
@@ -31,6 +32,9 @@ pub struct Renderer {
     pub is_fading: bool,
     did_trans: bool,
     fade_anim_time: f64,
+    camera_offset: (i32, i32),
+    static_npc_dir: Direction, //todo remove this it is horrible
+    static_npc_pos: (i32, i32), //todo please remove
 }
 
 pub struct Textures<'a> {
@@ -164,6 +168,10 @@ impl Renderer {
             is_fading: false,
             did_trans: false,
             fade_anim_time: FADE_TIME,
+            camera_offset: ((TILE_SIZE as f64 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
+            (TILE_SIZE as f64 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32),
+            static_npc_dir: Direction::DOWN,
+            static_npc_pos: (32, 40),
         }
     }
 
@@ -172,7 +180,6 @@ impl Renderer {
         canvas: &mut Canvas<Window>,
         textures: &mut Textures,
         map: &tilemap::TileMap,
-        camera_offset: (i32, i32),
     ) {
         //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
@@ -184,8 +191,8 @@ impl Renderer {
         for i in 0..map.size_x {
             for j in 0..map.size_y {
                 let render_quad = Rect::new(
-                    i as i32 * TILE_SIZE - camera_offset.0,
-                    j as i32 * TILE_SIZE - camera_offset.1,
+                    i as i32 * TILE_SIZE - self.camera_offset.0,
+                    j as i32 * TILE_SIZE - self.camera_offset.1,
                     TILE_SIZE as u32,
                     TILE_SIZE as u32,
                 );
@@ -253,6 +260,8 @@ impl Renderer {
                     Some(tilemap::ObjectTile::WOODR) => canvas
                         .copy(&textures.tilesprites, tile_rects.wood_r, render_quad)
                         .unwrap(),
+                    Some(tilemap::ObjectTile::DAD) => 
+                        {self.render_static_npc(canvas, textures, render_quad, (i as i32* TILE_SIZE, j as i32 * TILE_SIZE));}
                     _ => {}
                 };
             }
@@ -320,6 +329,49 @@ impl Renderer {
             .unwrap();
     }
 
+    pub fn npc_turn(&mut self) {
+        if self.camera_offset.0 > self.static_npc_pos.0 {
+            self.static_npc_dir = Direction::RIGHT;
+        } else if self.camera_offset.0 < self.static_npc_pos.0 {
+            self.static_npc_dir = Direction::LEFT;
+        } else if self.camera_offset.1 > self.static_npc_pos.1 {
+            self.static_npc_dir = Direction::DOWN;
+        } else if self.camera_offset.1 < self.static_npc_pos.1 {
+            self.static_npc_dir = Direction::UP;
+        }
+    }
+
+    pub fn render_static_npc(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, render_quad: Rect, pos: (i32, i32)) {
+        let texture_quad = 
+        match self.static_npc_dir {
+            Direction::UP => Rect::new(16, 0, 16, 16),
+            Direction::RIGHT => Rect::new(16, 16, 16, 16),
+            Direction::DOWN => Rect::new(0, 0, 16, 16),
+            Direction::LEFT => Rect::new(0, 16, 16, 16),
+        };
+        canvas
+            .copy(&textures.dad, texture_quad, render_quad) //todo bro change this like come on this whole shit sucks
+            .unwrap();
+    }
+
+    pub fn render_npc( //TODO MAKE IT SO YOU CAN ACTUALLY HAVE MULTIPLE NPCs
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        textures: &mut Textures,
+        npc: &npc::Npc,
+    ) {
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        let render_quad = Rect::new(
+            npc.pos.0 as i32 - self.camera_offset.0,
+            npc.pos.1 as i32 - self.camera_offset.1,
+            player::PLAYER_WIDTH,
+            player::PLAYER_HEIGHT,
+        );
+        canvas
+            .copy(&textures.jodo, npc.get_texture(), render_quad)
+            .unwrap();
+    }
+
     pub fn render_menus(
         &mut self,
         canvas: &mut Canvas<Window>,
@@ -360,18 +412,20 @@ impl Renderer {
         fonts: &mut Fonts,
         delta_time: &f64,
         player: &player::Player,
+        npc: &npc::Npc,
         map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
     ) {
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
 
-        let camera_offset = (
+        self.camera_offset = (
             (player.pos.0 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
             (player.pos.1 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32,
         );
-        self.render_overworld_tiles(canvas, textures, map, camera_offset);
+        self.render_overworld_tiles(canvas, textures, map);
         self.render_player(canvas, textures, player);
+        self.render_npc(canvas, textures, npc);
         self.render_menus(canvas, textures, fonts, menu_man);
         self.render_transition(canvas, textures, delta_time, map);
 
