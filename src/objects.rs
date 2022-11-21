@@ -17,6 +17,10 @@ pub fn object_interact(pos: usize, map: &mut tilemap::TileMap, renderer: &mut re
             renderer.play_fade();
         }
 
+        Some(tilemap::ObjectTile::DAD) => {
+            menu_man.open_menu(Box::new(Textbox::new("Hi hungry, I'm dad!".to_string())));
+        }
+
         _ => { }
     }
 }

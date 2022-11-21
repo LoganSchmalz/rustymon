@@ -46,6 +46,9 @@ pub struct Textures<'a> {
     fade_texture: Texture<'a>,
     //Characters
     player: Texture<'a>,
+    dad: Texture<'a>,
+    jodo: Texture<'a>,
+    sika: Texture<'a>,
     //Text Box
     pub text_box: Texture<'a>,
 }
@@ -74,6 +77,9 @@ impl<'a> Textures<'a> {
         let settings_button = creator.load_texture("assets/SETTINGSbutton.png").unwrap();
         let fade_texture = creator.load_texture("assets/gooWipe.png").unwrap();
         let player = creator.load_texture("assets/newcharsprite.png").unwrap();
+        let dad = creator.load_texture("assets/dadcharsprite.png").unwrap();
+        let jodo = creator.load_texture("assets/jodocharsprite.png").unwrap();
+        let sika = creator.load_texture("assets/sikacharsprite.png").unwrap();
         let text_box = creator.load_texture("assets/text_box.png").unwrap();
 
         Textures {
@@ -85,6 +91,9 @@ impl<'a> Textures<'a> {
             settings_button,
             fade_texture,
             player,
+            dad,
+            jodo,
+            sika,
             text_box,
         }
     }
@@ -244,10 +253,36 @@ impl Renderer {
                     Some(tilemap::ObjectTile::WOODR) => {
                         canvas.copy(&textures.tilesprites, tile_rects.wood_r, render_quad).unwrap()
                     }
+
+                    Some(tilemap::ObjectTile::DAD) | Some(tilemap::ObjectTile::JODO) | Some(tilemap::ObjectTile::SIKA) => {
+                        self.render_npc(canvas, textures, map.objects.get(i + j * map.size_x), render_quad);
+                    }
                     _ => {}
                 };
             }
         }
+    }
+
+    pub fn render_npc(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, npc: Option<&tilemap::ObjectTile>, render_quad: Rect) {
+        let text_quad = Rect::new(0,0, 16, 16);
+        match npc {
+            Some(tilemap::ObjectTile::DAD) => {
+                canvas
+                    .copy(&textures.dad, text_quad, render_quad)
+                    .unwrap();
+            }
+            Some(tilemap::ObjectTile::JODO) => {
+                canvas
+                    .copy(&textures.jodo, text_quad, render_quad)
+                    .unwrap();
+            }
+            Some(tilemap::ObjectTile::SIKA) => {
+                canvas
+                    .copy(&textures.sika, text_quad, render_quad)
+                    .unwrap();
+            }
+            _ => {}
+        };
     }
 
     pub fn render_transition(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, delta_time: &f64, map: &mut tilemap::TileMap) {

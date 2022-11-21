@@ -29,6 +29,9 @@ pub enum ObjectTile {
     DOOR,
     WOODL,
     WOODR,
+    DAD,
+    JODO,
+    SIKA,
 }
 
 #[derive(FromPrimitive, ToPrimitive)]
