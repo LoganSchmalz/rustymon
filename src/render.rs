@@ -420,8 +420,8 @@ impl Renderer {
         canvas.clear();
 
         self.camera_offset = (
-            (player.pos.0 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
-            (player.pos.1 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32,
+            (player.pos.0 * TILE_SIZE as f64 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
+            (player.pos.1 * TILE_SIZE as f64 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32,
         );
         self.render_overworld_tiles(canvas, textures, map);
         self.render_player(canvas, textures, player);
