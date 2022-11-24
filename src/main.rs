@@ -67,8 +67,8 @@ pub fn main() {
 
     //load original maps into current save
     //TODO: CHANGE THIS SAVING FUNCTIONALITY WE'RE NOT EVEN USING IT ANYMORE
-    init_map_save("map0".to_string());
-    init_map_save("map1".to_string());
+    //init_map_save("map0".to_string());
+    //init_map_save("map1".to_string());
     
     let mut map = load_tilemap(Path::new("maps/map0/"), 0);
     obj_man.load_objects(Path::new("maps/map0"));
