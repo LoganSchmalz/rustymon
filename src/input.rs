@@ -5,7 +5,6 @@ use sdl2::{
     video::Window,
 };
 
-use crate::TILE_SIZE;
 use crate::{menu, player::Direction};
 use crate::{object, player, render, tilemap};
 
@@ -23,7 +22,6 @@ impl Input {
         key: Keycode,
         player: &mut player::Player,
         renderer: &mut render::Renderer,
-        mut map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
         obj_man: &mut object::ObjectManager
     ) -> () {
@@ -107,7 +105,7 @@ impl Input {
                 Event::KeyDown {
                     keycode: Some(key), ..
                 } => {
-                    self.handle_keydown(key, player, renderer, map, menu_man, obj_man);
+                    self.handle_keydown(key, player, renderer, menu_man, obj_man);
                 }
                 _ => {}
             }

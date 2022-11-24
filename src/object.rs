@@ -1,12 +1,8 @@
-use crate::menu::textbox::Textbox;
 use crate::menu::{self, MenuManager};
 use crate::render;
-use crate::tilemap;
-use crate::tilemap::CollisionTile;
 
-use num_derive::FromPrimitive;
-use num_traits::FromPrimitive;
-use std::ops::Deref;
+//use num_derive::FromPrimitive;
+//use num_traits::FromPrimitive;
 use std::{fs, path::Path};
 
 mod berry;
@@ -65,7 +61,6 @@ impl ObjectManager {
             )
         }
         let size_x = dim.get(0).unwrap();
-        let size_y = dim.get(1).unwrap();
 
         let objects: Vec<u32> = fs::read_to_string(mapfolder.join("objects.txt"))
             .expect(&format!(

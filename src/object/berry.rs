@@ -1,6 +1,4 @@
-use sdl2::{video::Window, render::Canvas, rect::Rect};
-
-use crate::render::{Renderer, Textures, Fonts, PIXELS_X, PIXELS_Y};
+use crate::render::Renderer;
 use crate::menu::{MenuManager, textbox::Textbox};
 use crate::object::TObject;
 
@@ -25,10 +23,7 @@ impl TObject for Berry {
 
     }
 
-    fn interact(&self, renderer: &mut Renderer, menu_man: &mut MenuManager) -> bool {
-        //pos = self.pos.0 + self.pos.1 as usize * map.size_x;
-        //map.objects[pos] = ObjectTile::NONE;
-        //map.collision[pos] = CollisionTile::NONE;
+    fn interact(&self, _renderer: &mut Renderer, menu_man: &mut MenuManager) -> bool {
         menu_man.open_menu(Box::new(Textbox::new("Don't eat me!".to_string())));
         true
 	}

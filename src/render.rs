@@ -357,7 +357,6 @@ impl Renderer {
                         (i as i32 * TILE_SIZE, j as i32 * TILE_SIZE),
                     );
                 }
-                _ => {}
             };
         }
     }

@@ -1,7 +1,5 @@
-use sdl2::{video::Window, render::Canvas, rect::Rect};
-
-use crate::render::{Renderer, Textures, Fonts, PIXELS_X, PIXELS_Y};
-use crate::menu::{MenuManager, textbox::Textbox};
+use crate::render::Renderer;
+use crate::menu::MenuManager;
 use crate::object::TObject;
 
 pub struct Door {
