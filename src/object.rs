@@ -50,6 +50,8 @@ impl ObjectManager {
     }
 
     pub fn load_objects(&mut self, mapfolder: &Path) {
+        self.objects.clear();
+
         let dim: Vec<usize> = fs::read_to_string(mapfolder.join("dim.txt"))
             .expect(&format!("{}dim.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()

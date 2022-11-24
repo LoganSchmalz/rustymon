@@ -89,6 +89,6 @@ pub fn main() {
 
         player.update(&delta_time);
         npc.update(&delta_time);
-        renderer.render(&mut canvas, &mut textures, &mut fonts, &delta_time, &player, &npc, &mut map, &mut menu_man, &obj_man);
+        renderer.render(&mut canvas, &mut textures, &mut fonts, &delta_time, &player, &npc, &mut map, &mut menu_man, &mut obj_man);
     }
 }

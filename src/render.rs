@@ -182,7 +182,7 @@ impl Renderer {
         canvas: &mut Canvas<Window>,
         textures: &mut Textures,
         map: &tilemap::TileMap,
-        obj_man: &object::ObjectManager
+        obj_man: &object::ObjectManager,
     ) {
         //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
@@ -368,6 +368,7 @@ impl Renderer {
         textures: &mut Textures,
         delta_time: &f64,
         map: &mut tilemap::TileMap,
+        obj_man: &mut object::ObjectManager,
     ) {
         if self.is_fading {
             self.fade_anim_time = self.fade_anim_time - delta_time;
@@ -389,8 +390,14 @@ impl Renderer {
                     && !self.did_trans
                 {
                     match map.map_id {
-                        0 => *map = load_tilemap(Path::new("maps/map1/"), 1),
-                        1 => *map = load_tilemap(Path::new("maps/map0/"), 0),
+                        0 => {
+                            *map = load_tilemap(Path::new("maps/map1/"), 1);
+                            obj_man.load_objects(Path::new("maps/map1/"));
+                        }
+                        1 => {
+                            *map = load_tilemap(Path::new("maps/map0/"), 0);
+                            obj_man.load_objects(Path::new("maps/map0"));
+                        }
                         _ => panic!("Trying to load map that doesn't exist"),
                     }
                     self.did_trans = true;
@@ -515,7 +522,7 @@ impl Renderer {
         npc: &npc::Npc,
         map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
-        obj_man: &object::ObjectManager
+        obj_man: &mut object::ObjectManager,
     ) {
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
@@ -530,7 +537,7 @@ impl Renderer {
         self.render_player(canvas, textures, player);
         self.render_npc(canvas, textures, npc);
         self.render_menus(canvas, textures, fonts, menu_man);
-        self.render_transition(canvas, textures, delta_time, map);
+        self.render_transition(canvas, textures, delta_time, map, obj_man);
 
         canvas.present();
     }
