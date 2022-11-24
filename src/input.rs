@@ -7,7 +7,7 @@ use sdl2::{
 
 use crate::TILE_SIZE;
 use crate::{menu, player::Direction};
-use crate::{objects, player, render, tilemap};
+use crate::{object, player, render, tilemap};
 
 pub struct Input {
     pub allow_input: bool,
@@ -25,6 +25,7 @@ impl Input {
         renderer: &mut render::Renderer,
         mut map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
+        obj_man: &mut object::ObjectManager
     ) -> () {
         if menu_man.is_open() {
             match key {
@@ -50,36 +51,24 @@ impl Input {
             }
         } else {
             if key == Keycode::Space || key == Keycode::Return {
-                let temp_pos: usize;
+                let temp_pos: (f64, f64);
 
                 match player.dir {
                     Direction::LEFT => {
-                        if player.pos.0 - 1.0 < 0.0 {
-                            return;
-                        }
-                        temp_pos = player.pos.0 as usize - 1 + player.pos.1 as usize * map.size_x;
+                        temp_pos = (player.pos.0 - 1.0, player.pos.1);
                     }
                     Direction::RIGHT => {
-                        if player.pos.0 + 1.0 >= map.size_x as f64 {
-                            return;
-                        }
-                        temp_pos = player.pos.0 as usize + 1 + player.pos.1 as usize * map.size_x;
+                        temp_pos = (player.pos.0 + 1.0, player.pos.1);
                     }
                     Direction::UP => {
-                        if player.pos.1 - 1.0 < 0.0 {
-                            return;
-                        }
-                        temp_pos = player.pos.0 as usize + (player.pos.1 - 1.0) as usize * map.size_x;
+                        temp_pos = (player.pos.0, player.pos.1 - 1.0);
                     }
                     Direction::DOWN => {
-                        if player.pos.1 + 1.0 >= map.size_y as f64 {
-                            return;
-                        }
-                        temp_pos = player.pos.0 as usize + (player.pos.1 + 1.0) as usize * map.size_x;
+                        temp_pos = (player.pos.0, player.pos.1 + 1.0);
                     }
                 }
 
-                objects::object_interact(temp_pos, &mut map, renderer, menu_man);
+                obj_man.interact(temp_pos, renderer, menu_man);
             }
         }
     }
@@ -92,6 +81,7 @@ impl Input {
         renderer: &mut render::Renderer,
         mut map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
+        obj_man: &mut object::ObjectManager
     ) -> bool {
         for event in event_pump.poll_iter() {
             match event {
@@ -117,7 +107,7 @@ impl Input {
                 Event::KeyDown {
                     keycode: Some(key), ..
                 } => {
-                    self.handle_keydown(key, player, renderer, map, menu_man);
+                    self.handle_keydown(key, player, renderer, map, menu_man, obj_man);
                 }
                 _ => {}
             }

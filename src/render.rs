@@ -8,9 +8,9 @@ use sdl2::{
 };
 use std::path::Path;
 
-use crate::{menu, player, tilemap, TILE_SIZE, npc};
-use tilemap::load_tilemap;
+use crate::{menu, npc, object, object::TObject, player, tilemap, TILE_SIZE};
 use player::Direction;
+use tilemap::load_tilemap;
 
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
@@ -33,7 +33,7 @@ pub struct Renderer {
     did_trans: bool,
     fade_anim_time: f64,
     camera_offset: (i32, i32),
-    static_npc_dir: Direction, //todo remove this it is horrible
+    static_npc_dir: Direction,  //todo remove this it is horrible
     static_npc_pos: (i32, i32), //todo please remove
 }
 
@@ -168,8 +168,10 @@ impl Renderer {
             is_fading: false,
             did_trans: false,
             fade_anim_time: FADE_TIME,
-            camera_offset: ((TILE_SIZE as f64 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
-            (TILE_SIZE as f64 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32),
+            camera_offset: (
+                (TILE_SIZE as f64 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
+                (TILE_SIZE as f64 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32,
+            ),
             static_npc_dir: Direction::DOWN,
             static_npc_pos: (32, 40),
         }
@@ -180,6 +182,7 @@ impl Renderer {
         canvas: &mut Canvas<Window>,
         textures: &mut Textures,
         map: &tilemap::TileMap,
+        obj_man: &object::ObjectManager
     ) {
         //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
@@ -197,74 +200,165 @@ impl Renderer {
                     TILE_SIZE as u32,
                 );
                 match map.floor.get(i + j * map.size_x) {
-                    Some(tilemap::FloorTile::GRASS1) => canvas
+                    Some(tilemap::Tile::GRASS1) => canvas
                         .copy(&textures.tilesprites, tile_rects.g1, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::GRASS2) => canvas
+                    Some(tilemap::Tile::GRASS2) => canvas
                         .copy(&textures.tilesprites, tile_rects.g2, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::WATER1) => canvas
+                    Some(tilemap::Tile::WATER1) => canvas
                         .copy(&textures.tilesprites, tile_rects.w1, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::WGTL) => canvas
+                    Some(tilemap::Tile::WGTL) => canvas
                         .copy(&textures.tilesprites, tile_rects.wg_tl, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::WGT) => canvas
+                    Some(tilemap::Tile::WGT) => canvas
                         .copy(&textures.tilesprites, tile_rects.wg_t, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::WGTR) => canvas
+                    Some(tilemap::Tile::WGTR) => canvas
                         .copy(&textures.tilesprites, tile_rects.wg_tr, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::WGR) => canvas
+                    Some(tilemap::Tile::WGR) => canvas
                         .copy(&textures.tilesprites, tile_rects.wg_r, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::WGBR) => canvas
+                    Some(tilemap::Tile::WGBR) => canvas
                         .copy(&textures.tilesprites, tile_rects.wg_br, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::WGB) => canvas
+                    Some(tilemap::Tile::WGB) => canvas
                         .copy(&textures.tilesprites, tile_rects.wg_b, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::WGBL) => canvas
+                    Some(tilemap::Tile::WGBL) => canvas
                         .copy(&textures.tilesprites, tile_rects.wg_bl, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::WGL) => canvas
+                    Some(tilemap::Tile::WGL) => canvas
                         .copy(&textures.tilesprites, tile_rects.wg_l, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::GWTL) => canvas
+                    Some(tilemap::Tile::GWTL) => canvas
                         .copy(&textures.tilesprites, tile_rects.gw_tl, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::GWTR) => canvas
+                    Some(tilemap::Tile::GWTR) => canvas
                         .copy(&textures.tilesprites, tile_rects.gw_tr, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::GWBR) => canvas
+                    Some(tilemap::Tile::GWBR) => canvas
                         .copy(&textures.tilesprites, tile_rects.gw_br, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::GWBL) => canvas
+                    Some(tilemap::Tile::GWBL) => canvas
                         .copy(&textures.tilesprites, tile_rects.gw_bl, render_quad)
                         .unwrap(),
-                    Some(tilemap::FloorTile::FB1) => canvas
+                    Some(tilemap::Tile::FB1) => canvas
                         .copy(&textures.tilesprites, tile_rects.fb1, render_quad)
                         .unwrap(),
-                    None => {}
-                };
-                match map.objects.get(i + j * map.size_x) {
-                    Some(tilemap::ObjectTile::BERRY) => canvas
-                        .copy(&textures.objectsprites, tile_rects.berry1, render_quad)
-                        .unwrap(),
-                    Some(tilemap::ObjectTile::DOOR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.door1, render_quad)
-                        .unwrap(),
-                    Some(tilemap::ObjectTile::WOODL) => canvas
+                    Some(tilemap::Tile::WOODL) => canvas
                         .copy(&textures.tilesprites, tile_rects.wood_l, render_quad)
                         .unwrap(),
-                    Some(tilemap::ObjectTile::WOODR) => canvas
+                    Some(tilemap::Tile::WOODR) => canvas
                         .copy(&textures.tilesprites, tile_rects.wood_r, render_quad)
                         .unwrap(),
-                    Some(tilemap::ObjectTile::DAD) => 
-                        {self.render_static_npc(canvas, textures, render_quad, (i as i32* TILE_SIZE, j as i32 * TILE_SIZE));}
+                    _ => {}
+                };
+                match map.walls.get(i + j * map.size_x) {
+                    Some(tilemap::Tile::GRASS1) => canvas
+                        .copy(&textures.tilesprites, tile_rects.g1, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::GRASS2) => canvas
+                        .copy(&textures.tilesprites, tile_rects.g2, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WATER1) => canvas
+                        .copy(&textures.tilesprites, tile_rects.w1, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WGTL) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wg_tl, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WGT) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wg_t, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WGTR) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wg_tr, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WGR) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wg_r, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WGBR) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wg_br, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WGB) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wg_b, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WGBL) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wg_bl, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WGL) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wg_l, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::GWTL) => canvas
+                        .copy(&textures.tilesprites, tile_rects.gw_tl, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::GWTR) => canvas
+                        .copy(&textures.tilesprites, tile_rects.gw_tr, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::GWBR) => canvas
+                        .copy(&textures.tilesprites, tile_rects.gw_br, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::GWBL) => canvas
+                        .copy(&textures.tilesprites, tile_rects.gw_bl, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::FB1) => canvas
+                        .copy(&textures.tilesprites, tile_rects.fb1, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WOODL) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wood_l, render_quad)
+                        .unwrap(),
+                    Some(tilemap::Tile::WOODR) => canvas
+                        .copy(&textures.tilesprites, tile_rects.wood_r, render_quad)
+                        .unwrap(),
                     _ => {}
                 };
             }
+        }
+
+        for obj in &obj_man.objects {
+            match obj {
+                object::Object::Berry(ref o) => {
+                    let (i, j) = o.pos();
+                    let render_quad = Rect::new(
+                        i as i32 * TILE_SIZE - self.camera_offset.0,
+                        j as i32 * TILE_SIZE - self.camera_offset.1,
+                        TILE_SIZE as u32,
+                        TILE_SIZE as u32,
+                    );
+                    canvas
+                        .copy(&textures.objectsprites, tile_rects.berry1, render_quad)
+                        .unwrap();
+                }
+                object::Object::Door(ref o) => {
+                    let (i, j) = o.pos();
+                    let render_quad = Rect::new(
+                        i as i32 * TILE_SIZE - self.camera_offset.0,
+                        j as i32 * TILE_SIZE - self.camera_offset.1,
+                        TILE_SIZE as u32,
+                        TILE_SIZE as u32,
+                    );
+                    canvas
+                        .copy(&textures.tilesprites, tile_rects.door1, render_quad)
+                        .unwrap();
+                }
+                object::Object::NPC(ref o) => {
+                    let (i, j) = o.pos();
+                    let render_quad = Rect::new(
+                        i as i32 * TILE_SIZE - self.camera_offset.0,
+                        j as i32 * TILE_SIZE - self.camera_offset.1,
+                        TILE_SIZE as u32,
+                        TILE_SIZE as u32,
+                    );
+                    self.render_static_npc(
+                        canvas,
+                        textures,
+                        render_quad,
+                        (i as i32 * TILE_SIZE, j as i32 * TILE_SIZE),
+                    );
+                }
+                _ => {}
+            };
         }
     }
 
@@ -341,9 +435,14 @@ impl Renderer {
         }
     }
 
-    pub fn render_static_npc(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, render_quad: Rect, pos: (i32, i32)) {
-        let texture_quad = 
-        match self.static_npc_dir {
+    pub fn render_static_npc(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        textures: &mut Textures,
+        render_quad: Rect,
+        pos: (i32, i32),
+    ) {
+        let texture_quad = match self.static_npc_dir {
             Direction::UP => Rect::new(16, 0, 16, 16),
             Direction::RIGHT => Rect::new(16, 16, 16, 16),
             Direction::DOWN => Rect::new(0, 0, 16, 16),
@@ -354,7 +453,8 @@ impl Renderer {
             .unwrap();
     }
 
-    pub fn render_npc( //TODO MAKE IT SO YOU CAN ACTUALLY HAVE MULTIPLE NPCs
+    pub fn render_npc(
+        //TODO MAKE IT SO YOU CAN ACTUALLY HAVE MULTIPLE NPCs
         &mut self,
         canvas: &mut Canvas<Window>,
         textures: &mut Textures,
@@ -415,15 +515,18 @@ impl Renderer {
         npc: &npc::Npc,
         map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
+        obj_man: &object::ObjectManager
     ) {
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
 
         self.camera_offset = (
-            (player.pos.0 * TILE_SIZE as f64 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
-            (player.pos.1 * TILE_SIZE as f64 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32,
+            (player.pos.0 * TILE_SIZE as f64 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64)
+                as i32,
+            (player.pos.1 * TILE_SIZE as f64 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64)
+                as i32,
         );
-        self.render_overworld_tiles(canvas, textures, map);
+        self.render_overworld_tiles(canvas, textures, map, obj_man);
         self.render_player(canvas, textures, player);
         self.render_npc(canvas, textures, npc);
         self.render_menus(canvas, textures, fonts, menu_man);

@@ -3,36 +3,29 @@ use num_traits::FromPrimitive;
 use std::{fs, path::Path};
 
 #[derive(FromPrimitive, ToPrimitive, Debug)]
-pub enum FloorTile {
-    GRASS1, //0
-    GRASS2, //1
-	WATER1, //2
-    WGTL,  //3
-    WGT,   //4
-    WGTR,  //5
-    WGR,   //6
-    WGBR,  //7
-    WGB,   //8
-    WGBL,  //9
-    WGL,   //10
-    GWTL,  //11
-    GWTR,  //12
-    GWBR,  //13
-    GWBL,  //14
-    FB1,  //15
+pub enum Tile {
+    NONE, //0
+    GRASS1, //1
+    GRASS2, //2
+	WATER1, //3
+    WGTL,  //4
+    WGT,   //5
+    WGTR,  //6
+    WGR,   //7
+    WGBR,  //8
+    WGB,   //9
+    WGBL,  //10
+    WGL,   //11
+    GWTL,  //12
+    GWTR,  //13
+    GWBR,  //14
+    GWBL,  //15
+    FB1,  //16
+    WOODL, //17
+    WOODR, //18
 }
 
-#[derive(FromPrimitive, ToPrimitive)]
-pub enum ObjectTile {
-    NONE,
-    BERRY,
-    DOOR,
-    WOODL,
-    WOODR,
-    DAD,
-    JODO,
-    SIKA,
-}
+pub const TILE_COUNT: usize = 19;
 
 #[derive(FromPrimitive, ToPrimitive)]
 pub enum CollisionTile {
@@ -44,8 +37,8 @@ pub enum CollisionTile {
 pub struct TileMap {
     pub size_x: usize,
     pub size_y: usize,
-    pub floor: Vec<FloorTile>,
-    pub objects: Vec<ObjectTile>,
+    pub floor: Vec<Tile>,
+    pub walls: Vec<Tile>,
     pub collision: Vec<CollisionTile>,
     pub map_id: i32,
 }
@@ -67,7 +60,7 @@ pub fn load_tilemap(mapfolder: &Path, id: i32) -> TileMap {
     let size_x = dim.get(0).unwrap();
     let size_y = dim.get(1).unwrap();
 
-    let floor: Vec<FloorTile> = fs::read_to_string(mapfolder.join("floor.txt"))
+    let floor: Vec<Tile> = fs::read_to_string(mapfolder.join("floor.txt"))
         .expect(&format!(
             "{}floor.txt not found",
             mapfolder.to_str().unwrap()
@@ -87,23 +80,23 @@ pub fn load_tilemap(mapfolder: &Path, id: i32) -> TileMap {
         )
     }
 
-    let objects: Vec<ObjectTile> = fs::read_to_string(mapfolder.join("objects.txt"))
+    let walls: Vec<Tile> = fs::read_to_string(mapfolder.join("walls.txt"))
         .expect(&format!(
-            "{}objects.txt not found",
+            "{}walls.txt not found",
             mapfolder.to_str().unwrap()
         ))
         .split_whitespace()
         .map(|x| {
             FromPrimitive::from_u32(x.parse::<u32>().expect("Not an integer!"))
-                .expect("Invalid object tile")
+                .expect("Invalid wall tile")
         })
         .collect();
 
-    if objects.len() != (size_x * size_y) as usize {
+    if floor.len() != (size_x * size_y) as usize {
         panic!(
-            "{}objects.txt does not contain {} values",
+            "{}walls.txt does not contain {} values",
             mapfolder.to_str().unwrap(),
-            size_x * size_y
+            size_x * size_y,
         )
     }
 
@@ -130,7 +123,7 @@ pub fn load_tilemap(mapfolder: &Path, id: i32) -> TileMap {
 		size_x: *size_x,
 		size_y: *size_y,
 		floor,
-		objects,
+        walls,
 		collision,
         map_id,
 	}

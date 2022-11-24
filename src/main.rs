@@ -4,7 +4,7 @@ mod input;
 mod player;
 mod render;
 mod tilemap;
-mod objects;
+mod object;
 mod menu;
 mod npc;
 
@@ -62,6 +62,7 @@ pub fn main() {
     let mut fonts = Fonts::load(&font_loader);
     let mut renderer = render::Renderer::new();
     let mut menu_man = menu::MenuManager::new();
+    let mut obj_man = object::ObjectManager::new();
     //menu_man.borrow_mut().open_menu(Box::new(MainMenu));
 
     //load original maps into current save
@@ -70,6 +71,7 @@ pub fn main() {
     init_map_save("map1".to_string());
     
     let mut map = load_tilemap(Path::new("maps/map0/"), 0);
+    obj_man.load_objects(Path::new("maps/map0"));
 
     'running: loop {
         let time_last = time_now;
@@ -78,7 +80,7 @@ pub fn main() {
             / sdl_context.timer().unwrap().performance_frequency())
             as f64;
 
-        match input.handle_input(&mut event_pump, &mut canvas, &mut player, &mut renderer, &mut map, &mut menu_man) {
+        match input.handle_input(&mut event_pump, &mut canvas, &mut player, &mut renderer, &mut map, &mut menu_man, &mut obj_man) {
             true => break 'running,
             false => {}
         };
@@ -87,6 +89,6 @@ pub fn main() {
 
         player.update(&delta_time);
         npc.update(&delta_time);
-        renderer.render(&mut canvas, &mut textures, &mut fonts, &delta_time, &player, &npc, &mut map, &mut menu_man);
+        renderer.render(&mut canvas, &mut textures, &mut fonts, &delta_time, &player, &npc, &mut map, &mut menu_man, &obj_man);
     }
 }
