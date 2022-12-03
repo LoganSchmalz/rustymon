@@ -3,7 +3,7 @@ use sdl2::{render::Canvas, video::Window};
 pub mod main_menu;
 pub mod textbox;
 
-use crate::texture_manager::{Textures, TextureManager};
+use crate::texture_manager::{TextureManager};
 use crate::render::{Fonts};
 
 use self::main_menu::MainMenu;

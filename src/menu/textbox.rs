@@ -1,6 +1,6 @@
 use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 
-use crate::texture_manager::{Textures, TextureManager};
+use crate::texture_manager::{TextureManager};
 use crate::render::{Fonts, PIXELS_X, PIXELS_Y};
 
 use super::{Action, MenuItem};

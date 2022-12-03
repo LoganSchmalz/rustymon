@@ -1,5 +1,3 @@
-use enum_map::Enum;
-
 use crate::menu::{self, MenuManager};
 use crate::render;
 
