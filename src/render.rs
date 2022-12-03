@@ -1,12 +1,11 @@
 use sdl2::{
-    image::LoadTexture,
     pixels::Color,
     rect::Rect,
-    render::{Canvas, Texture, TextureCreator},
+    render::Canvas,
     ttf::{Font, Sdl2TtfContext},
-    video::{FullscreenType, Window, WindowContext},
+    video::{FullscreenType, Window}
 };
-use std::{path::Path, ops::Deref};
+use std::path::Path;
 
 use crate::{menu, npc, object, object::TObject, player, tilemap, TILE_SIZE, texture_manager::{self, TextureManager}};
 use player::Direction;
@@ -51,61 +50,6 @@ impl<'ttf_module, 'rwops> Fonts<'ttf_module, 'rwops> {
     }
 }
 
-pub struct TileRect {
-    //Tile sprites
-    g1: Rect,
-    g2: Rect,
-    w1: Rect,
-    wg_tl: Rect,
-    wg_t: Rect,
-    wg_tr: Rect,
-    wg_r: Rect,
-    wg_br: Rect,
-    wg_b: Rect,
-    wg_bl: Rect,
-    wg_l: Rect,
-    gw_tl: Rect,
-    gw_tr: Rect,
-    gw_br: Rect,
-    gw_bl: Rect,
-    wood_l: Rect,
-    wood_r: Rect,
-    door1: Rect,
-    fb1: Rect,
-    //Object sprites
-    berry1: Rect,
-}
-
-impl TileRect {
-    pub fn new() -> TileRect {
-        TileRect {
-            //Rect::new(x, y, width, height)
-            //Tile sprites
-            g1: Rect::new(32, 0, 16, 16),      //Grass 1
-            g2: Rect::new(48, 0, 16, 16),      //Grass 2
-            w1: Rect::new(16, 64, 16, 16),     //Water 1
-            wg_tl: Rect::new(0, 48, 16, 16),   //Water-Grass Top Left
-            wg_t: Rect::new(16, 48, 16, 16),   //Water-Grass Top
-            wg_tr: Rect::new(32, 48, 16, 16),  //Water-Grass Top Right
-            wg_l: Rect::new(0, 64, 16, 16),    //Water-Grass Left
-            wg_r: Rect::new(32, 64, 16, 16),   //Water-Grass Right
-            wg_bl: Rect::new(0, 80, 16, 16),   //Water-Grass Bottom Left
-            wg_b: Rect::new(16, 80, 16, 16),   //Water-Grass Bottom
-            wg_br: Rect::new(32, 80, 16, 16),  //Water-Grass Bottom Right
-            gw_tl: Rect::new(48, 48, 16, 16),  //Grass-Water Top Left
-            gw_tr: Rect::new(80, 48, 16, 16),  //Grass-Water Top Right
-            gw_bl: Rect::new(48, 80, 16, 16),  //Grass-Water Bottom Left
-            gw_br: Rect::new(80, 80, 16, 16),  //Grass-Water Bottom Right
-            wood_l: Rect::new(128, 0, 16, 16), //Wood Left
-            wood_r: Rect::new(160, 0, 16, 16), //Wood Right
-            door1: Rect::new(96, 0, 16, 16),   //Door 1
-            fb1: Rect::new(112, 0, 16, 16),    //Floor Base 1
-            //Object sprites
-            berry1: Rect::new(0, 0, 16, 16), //Berry 1
-        }
-    }
-}
-
 impl Renderer {
     pub fn new() -> Renderer {
         Renderer {
@@ -136,8 +80,6 @@ impl Renderer {
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.fill_rect(screen_quad).unwrap();
-
-        let tile_rects = TileRect::new();
 
         for i in 0..map.size_x {
             for j in 0..map.size_y {
