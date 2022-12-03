@@ -2,7 +2,9 @@ use sdl2::{render::Canvas, video::Window};
 
 pub mod main_menu;
 pub mod textbox;
-use crate::render::{Textures, Fonts};
+
+use crate::texture_manager::{Textures, TextureManager};
+use crate::render::{Fonts};
 
 use self::main_menu::MainMenu;
 
@@ -18,7 +20,7 @@ pub enum Action {
 }
 
 pub trait MenuItem {
-    fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &Fonts);
+    fn render(&self, canvas: &mut Canvas<Window>, textures: &mut TextureManager, fonts: &Fonts);
     fn update(&mut self, action: Action) -> bool; // returns true if menu should close after interaction
 }
 
@@ -58,9 +60,9 @@ impl MenuManager {
         }
     }
 
-    pub fn render(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &Fonts) {
+    pub fn render(&mut self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, fonts: &Fonts) {
         for menu_item in self.menus.iter() {
-            menu_item.render(canvas, textures, fonts);
+            menu_item.render(canvas, texture_manager, fonts);
         }
     }
 }

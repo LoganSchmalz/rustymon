@@ -1,6 +1,7 @@
 use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 
-use crate::render::{Fonts, Textures, PIXELS_X, PIXELS_Y};
+use crate::texture_manager::{Textures, TextureManager};
+use crate::render::{Fonts, PIXELS_X, PIXELS_Y};
 
 use super::{Action, MenuItem};
 
@@ -15,7 +16,7 @@ impl Textbox {
 }
 
 impl MenuItem for Textbox {
-    fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures, fonts: &Fonts) {
+    fn render(&self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, fonts: &Fonts) {
         let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41 as u32);
 
         let surface = fonts
@@ -32,7 +33,7 @@ impl MenuItem for Textbox {
 		);
         let creator = canvas.texture_creator();
         let texture = creator.create_texture_from_surface(&surface).unwrap();
-        canvas.copy(&textures.text_box, None, box_quad).unwrap();
+        canvas.copy(&texture_manager.textures.text_box, None, box_quad).unwrap();
         canvas.copy(&texture, None, text_quad).unwrap();
     }
 

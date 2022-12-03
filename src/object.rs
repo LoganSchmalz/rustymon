@@ -1,3 +1,5 @@
+use enum_map::Enum;
+
 use crate::menu::{self, MenuManager};
 use crate::render;
 
@@ -22,7 +24,6 @@ pub trait TObject {
     fn update(&self);
 }
 
-//#[derive(FromPrimitive, ToPrimitive)]
 #[enum_delegate::implement(TObject)]
 pub enum Object {
     //None, //0

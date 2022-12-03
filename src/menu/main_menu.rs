@@ -1,6 +1,7 @@
 use sdl2::{video::Window, render::Canvas, rect::Rect};
 
-use crate::render::{Textures, Fonts, PIXELS_X, PIXELS_Y};
+use crate::texture_manager::{Textures, TextureManager};
+use crate::render::{Fonts, PIXELS_X, PIXELS_Y};
 
 use super::{MenuItem, Action};
 
@@ -26,36 +27,36 @@ impl MainMenu {
 use MainMenuButton::*;
 
 impl MenuItem for MainMenu {
-	fn render(&self, canvas: &mut Canvas<Window>, textures: &mut Textures, _fonts: &Fonts) {
+	fn render(&self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, _fonts: &Fonts) {
 		if self.curr_button == StartButton {
-            textures.start_button.set_color_mod(223, 3, 67);
+            texture_manager.textures.start_button.set_color_mod(223, 3, 67);
         } else {
-            textures.start_button.set_color_mod(255, 255, 255);
+            texture_manager.textures.start_button.set_color_mod(255, 255, 255);
         }
 
         if self.curr_button == LoadButton {
-            textures.load_button.set_color_mod(223, 3, 67);
+            texture_manager.textures.load_button.set_color_mod(223, 3, 67);
         } else {
-            textures.load_button.set_color_mod(255, 255, 255);
+            texture_manager.textures.load_button.set_color_mod(255, 255, 255);
         }
 
         if self.curr_button == SettingsButton {
-            textures.settings_button.set_color_mod(223, 3, 67);
+			texture_manager.textures.settings_button.set_color_mod(223, 3, 67);
         } else {
-            textures.settings_button.set_color_mod(255, 255, 255);
+            texture_manager.textures.settings_button.set_color_mod(255, 255, 255);
         }
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
         let start_quad = Rect::new(82, 100, 75, 24);
         let load_quad = Rect::new(102, 122, 16, 16);
         let settings_quad = Rect::new(121, 122, 16, 16);
 
-        canvas.copy(&textures.main_menu, None, screen_quad).unwrap();
+        canvas.copy(&texture_manager.textures.main_menu, None, screen_quad).unwrap();
         canvas
-            .copy(&textures.start_button, None, start_quad)
+            .copy(&texture_manager.textures.start_button, None, start_quad)
             .unwrap();
-        canvas.copy(&textures.load_button, None, load_quad).unwrap();
+        canvas.copy(&texture_manager.textures.load_button, None, load_quad).unwrap();
         canvas
-            .copy(&textures.settings_button, None, settings_quad)
+            .copy(&texture_manager.textures.settings_button, None, settings_quad)
             .unwrap();
 	}
 

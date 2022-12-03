@@ -1,8 +1,9 @@
+use enum_map::Enum;
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use std::{fs, path::Path};
 
-#[derive(FromPrimitive, ToPrimitive, Debug)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Enum, Clone)]
 pub enum Tile {
     NONE, //0
     GRASS1, //1

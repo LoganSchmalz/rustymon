@@ -6,9 +6,9 @@ use sdl2::{
     ttf::{Font, Sdl2TtfContext},
     video::{FullscreenType, Window, WindowContext},
 };
-use std::path::Path;
+use std::{path::Path, ops::Deref};
 
-use crate::{menu, npc, object, object::TObject, player, tilemap, TILE_SIZE};
+use crate::{menu, npc, object, object::TObject, player, tilemap, TILE_SIZE, texture_manager::{self, TextureManager}};
 use player::Direction;
 use tilemap::load_tilemap;
 
@@ -37,26 +37,6 @@ pub struct Renderer {
     static_npc_pos: (i32, i32), //todo please remove
 }
 
-pub struct Textures<'a> {
-    //Sprite sheets
-    tilesprites: Texture<'a>,
-    objectsprites: Texture<'a>,
-    //Main menu assets
-    pub main_menu: Texture<'a>,
-    pub start_button: Texture<'a>,
-    pub load_button: Texture<'a>,
-    pub settings_button: Texture<'a>,
-    //Transitions
-    fade_texture: Texture<'a>,
-    //Characters
-    player: Texture<'a>,
-    dad: Texture<'a>,
-    jodo: Texture<'a>,
-    sika: Texture<'a>,
-    //Text Box
-    pub text_box: Texture<'a>,
-}
-
 pub struct Fonts<'ttf_module, 'rwops> {
     pub press_start_2p: Font<'ttf_module, 'rwops>,
 }
@@ -68,38 +48,6 @@ impl<'ttf_module, 'rwops> Fonts<'ttf_module, 'rwops> {
             .unwrap();
 
         Fonts { press_start_2p }
-    }
-}
-
-impl<'a> Textures<'a> {
-    pub fn load(creator: &'a TextureCreator<WindowContext>) -> Self {
-        let tilesprites = creator.load_texture("assets/tilesprites.png").unwrap();
-        let objectsprites = creator.load_texture("assets/objectsprites.png").unwrap();
-        let main_menu = creator.load_texture("assets/titlescreen.png").unwrap();
-        let start_button = creator.load_texture("assets/STARTbutton.png").unwrap();
-        let load_button = creator.load_texture("assets/SAVELOADbutton.png").unwrap();
-        let settings_button = creator.load_texture("assets/SETTINGSbutton.png").unwrap();
-        let fade_texture = creator.load_texture("assets/gooWipe.png").unwrap();
-        let player = creator.load_texture("assets/newcharsprite.png").unwrap();
-        let dad = creator.load_texture("assets/dadcharsprite.png").unwrap();
-        let jodo = creator.load_texture("assets/jodocharsprite.png").unwrap();
-        let sika = creator.load_texture("assets/sikacharsprite.png").unwrap();
-        let text_box = creator.load_texture("assets/text_box.png").unwrap();
-
-        Textures {
-            tilesprites,
-            objectsprites,
-            main_menu,
-            start_button,
-            load_button,
-            settings_button,
-            fade_texture,
-            player,
-            dad,
-            jodo,
-            sika,
-            text_box,
-        }
     }
 }
 
@@ -180,7 +128,7 @@ impl Renderer {
     pub fn render_overworld_tiles(
         &mut self,
         canvas: &mut Canvas<Window>,
-        textures: &mut Textures,
+        texture_manager: &mut TextureManager,
         map: &tilemap::TileMap,
         obj_man: &object::ObjectManager,
     ) {
@@ -200,148 +148,35 @@ impl Renderer {
                     TILE_SIZE as u32,
                 );
                 match map.floor.get(i + j * map.size_x) {
-                    Some(tilemap::Tile::GRASS1) => canvas
-                        .copy(&textures.tilesprites, tile_rects.g1, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GRASS2) => canvas
-                        .copy(&textures.tilesprites, tile_rects.g2, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WATER1) => canvas
-                        .copy(&textures.tilesprites, tile_rects.w1, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGTL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_tl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGT) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_t, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGTR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_tr, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_r, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGBR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_br, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGB) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_b, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGBL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_bl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_l, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GWTL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.gw_tl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GWTR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.gw_tr, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GWBR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.gw_br, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GWBL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.gw_bl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::FB1) => canvas
-                        .copy(&textures.tilesprites, tile_rects.fb1, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WOODL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wood_l, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WOODR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wood_r, render_quad)
-                        .unwrap(),
+                    Some(tile) => { 
+                        let sprite = texture_manager.get_tile(tile.clone());
+                        canvas
+                        .copy(sprite.texture, sprite.src, render_quad)
+                        .unwrap() 
+                    }
                     _ => {}
                 };
                 match map.walls.get(i + j * map.size_x) {
-                    Some(tilemap::Tile::GRASS1) => canvas
-                        .copy(&textures.tilesprites, tile_rects.g1, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GRASS2) => canvas
-                        .copy(&textures.tilesprites, tile_rects.g2, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WATER1) => canvas
-                        .copy(&textures.tilesprites, tile_rects.w1, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGTL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_tl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGT) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_t, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGTR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_tr, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_r, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGBR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_br, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGB) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_b, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGBL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_bl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WGL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wg_l, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GWTL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.gw_tl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GWTR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.gw_tr, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GWBR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.gw_br, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::GWBL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.gw_bl, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::FB1) => canvas
-                        .copy(&textures.tilesprites, tile_rects.fb1, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WOODL) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wood_l, render_quad)
-                        .unwrap(),
-                    Some(tilemap::Tile::WOODR) => canvas
-                        .copy(&textures.tilesprites, tile_rects.wood_r, render_quad)
-                        .unwrap(),
+                    Some(tile) => { 
+                        let sprite = texture_manager.get_tile(tile.clone());
+                        canvas
+                        .copy(sprite.texture, sprite.src, render_quad)
+                        .unwrap() 
+                    }
                     _ => {}
                 };
             }
         }
 
         for obj in &obj_man.objects {
+            let sprite = texture_manager.get_object(obj);
+            let render_quad = Rect::new(
+                obj.pos().0 as i32 * TILE_SIZE - self.camera_offset.0,
+                obj.pos().1 as i32 * TILE_SIZE - self.camera_offset.1,
+                TILE_SIZE as u32,
+                TILE_SIZE as u32,
+            );
             match obj {
-                object::Object::Berry(ref o) => {
-                    let (i, j) = o.pos();
-                    let render_quad = Rect::new(
-                        i as i32 * TILE_SIZE - self.camera_offset.0,
-                        j as i32 * TILE_SIZE - self.camera_offset.1,
-                        TILE_SIZE as u32,
-                        TILE_SIZE as u32,
-                    );
-                    canvas
-                        .copy(&textures.objectsprites, tile_rects.berry1, render_quad)
-                        .unwrap();
-                }
-                object::Object::Door(ref o) => {
-                    let (i, j) = o.pos();
-                    let render_quad = Rect::new(
-                        i as i32 * TILE_SIZE - self.camera_offset.0,
-                        j as i32 * TILE_SIZE - self.camera_offset.1,
-                        TILE_SIZE as u32,
-                        TILE_SIZE as u32,
-                    );
-                    canvas
-                        .copy(&textures.tilesprites, tile_rects.door1, render_quad)
-                        .unwrap();
-                }
                 object::Object::NPC(ref o) => {
                     let (i, j) = o.pos();
                     let render_quad = Rect::new(
@@ -352,19 +187,24 @@ impl Renderer {
                     );
                     self.render_static_npc(
                         canvas,
-                        textures,
+                        texture_manager,
                         render_quad,
                         (i as i32 * TILE_SIZE, j as i32 * TILE_SIZE),
                     );
+                },
+                object::Object::Door(_) |  object::Object::Berry(_)=> {
+                    canvas
+                    .copy(sprite.texture, sprite.src, render_quad)
+                    .unwrap() 
                 }
-            };
+            }
         }
     }
 
     pub fn render_transition(
         &mut self,
         canvas: &mut Canvas<Window>,
-        textures: &mut Textures,
+        texture_manager: &mut TextureManager,
         delta_time: &f64,
         map: &mut tilemap::TileMap,
         obj_man: &mut object::ObjectManager,
@@ -381,7 +221,7 @@ impl Renderer {
                 let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //TODO: change height and width of screen_quad to not require math
                 let fade_slice = Rect::new(240 * curr_fade_frame, 0, 240, 160);
                 canvas
-                    .copy(&textures.fade_texture, fade_slice, screen_quad)
+                    .copy(&texture_manager.textures.fade_texture, fade_slice, screen_quad)
                     .unwrap();
                 if (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round()
                     as i32
@@ -408,7 +248,7 @@ impl Renderer {
     pub fn render_player(
         &mut self,
         canvas: &mut Canvas<Window>,
-        textures: &mut Textures,
+        texture_manager: &TextureManager,
         player: &player::Player,
     ) {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
@@ -425,7 +265,7 @@ impl Renderer {
             player::PLAYER_HEIGHT,
         );*/
         canvas
-            .copy(&textures.player, player.get_texture(), render_quad)
+            .copy(&texture_manager.textures.player, player.get_texture(), render_quad)
             .unwrap();
     }
 
@@ -444,7 +284,7 @@ impl Renderer {
     pub fn render_static_npc(
         &mut self,
         canvas: &mut Canvas<Window>,
-        textures: &mut Textures,
+        texture_manager: &TextureManager,
         render_quad: Rect,
         pos: (i32, i32),
     ) {
@@ -455,7 +295,7 @@ impl Renderer {
             Direction::LEFT => Rect::new(0, 16, 16, 16),
         };
         canvas
-            .copy(&textures.dad, texture_quad, render_quad) //todo bro change this like come on this whole shit sucks
+            .copy(&texture_manager.textures.dad, texture_quad, render_quad) //todo bro change this like come on this whole shit sucks
             .unwrap();
     }
 
@@ -463,7 +303,7 @@ impl Renderer {
         //TODO MAKE IT SO YOU CAN ACTUALLY HAVE MULTIPLE NPCs
         &mut self,
         canvas: &mut Canvas<Window>,
-        textures: &mut Textures,
+        texture_manager: &TextureManager,
         npc: &npc::Npc,
     ) {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
@@ -474,18 +314,18 @@ impl Renderer {
             player::PLAYER_HEIGHT,
         );
         canvas
-            .copy(&textures.jodo, npc.get_texture(), render_quad)
+            .copy(&texture_manager.textures.jodo, npc.get_texture(), render_quad)
             .unwrap();
     }
 
     pub fn render_menus(
         &mut self,
         canvas: &mut Canvas<Window>,
-        textures: &mut Textures,
+        texture_manager: &mut TextureManager,
         fonts: &Fonts,
         menu_man: &mut menu::MenuManager,
     ) {
-        menu_man.render(canvas, textures, fonts);
+        menu_man.render(canvas, texture_manager, fonts);
     }
     /*pub fn render_menus(
         &mut self,
@@ -514,7 +354,7 @@ impl Renderer {
     pub fn render(
         &mut self,
         canvas: &mut Canvas<Window>,
-        textures: &mut Textures,
+        texture_manager: &mut texture_manager::TextureManager,
         fonts: &mut Fonts,
         delta_time: &f64,
         player: &player::Player,
@@ -532,11 +372,11 @@ impl Renderer {
             (player.pos.1 * TILE_SIZE as f64 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64)
                 as i32,
         );
-        self.render_overworld_tiles(canvas, textures, map, obj_man);
-        self.render_player(canvas, textures, player);
-        self.render_npc(canvas, textures, npc);
-        self.render_menus(canvas, textures, fonts, menu_man);
-        self.render_transition(canvas, textures, delta_time, map, obj_man);
+        self.render_overworld_tiles(canvas, texture_manager, map, obj_man);
+        self.render_player(canvas, texture_manager, player);
+        self.render_npc(canvas, texture_manager, npc);
+        self.render_menus(canvas, texture_manager, fonts, menu_man);
+        self.render_transition(canvas, texture_manager, delta_time, map, obj_man);
 
         canvas.present();
     }

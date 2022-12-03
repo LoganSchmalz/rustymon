@@ -1,5 +1,16 @@
-use crate::tilemap::{FloorTile, TILE_COUNT};
-use crate::objects;
+use sdl2::image::LoadTexture;
+use sdl2::rect::Rect;
+use sdl2::render::{Texture, TextureCreator};
+use sdl2::video::WindowContext;
+
+use crate::tilemap::Tile;
+use crate::object::{self, Object};
+
+use enum_map::{enum_map, EnumMap};
+pub struct Sprite<'a> {
+    pub texture: &'a Texture<'a>,
+    pub src: Rect
+}
 
 pub struct Textures<'a> {
     //Sprite sheets
@@ -11,11 +22,11 @@ pub struct Textures<'a> {
     pub load_button: Texture<'a>,
     pub settings_button: Texture<'a>,
     //Transitions
-    fade_texture: Texture<'a>,
+    pub fade_texture: Texture<'a>,
     //Characters
-    player: Texture<'a>,
-    dad: Texture<'a>,
-    jodo: Texture<'a>,
+    pub player: Texture<'a>,
+    pub dad: Texture<'a>,
+    pub jodo: Texture<'a>,
     sika: Texture<'a>,
     //Text Box
     pub text_box: Texture<'a>,
@@ -53,109 +64,55 @@ impl<'a> Textures<'a> {
     }
 }
 
-pub struct TextureManager {
-    textures: Texture,
-    tile_rects: Vec<Rect>,
+pub struct TextureManager<'a> {
+    pub textures: Textures<'a>,
+    tile_rects: EnumMap<Tile, Rect>,
     object_rects: Vec<Rect>
 }
 
-impl TextureManager {
-    pub fn new(textures: Texture) -> TextureManager {
-        let tile_rects = Vec<Rect>::with_capacity(tilemap::TILE_COUNT);
-        tile_rects[to_usize(FloorTile::GRASS1)] = Rect::new(32, 0, 16, 16);
-        tile_rects[to_usize(FloorTile::GRASS2)] = Rect::new(48, 0, 16, 16);
-        tile_rects[to_usize(FloorTile::WATER1)] = Rect::new(16, 64, 16, 16);
-        tile_rects[to_usize(FloorTile::WGTL)] = Rect::new(0, 48, 16, 16);
-        tile_rects[to_usize(FloorTile::WGT)] = Rect::new(16, 48, 16, 16);
-        tile_rects[to_usize(FloorTile::WGTR)] = Rect::new(32, 48, 16, 16);
-        tile_rects[to_usize(FloorTile::WGL)] = Rect::new(0, 64, 16, 16);
-        tile_rects[to_usize(FloorTile::WGR)] = Rect::new(32, 64, 16, 16);
-        tile_rects[to_usize(FloorTile::WGBL)] = Rect::new(0, 80, 16, 16);
-        tile_rects[to_usize(FloorTile::WGB)] = Rect::new(16, 80, 16, 16);
-        tile_rects[to_usize(FloorTile::WGBR)] = Rect::new(32, 80, 16, 16);
-        tile_rects[to_usize(FloorTile::GWTL)] = Rect::new(48, 48, 16, 16);
-        tile_rects[to_usize(FloorTile::GWTR)] = Rect::new(80, 48, 16, 16);
-        tile_rects[to_usize(FloorTile::GWBL)] = Rect::new(48, 80, 16, 16);
-        tile_rects[to_usize(FloorTile::GWBR)] = Rect::new(80, 80, 16, 16);
-        tile_rects[to_usize(FloorTile::FB1)] = Rect::new(112, 0, 16, 16);
+impl TextureManager<'_> {
+    pub fn new(textures: Textures) -> TextureManager {
+        let tile_rects = enum_map! {
+            Tile::NONE => Rect::new(0,0,0,0),
+            Tile::GRASS1 => Rect::new(32, 0, 16, 16),
+            Tile::GRASS2 => Rect::new(48, 0, 16, 16),
+            Tile::WATER1 => Rect::new(16, 64, 16, 16),
+            Tile::WGTL => Rect::new(0, 48, 16, 16),
+            Tile::WGT => Rect::new(16, 48, 16, 16),
+            Tile::WGTR => Rect::new(32, 48, 16, 16),
+            Tile::WGL => Rect::new(0, 64, 16, 16),
+            Tile::WGR => Rect::new(32, 64, 16, 16),
+            Tile::WGBL => Rect::new(0, 80, 16, 16),
+            Tile::WGB => Rect::new(16, 80, 16, 16),
+            Tile::WGBR => Rect::new(32, 80, 16, 16),
+            Tile::GWTL => Rect::new(48, 48, 16, 16),
+            Tile::GWTR => Rect::new(80, 48, 16, 16),
+            Tile::GWBL => Rect::new(48, 80, 16, 16),
+            Tile::GWBR => Rect::new(80, 80, 16, 16),
+            Tile::FB1 => Rect::new(112, 0, 16, 16),
+            Tile::WOODL => Rect::new(128, 0, 16, 16),
+            Tile::WOODR => Rect::new(160, 0, 16, 16),
+        };
 
-        let object_rects = Vec<Rect>::with_capacity(objects::OBJECT_COUNT);
-        tile_rects[to_usize(ObjectTile::BERRY)] = Rect::new(0, 0, 16, 16);
-        tile_rects[to_usize(ObjectTile::DOOR)] = Rect::new(96, 0, 16, 16);
-        tile_rects[to_usize(ObjectTile::WOODL)] = Rect::new(128, 0, 16, 16);
-        tile_rects[to_usize(ObjectTile::WOODR)] = Rect::new(160, 0, 16, 16);
+        let object_rects = Vec::with_capacity(object::OBJECT_COUNT);
+        /*tile_rects[ObjectTile::BERRY] = Rect::new(0, 0, 16, 16);
+        tile_rects[ObjectTile::DOOR] = Rect::new(96, 0, 16, 16);*/
         
         TextureManager {
             textures, tile_rects, object_rects
         }
     }
 
-    pub fn get_tile(&self, tile: &FloorTile) -> Rect {
-        tile_rects[to_usize(tile)]
+    pub fn get_tile(&self, tile: Tile) -> Sprite {
+        Sprite { texture: &self.textures.tilesprites, src: self.tile_rects[tile] }
     }
 
-    pub fn get_object(&self, object: &ObjectTile) -> (&Texture, Rect) {
-        if object == ObjectTile::BERRY {
-            return (&self.textures.objectsprites, obj_rects[to_usize(ObjectTile::BERRY)]);
-        } else {
-            match object {
-                ObjectTile::DOOR => return (&self.textures.tilesprites, obj_rects[to_usize(ObjectTile::DOOR)]),
-                ObjectTile::WOODL => return (&self.textures.tilesprites, obj_rects[to_usize(ObjectTile::WOODL)]),
-                ObjectTile::WOODR => return (&self.textures.tilesprites, obj_rects[to_usize(ObjectTile::WOODR)]),
-                _ => panic!("Bad object request to texture_manager")
-            }
+    pub fn get_object(&self, object: &Object) -> Sprite {
+        match object {
+            Object::Berry(_) => return Sprite { texture: &self.textures.objectsprites, src: Rect::new(0, 0, 16, 16) },
+            Object::Door(_) => return Sprite { texture: &self.textures.tilesprites, src: Rect::new(96, 0, 16, 16) },
+            Object::NPC(_) => return Sprite { texture: &self.textures.tilesprites, src: Rect::new(96, 0, 16, 16) },
+            _ => panic!("Bad object request to texture_manager")
         }
     }
 }
-
-/*match map.floor.get(i + j * map.size_x) {
-    Some(tilemap::FloorTile::GRASS1) => canvas
-        .copy(&textures.tilesprites, tile_rects.g1, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::GRASS2) => canvas
-        .copy(&textures.tilesprites, tile_rects.g2, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::WATER1) => canvas
-        .copy(&textures.tilesprites, tile_rects.w1, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::WGTL) => canvas
-        .copy(&textures.tilesprites, tile_rects.wg_tl, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::WGT) => canvas
-        .copy(&textures.tilesprites, tile_rects.wg_t, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::WGTR) => canvas
-        .copy(&textures.tilesprites, tile_rects.wg_tr, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::WGR) => canvas
-        .copy(&textures.tilesprites, tile_rects.wg_r, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::WGBR) => canvas
-        .copy(&textures.tilesprites, tile_rects.wg_br, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::WGB) => canvas
-        .copy(&textures.tilesprites, tile_rects.wg_b, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::WGBL) => canvas
-        .copy(&textures.tilesprites, tile_rects.wg_bl, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::WGL) => canvas
-        .copy(&textures.tilesprites, tile_rects.wg_l, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::GWTL) => canvas
-        .copy(&textures.tilesprites, tile_rects.gw_tl, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::GWTR) => canvas
-        .copy(&textures.tilesprites, tile_rects.gw_tr, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::GWBR) => canvas
-        .copy(&textures.tilesprites, tile_rects.gw_br, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::GWBL) => canvas
-        .copy(&textures.tilesprites, tile_rects.gw_bl, render_quad)
-        .unwrap(),
-    Some(tilemap::FloorTile::FB1) => canvas
-        .copy(&textures.tilesprites, tile_rects.fb1, render_quad)
-        .unwrap(),
-    None => {}
-}; */
