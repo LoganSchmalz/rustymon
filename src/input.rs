@@ -122,13 +122,13 @@ impl Input {
                 }
 
                 if ks.is_scancode_pressed(Scancode::Left) {
-                    player.walk(player::Direction::LEFT, &mut map);
+                    player.walk(player::Direction::LEFT, map, obj_man);
                 } else if ks.is_scancode_pressed(Scancode::Right) {
-                    player.walk(player::Direction::RIGHT, &mut map);
+                    player.walk(player::Direction::RIGHT, map, obj_man);
                 } else if ks.is_scancode_pressed(Scancode::Up) {
-                    player.walk(player::Direction::UP, &mut map);
+                    player.walk(player::Direction::UP, map, obj_man);
                 } else if ks.is_scancode_pressed(Scancode::Down) {
-                    player.walk(player::Direction::DOWN, &mut map);
+                    player.walk(player::Direction::DOWN, map, obj_man);
                 } else {
                     player.stop_walk();
                 }

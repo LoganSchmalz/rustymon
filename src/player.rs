@@ -1,4 +1,5 @@
 use crate::TILE_SIZE;
+use crate::object;
 use crate::tilemap;
 use sdl2::rect::Rect;
 
@@ -123,7 +124,7 @@ impl Player {
         }
     }
 
-    pub fn walk(&mut self, direction: Direction, map: &mut tilemap::TileMap) {
+    pub fn walk(&mut self, direction: Direction, map: &tilemap::TileMap, obj_man: &object::ObjectManager) {
         if direction == self.dir && self.rotation_timer >= ROTATION_TIME {
             self.is_moving = true;
             if self.moving_towards == None {
@@ -132,55 +133,26 @@ impl Player {
                 } else {
                     WALKING_TIME_PER_TILE
                 };
-                match direction {
-                    LEFT => {
-                        if self.pos.0 - 1.0 < 0.0 {
-                            return;
-                        }
-                        match map.collision.get(self.pos.0 as usize - 1 + self.pos.1 as usize * map.size_x) {
-                            Some(tilemap::CollisionTile::NONE) => {
-                                self.moving_towards =
-                                    Some((self.pos.0 as i32 - 1, self.pos.1 as i32))
-                            }
-                            _ => {}
-                        }
-                    },
-                    RIGHT => {
-                        if self.pos.0 + 1.0 >= map.size_x as f64 {
-                            return;
-                        }
-                        match map.collision.get(self.pos.0 as usize + 1 + self.pos.1 as usize * map.size_x) {
-                            Some(tilemap::CollisionTile::NONE) => {
-                                self.moving_towards =
-                                    Some((self.pos.0 as i32 + 1, self.pos.1 as i32))
-                                }
-                            _ => {}
-                        }
-                    },
-                    UP => {
-                        if self.pos.1 - 1.0 < 0.0 {
-                            return;
-                        }
-                        match map.collision.get(self.pos.0 as usize + (self.pos.1 - 1.0) as usize * map.size_x) {
-                            Some(tilemap::CollisionTile::NONE) => {
-                                self.moving_towards =
-                                    Some((self.pos.0 as i32, self.pos.1 as i32 - 1))
-                            }
-                            _ => {}
-                        }
-                    },
-                    DOWN => {
-                        if self.pos.1 + 1.0 >= map.size_y as f64 {
-                            return;
-                        }
-                        match map.collision.get(self.pos.0 as usize + (self.pos.1 + 1.0) as usize * map.size_x) {
-                            Some(tilemap::CollisionTile::NONE) => {
-                                self.moving_towards =
-                                    Some((self.pos.0 as i32, self.pos.1 as i32 + 1))
-                            }
-                            _ => {}
+                
+                let next_pos = match direction {
+                    LEFT => (self.pos.0 - 1.0, self.pos.1),
+                    RIGHT => (self.pos.0 + 1.0, self.pos.1),
+                    UP => (self.pos.0, self.pos.1 - 1.0),
+                    DOWN => (self.pos.0, self.pos.1 + 1.0)
+                };
+
+                if next_pos.0 < 0.0 || next_pos.0 >= map.size_x as f64 || next_pos.1 < 0.0 || next_pos.1 >= map.size_y as f64 {
+                    return;
+                }
+
+                match map.collision.get(next_pos.0 as usize + next_pos.1 as usize * map.size_x) {
+                    Some(tilemap::CollisionTile::NONE) => {
+                        match obj_man.get_obj(next_pos) {
+                            Some(_) => {}
+                            None => {self.moving_towards = Some((next_pos.0 as i32, next_pos.1 as i32));}
                         }
                     }
+                    _ => {}
                 }
             }
         } else if direction != self.dir {

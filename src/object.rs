@@ -100,13 +100,22 @@ impl ObjectManager {
         renderer: &mut render::Renderer,
         menu_man: &mut menu::MenuManager,
     ) {
-        for (idx, obj) in self.objects.iter().enumerate() {
-            if pos == obj.pos() {
-                if obj.interact(renderer, menu_man) {
+        match self.get_obj(pos) {
+            Some(idx) => {
+                if self.objects[idx].interact(renderer, menu_man) {
                     self.objects.remove(idx);
                 }
-                break;
+            }
+            _ => {}
+        }
+    }
+
+    pub fn get_obj(&self, pos: (f64, f64)) -> Option<usize> {
+        for (idx, obj) in self.objects.iter().enumerate() {
+            if pos == obj.pos() {
+                return Some(idx);
             }
         }
+        None
     }
 }
