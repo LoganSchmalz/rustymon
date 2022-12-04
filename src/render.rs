@@ -123,7 +123,7 @@ impl Renderer {
                     let (i, j) = o.pos();
                     let render_quad = Rect::new(
                         i as i32 * TILE_SIZE - self.camera_offset.0,
-                        j as i32 * TILE_SIZE - self.camera_offset.1,
+                        j as i32 * TILE_SIZE - self.camera_offset.1 - 4,
                         TILE_SIZE as u32,
                         TILE_SIZE as u32,
                     );
@@ -196,7 +196,7 @@ impl Renderer {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         let render_quad = Rect::new(
             (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as i32,
-            (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as i32,
+            (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as i32 - 4,
             player::PLAYER_WIDTH,
             player::PLAYER_HEIGHT,
         );
@@ -251,7 +251,7 @@ impl Renderer {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         let render_quad = Rect::new(
             npc.pos.0 as i32 - self.camera_offset.0,
-            npc.pos.1 as i32 - self.camera_offset.1,
+            npc.pos.1 as i32 - self.camera_offset.1 - 4,
             player::PLAYER_WIDTH,
             player::PLAYER_HEIGHT,
         );
