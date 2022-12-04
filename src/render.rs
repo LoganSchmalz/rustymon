@@ -2,7 +2,7 @@ use sdl2::{
     pixels::Color,
     rect::Rect,
     render::Canvas,
-    ttf::{Font, Sdl2TtfContext},
+    //ttf::{Font, Sdl2TtfContext},
     video::{FullscreenType, Window}
 };
 use std::path::Path;

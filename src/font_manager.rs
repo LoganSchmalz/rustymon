@@ -1,4 +1,5 @@
 use sdl2::ttf::{Sdl2TtfContext, Font};
+use regex::Regex;
 
 pub struct Fonts<'ttf_module, 'rwops> {
     pub press_start_2p: Font<'ttf_module, 'rwops>,
@@ -25,7 +26,7 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
         }
     }
 
-    pub fn break_string(&self, str: &String) -> Vec<String> {
+    pub fn break_string(&self, str: &String, box_w: u32) -> Vec<String> {
 		/*
 		takes in a string of any length and breaks it into sets of characters at specific length
 		the pixel dimensions of a string should be calculable by a function provided by sdl2_ttf
@@ -37,6 +38,52 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
 
 		preferably, we break strings only at whitespace or punctuation, but it will be fine if it doesn't work perfectly yet
 		*/
-		return Vec::new()
+        let punc = Regex::new("[.?\n \t!,:;]").unwrap();
+
+        let mut ret: Vec<String> = vec![];
+        //let pad_y = 10 as u32;
+        let pad_x = 10 as u32;
+
+        let line_w = box_w - pad_x * 2;
+        println!("linew:{}", line_w);
+
+        let mut curr_str: String = "".to_string();
+        let mut next_word: String = "".to_string();
+        let mut buff = [0u8; 4];
+        let mut curr_char: &str;
+        let mut cs_len: u32;
+        let mut nw_len: u32;
+
+        for (i, c) in str.chars().enumerate() {
+            next_word.push(c);
+
+            curr_char = c.encode_utf8(&mut buff);
+            
+            if punc.is_match(curr_char) {
+
+                cs_len = self.fonts.press_start_2p.size_of(curr_str.as_str()).ok().unwrap().0;
+                nw_len = self.fonts.press_start_2p.size_of(next_word.as_str()).ok().unwrap().0;
+
+                if (cs_len + nw_len) < line_w {
+                    curr_str += next_word.as_str();
+                }  else {
+                    ret.push(curr_str);
+                    curr_str = next_word;
+                }
+
+                next_word = "".to_string();
+            }
+        }
+
+        if curr_str != "".to_string() {
+            ret.push(curr_str);
+        }
+
+        for i in &ret {
+            let i: &String = i;
+            println!("v{}", i);
+        }
+
+		return ret;
 	}
 }

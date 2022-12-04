@@ -9,6 +9,7 @@ num-traits = "0.2"
 num-derive = "0.3"
 enum_delegate = "0.2"
 enum-map = "2.4.1"
+regex = "1"
 
 [dependencies.sdl2]
 version = "0.35.2"
