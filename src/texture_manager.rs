@@ -67,7 +67,6 @@ impl<'a> Textures<'a> {
 pub struct TextureManager<'a> {
     pub textures: Textures<'a>,
     tile_rects: EnumMap<Tile, Rect>,
-    object_rects: Vec<Rect>
 }
 
 impl TextureManager<'_> {
@@ -94,12 +93,8 @@ impl TextureManager<'_> {
             Tile::WOODR => Rect::new(160, 0, 16, 16),
         };
 
-        let object_rects = Vec::with_capacity(object::OBJECT_COUNT);
-        /*tile_rects[ObjectTile::BERRY] = Rect::new(0, 0, 16, 16);
-        tile_rects[ObjectTile::DOOR] = Rect::new(96, 0, 16, 16);*/
-        
         TextureManager {
-            textures, tile_rects, object_rects
+            textures, tile_rects
         }
     }
 
