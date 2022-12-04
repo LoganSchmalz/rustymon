@@ -1,7 +1,8 @@
 use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 
 use crate::texture_manager::{TextureManager};
-use crate::render::{Fonts, PIXELS_X, PIXELS_Y};
+use crate::font_manager::{FontManager};
+use crate::render::{PIXELS_X, PIXELS_Y};
 
 use super::{Action, MenuItem};
 
@@ -16,10 +17,10 @@ impl Textbox {
 }
 
 impl MenuItem for Textbox {
-    fn render(&self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, fonts: &Fonts) {
+    fn render(&self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, font_man: &FontManager) {
         let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41 as u32);
 
-        let surface = fonts
+        let surface = font_man.fonts
             .press_start_2p
             .render(self.text.as_str())
             .blended(Color::RGB(179, 145, 133))

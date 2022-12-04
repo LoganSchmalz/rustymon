@@ -4,7 +4,7 @@ pub mod main_menu;
 pub mod textbox;
 
 use crate::texture_manager::{TextureManager};
-use crate::render::{Fonts};
+use crate::font_manager::{FontManager};
 
 use self::main_menu::MainMenu;
 
@@ -20,7 +20,7 @@ pub enum Action {
 }
 
 pub trait MenuItem {
-    fn render(&self, canvas: &mut Canvas<Window>, textures: &mut TextureManager, fonts: &Fonts);
+    fn render(&self, canvas: &mut Canvas<Window>, textures: &mut TextureManager, font_man: &FontManager);
     fn update(&mut self, action: Action) -> bool; // returns true if menu should close after interaction
 }
 
@@ -60,9 +60,9 @@ impl MenuManager {
         }
     }
 
-    pub fn render(&mut self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, fonts: &Fonts) {
+    pub fn render(&mut self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, font_man: &FontManager) {
         for menu_item in self.menus.iter() {
-            menu_item.render(canvas, texture_manager, fonts);
+            menu_item.render(canvas, texture_manager, font_man);
         }
     }
 }

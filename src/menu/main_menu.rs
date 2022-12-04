@@ -1,7 +1,8 @@
 use sdl2::{video::Window, render::Canvas, rect::Rect};
 
 use crate::texture_manager::{TextureManager};
-use crate::render::{Fonts, PIXELS_X, PIXELS_Y};
+use crate::font_manager::{FontManager};
+use crate::render::{PIXELS_X, PIXELS_Y};
 
 use super::{MenuItem, Action};
 
@@ -27,7 +28,7 @@ impl MainMenu {
 use MainMenuButton::*;
 
 impl MenuItem for MainMenu {
-	fn render(&self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, _fonts: &Fonts) {
+	fn render(&self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, _font_man: &FontManager) {
 		if self.curr_button == StartButton {
             texture_manager.textures.start_button.set_color_mod(223, 3, 67);
         } else {

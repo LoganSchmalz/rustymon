@@ -8,6 +8,7 @@ mod object;
 mod menu;
 mod npc;
 mod texture_manager;
+mod font_manager;
 
 extern crate sdl2;
 
@@ -16,7 +17,6 @@ extern crate enum_map;
 #[macro_use]
 extern crate num_derive;
 
-use render::Fonts;
 use tilemap::load_tilemap;
 use std::{fs, path::Path};
 
@@ -64,7 +64,8 @@ pub fn main() {
 
     let ttf_context = sdl2::ttf::init();
     let font_loader = ttf_context.expect("Missing ttf context");
-    let mut fonts = Fonts::load(&font_loader);
+    let mut fonts = font_manager::Fonts::load(&font_loader);
+    let mut font_manager = font_manager::FontManager::new(fonts);
     let mut renderer = render::Renderer::new();
     let mut menu_man = menu::MenuManager::new();
     let mut obj_man = object::ObjectManager::new();
@@ -94,6 +95,6 @@ pub fn main() {
 
         player.update(&delta_time);
         npc.update(&delta_time);
-        renderer.render(&mut canvas, &mut texture_manager, &mut fonts, &delta_time, &player, &npc, &mut map, &mut menu_man, &mut obj_man);
+        renderer.render(&mut canvas, &mut texture_manager, &font_manager, &delta_time, &player, &npc, &mut map, &mut menu_man, &mut obj_man);
     }
 }

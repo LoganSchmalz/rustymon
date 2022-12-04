@@ -7,7 +7,7 @@ use sdl2::{
 };
 use std::path::Path;
 
-use crate::{menu, npc, object, object::TObject, player, tilemap, TILE_SIZE, texture_manager::{self, TextureManager}};
+use crate::{menu, npc, object, object::TObject, player, tilemap, TILE_SIZE, texture_manager::{self, TextureManager}, font_manager::FontManager};
 use player::Direction;
 use tilemap::load_tilemap;
 
@@ -34,20 +34,6 @@ pub struct Renderer {
     camera_offset: (i32, i32),
     static_npc_dir: Direction,  //todo remove this it is horrible
     static_npc_pos: (i32, i32), //todo please remove
-}
-
-pub struct Fonts<'ttf_module, 'rwops> {
-    pub press_start_2p: Font<'ttf_module, 'rwops>,
-}
-
-impl<'ttf_module, 'rwops> Fonts<'ttf_module, 'rwops> {
-    pub fn load(font_loader: &'ttf_module Sdl2TtfContext) -> Self {
-        let press_start_2p = font_loader
-            .load_font("assets/PressStart2P-Regular.ttf", 8)
-            .unwrap();
-
-        Fonts { press_start_2p }
-    }
 }
 
 impl Renderer {
@@ -264,10 +250,10 @@ impl Renderer {
         &mut self,
         canvas: &mut Canvas<Window>,
         texture_manager: &mut TextureManager,
-        fonts: &Fonts,
+        font_man: &FontManager,
         menu_man: &mut menu::MenuManager,
     ) {
-        menu_man.render(canvas, texture_manager, fonts);
+        menu_man.render(canvas, texture_manager, font_man);
     }
     /*pub fn render_menus(
         &mut self,
@@ -297,7 +283,7 @@ impl Renderer {
         &mut self,
         canvas: &mut Canvas<Window>,
         texture_manager: &mut texture_manager::TextureManager,
-        fonts: &mut Fonts,
+        font_man: &FontManager,
         delta_time: &f64,
         player: &player::Player,
         npc: &npc::Npc,
@@ -317,7 +303,7 @@ impl Renderer {
         self.render_overworld_tiles(canvas, texture_manager, map, obj_man);
         self.render_player(canvas, texture_manager, player);
         self.render_npc(canvas, texture_manager, npc);
-        self.render_menus(canvas, texture_manager, fonts, menu_man);
+        self.render_menus(canvas, texture_manager, font_man, menu_man);
         self.render_transition(canvas, texture_manager, delta_time, map, obj_man);
 
         canvas.present();
