@@ -28,7 +28,7 @@ impl MainMenu {
 use MainMenuButton::*;
 
 impl MenuItem for MainMenu {
-	fn render(&self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, _font_man: &FontManager) {
+	fn render(&mut self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, _font_man: &FontManager) {
 		if self.curr_button == StartButton {
             texture_manager.textures.start_button.set_color_mod(223, 3, 67);
         } else {

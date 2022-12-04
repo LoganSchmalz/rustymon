@@ -32,7 +32,7 @@ impl TObject for NPC {
 
     fn interact(&self, renderer: &mut Renderer, menu_man: &mut MenuManager) -> bool {
         renderer.npc_turn();
-        menu_man.open_menu(Box::new(Textbox::new("Hi hungry, I'm dad! Ur a little stinker! A little stinky fellow! A stinky lil guy!".to_string())));
+        menu_man.open_menu(Box::new(Textbox::new("Hi hungry, I'm dad! Ur a little stinker! A little stinky fellow! A stinky lil guy! Wow, that is truly, truly incredible.".to_string())));
         false
 	}
 }

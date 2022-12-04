@@ -27,6 +27,7 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
     }
 
     pub fn break_string(&self, str: &String, box_w: u32) -> Vec<String> {
+        
 		/*
 		takes in a string of any length and breaks it into sets of characters at specific length
 		the pixel dimensions of a string should be calculable by a function provided by sdl2_ttf
