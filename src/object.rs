@@ -7,7 +7,7 @@ use std::{fs, path::Path};
 
 mod berry;
 mod door;
-mod npc;
+pub mod npc;
 
 use self::berry::Berry;
 use self::door::Door;

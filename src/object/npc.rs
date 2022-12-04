@@ -10,13 +10,13 @@ pub enum Character {
 
 pub struct NPC {
 	pos: (f64, f64),
-    char: Character
+    pub character: Character
 }
 
 impl NPC {
-	pub fn new(pos: (f64, f64), char: Character) -> NPC {
+	pub fn new(pos: (f64, f64), character: Character) -> NPC {
 		NPC {
-            pos, char
+            pos, character
         }
 	}
 }

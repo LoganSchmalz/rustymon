@@ -111,8 +111,14 @@ impl TextureManager<'_> {
         match object {
             Object::Berry(_) => return Sprite { texture: &self.textures.objectsprites, src: Rect::new(0, 0, 16, 16) },
             Object::Door(_) => return Sprite { texture: &self.textures.tilesprites, src: Rect::new(96, 0, 16, 16) },
-            Object::NPC(_) => return Sprite { texture: &self.textures.tilesprites, src: Rect::new(96, 0, 16, 16) },
+            Object::NPC(npc) => return self.get_npc(npc),
             _ => panic!("Bad object request to texture_manager")
+        }
+    }
+
+    pub fn get_npc(&self, npc: &object::npc::NPC) -> Sprite {
+        match npc.character {
+            _ => return Sprite { texture: &self.textures.tilesprites, src: Rect::new(96, 0, 16, 16) }
         }
     }
 }
