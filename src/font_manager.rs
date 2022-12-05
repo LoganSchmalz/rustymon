@@ -76,7 +76,8 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
             }
         }
 
-        if curr_str != "".to_string() {
+        if curr_str != "".to_string() || next_word != "".to_string() {
+            curr_str += next_word.as_str();
             ret.push(curr_str);
         }
 
