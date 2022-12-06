@@ -1,5 +1,5 @@
 [build]
-target = ["x86_64-pc-windows-gnu"]
+targets = ["aarch64-apple-darwin", "x86_64-pc-windows-gnu"]
 
 [profile.dev.package."*"]
 opt-level = 3
