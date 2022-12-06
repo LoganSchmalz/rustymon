@@ -10,3 +10,11 @@ For cross compilation on Linux to Windows:
 
 ![mainmenu](https://user-images.githubusercontent.com/19539925/195476812-b88f644f-2291-4b71-895d-8e0c2bfbb9d9.PNG)
 ![overworld_tiles](https://user-images.githubusercontent.com/19539925/195476817-0678bce0-2770-40df-bb3f-72e0ac89d864.PNG)
+
+For compilation on macOS for M1:
+
+1. Download the SDL2, SDL2_image, and SDL2_ttf packages from **brew**
+
+`brew install SDL2 SDL2_image SDL2_ttf`
+
+2. [Export](https://github.com/PistonDevelopers/rust-empty/issues/175#issuecomment-927172098) the proper `LIBRARY_PATH` environment variable to your shell
