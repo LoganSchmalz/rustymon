@@ -1,9 +1,5 @@
-[build]
-target = ["aarch64-apple-darwin", "x86_64-pc-windows-gnu"]
-
 [alias]
 wsl = "run --target=x86_64-pc-windows-gnu"
-macos = "run --target=aarch64-apple-darwin"
 
 [profile.dev.package."*"]
 opt-level = 3
