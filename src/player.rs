@@ -1,4 +1,5 @@
 use crate::TILE_SIZE;
+use crate::coordinate::Coordinate;
 use crate::object;
 use crate::tilemap;
 use sdl2::rect::Rect;
@@ -26,9 +27,9 @@ pub enum Leg {
 
 use Direction::{DOWN, LEFT, RIGHT, UP};
 pub struct Player {
-    pub pos: (f64, f64),
+    pub pos: Coordinate,
     pub is_sprinting: bool,
-    moving_towards: Option<(i32, i32)>,
+    moving_towards: Option<Coordinate>,
     animation_time: f64,
     pub dir: Direction,
     current_leg: Leg,
@@ -39,7 +40,7 @@ pub struct Player {
 impl Player {
     pub fn new() -> Player {
         Player {
-            pos: (1.0, 1.0),
+            pos: Coordinate(1.0, 1.0),
             is_sprinting: false,
             moving_towards: None,
             animation_time: 0.0,
@@ -52,7 +53,7 @@ impl Player {
 
     pub fn update(&mut self, delta_time: &f64) {
         match self.moving_towards {
-            Some((_, _)) => {
+            Some(c) => {
                 /*if self.animation_time < 0.0 {
                     self.animation_time = if self.is_sprinting {
                         RUNNING_TIME_PER_TILE
@@ -77,7 +78,7 @@ impl Player {
     pub fn move_towards_target(&mut self, delta_time: &f64) {
         //concept from https://gamedev.stackexchange.com/questions/31410/keeping-player-aligned-to-grid-in-pacman
 
-        let (tx, ty) = self.moving_towards.unwrap();
+        let Coordinate(tx, ty) = self.moving_towards.unwrap();
 
         //if we are on tile
         if (self.pos.0, self.pos.1) == (tx as f64, ty as f64) {
@@ -113,13 +114,13 @@ impl Player {
                 0.0
             };
             //set new position
-            self.pos = (self.pos.0 + mx, self.pos.1 + my);
+            self.pos = Coordinate(self.pos.0 + mx, self.pos.1 + my);
 
             //check if we have passed the tile we were trying to get to
             if dx != 0.0 && (tx as f64 - self.pos.0).signum() != dx.signum()
                 || dy != 0.0 && (ty as f64 - self.pos.1).signum() != dy.signum()
             {
-                self.pos = (tx as f64, ty as f64);
+                self.pos = Coordinate(tx as f64, ty as f64);
             }
         }
     }
@@ -149,7 +150,7 @@ impl Player {
                     Some(tilemap::CollisionTile::NONE) => {
                         match obj_man.get_obj(next_pos) {
                             Some(_) => {}
-                            None => {self.moving_towards = Some((next_pos.0 as i32, next_pos.1 as i32));}
+                            None => {self.moving_towards = Some(Coordinate(next_pos.0 as f64, next_pos.1 as f64));}
                         }
                     }
                     _ => {}

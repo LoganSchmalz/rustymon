@@ -9,6 +9,7 @@ mod menu;
 mod npc;
 mod texture_manager;
 mod font_manager;
+mod coordinate;
 
 extern crate sdl2;
 
