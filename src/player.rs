@@ -1,186 +1,130 @@
-use crate::TILE_SIZE;
-use crate::coordinate::Coordinate;
-use crate::object;
-use crate::tilemap;
+use crate::coordinate::{Coordinate, Direction};
+use crate::humanoid::Humanoid;
+use crate::humanoid::{Leg, WALKING_TIME_PER_TILE, RUNNING_TIME_PER_TILE, ROTATION_TIME};
+use crate::object::CollisionManager;
+use crate::tilemap::TileMap;
 use sdl2::rect::Rect;
 
-pub const PLAYER_WALK_SPEED: f64 = 1.0 / 16.0;
-pub const WALKING_TIME_PER_TILE: f64 = 1.0 / (PLAYER_WALK_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
-const PLAYER_RUN_SPEED: f64 = 2.0 / 16.0;
-pub const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * PLAYER_RUN_SPEED / TILE_SIZE as f64); // in ms b/c delta_time in ms
-pub const PLAYER_WIDTH: u32 = 16;
-pub const PLAYER_HEIGHT: u32 = 16;
-const ROTATION_TIME: f64 = RUNNING_TIME_PER_TILE;
-
-#[derive(PartialEq, Clone, Copy)]
-pub enum Direction {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-}
-
-pub enum Leg {
-    LEFT,
-    RIGHT,
-}
-
-use Direction::{DOWN, LEFT, RIGHT, UP};
 pub struct Player {
-    pub pos: Coordinate,
-    pub is_sprinting: bool,
+    pos: Coordinate,
+    prev_pos: Coordinate,
+    try_sprinting: bool,
+    is_sprinting: bool,
     moving_towards: Option<Coordinate>,
     animation_time: f64,
-    pub dir: Direction,
+    facing: Direction,
     current_leg: Leg,
-    is_moving: bool,
+    walking: Option<Direction>,
     rotation_timer: f64,
+}
+
+impl Humanoid for Player {
+    fn get_pos(&self) -> Coordinate {
+        self.pos
+    }
+    fn set_pos(&mut self, pos: Coordinate) {
+        self.pos = pos;
+    }
+    fn get_prev_pos(&self) -> Coordinate {
+        self.prev_pos
+    }
+    fn set_prev_pos(&mut self, pos: Coordinate) {
+        self.prev_pos = pos;
+    }
+    fn get_facing(&self) -> Direction {
+        self.facing
+    }
+    fn set_facing(&mut self, dir: Direction) {
+        self.facing = dir;
+    }
+    fn get_moving_towards(&self) -> Option<Coordinate> {
+        self.moving_towards
+    }
+    fn set_moving_towards(&mut self, pos: Option<Coordinate>) {
+        self.moving_towards = pos;
+    }
+    fn get_current_leg(&self) -> Leg {
+        self.current_leg
+    }
+    fn set_current_leg(&mut self, leg: Leg) {
+        self.current_leg = leg;
+    }
+    fn get_try_sprinting(&self) -> bool {
+        self.try_sprinting
+    }
+    fn set_try_sprinting(&mut self, try_sprinting: bool) {
+        self.try_sprinting = try_sprinting;
+    }
+    fn get_is_sprinting(&self) -> bool {
+        self.is_sprinting
+    }
+    fn set_is_sprinting(&mut self, is_sprinting: bool) {
+        self.is_sprinting = is_sprinting;
+    }
+    fn get_walking(&self) -> Option<Direction> {
+        self.walking
+    }
+    fn set_walking(&mut self, walking: Option<Direction>) {
+        self.walking = walking;
+    }
+    fn get_rotation_timer(&self) -> f64 {
+        self.rotation_timer
+    }
+    fn set_rotation_timer(&mut self, time: f64) {
+        self.rotation_timer = time;
+    }
+
+    fn get_animation_time(&self) -> f64 {
+        self.animation_time
+    }
+
+    fn set_animation_time(&mut self, time: f64) {
+        self.animation_time = time;
+    }
 }
 
 impl Player {
     pub fn new() -> Player {
         Player {
             pos: Coordinate(1.0, 1.0),
+            prev_pos: Coordinate(1.0, 1.0),
+            try_sprinting: false,
             is_sprinting: false,
             moving_towards: None,
             animation_time: 0.0,
-            dir: DOWN,
+            facing: Direction::DOWN,
             current_leg: Leg::LEFT,
-            is_moving: false,
+            walking: None,
             rotation_timer: 0.0,
         }
     }
 
-    pub fn update(&mut self, delta_time: &f64) {
-        match self.moving_towards {
-            Some(c) => {
-                /*if self.animation_time < 0.0 {
-                    self.animation_time = if self.is_sprinting {
-                        RUNNING_TIME_PER_TILE
-                    } else {
-                        WALKING_TIME_PER_TILE
-                    }
-                } else {*/
-                self.animation_time = self.animation_time - delta_time;
-                self.move_towards_target(delta_time);
-                //}
-            }
-            None => {
-                self.animation_time = 0.0;
-            }
+    pub fn update(&mut self, delta_time: &f64, map: &TileMap, collision_manager: &CollisionManager) -> bool {
+        println!("{:?} {:?} {:?} {:?}", self.walking, self.pos, self.moving_towards, self.get_rotation_timer());
+
+        if self.walking != None && self.moving_towards == None {
+            self.start_walk(self.walking.unwrap(), map, collision_manager);
         }
 
         if self.rotation_timer < ROTATION_TIME {
             self.rotation_timer += delta_time;
         }
-    }
 
-    pub fn move_towards_target(&mut self, delta_time: &f64) {
-        //concept from https://gamedev.stackexchange.com/questions/31410/keeping-player-aligned-to-grid-in-pacman
-
-        let Coordinate(tx, ty) = self.moving_towards.unwrap();
-
-        //if we are on tile
-        if (self.pos.0, self.pos.1) == (tx as f64, ty as f64) {
-            //self.animation_time = 0.0;
-            self.moving_towards = None;
-            self.current_leg = match self.current_leg {
-                Leg::LEFT => {
-                    Leg::RIGHT
-                }
-                Leg::RIGHT => {
-                    Leg::LEFT
-                }
-            };
-        } else {
-            let speed = if self.is_sprinting {
-                PLAYER_RUN_SPEED
-            } else {
-                PLAYER_WALK_SPEED
-            };
-
-            //compute direction (non-normalized vector)
-            let dx = tx as f64 - self.pos.0;
-            let dy = ty as f64 - self.pos.1;
-            //compute move distance (signum normalizes)
-            let mx = if dx != 0.0 {
-                speed * delta_time * dx.signum() / TILE_SIZE as f64
-            } else {
-                0.0
-            };
-            let my = if dy != 0.0 {
-                speed * delta_time * dy.signum() / TILE_SIZE as f64
-            } else {
-                0.0
-            };
-            //set new position
-            self.pos = Coordinate(self.pos.0 + mx, self.pos.1 + my);
-
-            //check if we have passed the tile we were trying to get to
-            if dx != 0.0 && (tx as f64 - self.pos.0).signum() != dx.signum()
-                || dy != 0.0 && (ty as f64 - self.pos.1).signum() != dy.signum()
-            {
-                self.pos = Coordinate(tx as f64, ty as f64);
+        match self.moving_towards {
+            Some(_) => {
+                self.animation_time = self.animation_time - delta_time;
+                self.move_towards_target(delta_time, map, collision_manager);
+                true
             }
-        }
-    }
-
-    pub fn walk(&mut self, direction: Direction, map: &tilemap::TileMap, obj_man: &object::ObjectManager) {
-        if direction == self.dir && self.rotation_timer >= ROTATION_TIME {
-            self.is_moving = true;
-            if self.moving_towards == None {
-                self.animation_time = if self.is_sprinting {
-                    RUNNING_TIME_PER_TILE
-                } else {
-                    WALKING_TIME_PER_TILE
-                };
-                
-                let next_pos = match direction {
-                    LEFT => (self.pos.0 - 1.0, self.pos.1),
-                    RIGHT => (self.pos.0 + 1.0, self.pos.1),
-                    UP => (self.pos.0, self.pos.1 - 1.0),
-                    DOWN => (self.pos.0, self.pos.1 + 1.0)
-                };
-
-                if next_pos.0 < 0.0 || next_pos.0 >= map.size_x as f64 || next_pos.1 < 0.0 || next_pos.1 >= map.size_y as f64 {
-                    return;
-                }
-
-                match map.collision.get(next_pos.0 as usize + next_pos.1 as usize * map.size_x) {
-                    Some(tilemap::CollisionTile::NONE) => {
-                        match obj_man.get_obj(next_pos) {
-                            Some(_) => {}
-                            None => {self.moving_towards = Some(Coordinate(next_pos.0 as f64, next_pos.1 as f64));}
-                        }
-                    }
-                    _ => {}
-                }
+            None => {
+                self.animation_time = 0.0;
+                false
             }
-        } else if direction != self.dir {
-            if self.is_moving && self.moving_towards == None {
-                self.dir = direction;
-                self.rotation_timer = ROTATION_TIME;
-            } else if !self.is_moving {
-                self.dir = direction;
-                self.rotation_timer = 0.0;
-            }
-        }
-    }
-
-    pub fn sprint(&mut self, set_sprinting: bool) {
-        if self.moving_towards == None {
-            self.is_sprinting = set_sprinting;
-        }
-    }
-
-    pub fn stop_walk(&mut self) {
-        if self.moving_towards == None {
-            self.is_moving = false;
         }
     }
 
     pub fn get_texture(&self) -> sdl2::rect::Rect {
-        let anim_time = if self.is_sprinting {
+        let anim_time = if self.try_sprinting {
             RUNNING_TIME_PER_TILE
         } else {
             WALKING_TIME_PER_TILE
@@ -190,24 +134,24 @@ impl Player {
             || self.animation_time > (0.75 * anim_time)
             || self.animation_time < (0.25 * anim_time)
         {
-            match self.dir {
-                UP => Rect::new(16, 0, 16, 16),
-                RIGHT => Rect::new(16, 16, 16, 16),
-                DOWN => Rect::new(0, 0, 16, 16),
-                LEFT => Rect::new(0, 16, 16, 16),
+            match self.facing {
+                Direction::UP => Rect::new(16, 0, 16, 16),
+                Direction::RIGHT => Rect::new(16, 16, 16, 16),
+                Direction::DOWN => Rect::new(0, 0, 16, 16),
+                Direction::LEFT => Rect::new(0, 16, 16, 16),
             }
         } else {
-            match self.dir {
-                UP => match self.current_leg {
+            match self.facing {
+                Direction::UP => match self.current_leg {
                     Leg::LEFT => Rect::new(16, 32, 16, 16),
                     Leg::RIGHT => Rect::new(0, 32, 16, 16),
                 },
-                RIGHT => Rect::new(48, 16, 16, 16),
-                DOWN => match self.current_leg {
+                Direction::RIGHT => Rect::new(48, 16, 16, 16),
+                Direction::DOWN => match self.current_leg {
                     Leg::LEFT => Rect::new(32, 32, 16, 16),
                     Leg::RIGHT => Rect::new(48, 32, 16, 16),
                 },
-                LEFT => Rect::new(32, 16, 16, 16),
+                Direction::LEFT => Rect::new(32, 16, 16, 16),
             }
         }
     }

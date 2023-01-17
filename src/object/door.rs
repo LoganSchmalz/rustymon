@@ -1,31 +1,46 @@
-use crate::render::Renderer;
+use crate::coordinate::Coordinate;
 use crate::menu::MenuManager;
-use crate::object::TObject;
+use crate::object::{ObjectManager, TObject};
+use crate::render::Renderer;
+use crate::tilemap;
+
+use super::CollisionManager;
 
 pub struct Door {
-	pos: (f64, f64),
-    goes_to: (usize, f64, f64)
+    pos: Coordinate,
+    goes_to: (usize, Coordinate),
 }
 
 impl Door {
-	pub fn new(pos: (f64, f64), goes_to: (usize, f64, f64)) -> Door {
-		Door {
-            pos, goes_to
-        }
-	}
+    pub fn new(pos: Coordinate, goes_to: (usize, Coordinate)) -> Door {
+        Door { pos, goes_to }
+    }
 }
 
 impl TObject for Door {
-    fn pos(&self) -> (f64, f64) {
+    fn get_pos(&self) -> Coordinate {
         self.pos
     }
 
-    fn update(&self) {
-
+    fn get_prev_pos(&self) -> Coordinate {
+        self.pos
     }
 
-    fn interact(&self, renderer: &mut Renderer, _: &mut MenuManager) -> bool {
+    fn set_pos(&mut self, pos: Coordinate) {
+        self.pos = pos;
+    }
+
+    fn update(&mut self, delta_time: &f64, map: &tilemap::TileMap, _: &CollisionManager) -> bool {
+        false
+    }
+
+    fn interact(
+        &mut self,
+        renderer: &mut Renderer,
+        _: &mut MenuManager,
+        player_position: Coordinate,
+    ) -> bool {
         renderer.play_fade();
         false
-	}
+    }
 }

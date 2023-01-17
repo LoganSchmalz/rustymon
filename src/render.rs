@@ -3,13 +3,21 @@ use sdl2::{
     rect::Rect,
     render::Canvas,
     //ttf::{Font, Sdl2TtfContext},
-    video::{FullscreenType, Window}
+    video::{FullscreenType, Window},
 };
 use std::path::Path;
 
-use crate::{menu, npc, object, object::TObject, player, tilemap, TILE_SIZE, texture_manager::{self, TextureManager}, font_manager::FontManager};
-use player::Direction;
-use tilemap::load_tilemap;
+use crate::{
+    coordinate::{Coordinate, Direction},
+    font_manager::FontManager,
+    humanoid::{self, Humanoid}, menu, object,
+    object::TObject,
+    player,
+    texture_manager::{self, Sprite, TextureManager},
+    tilemap, TILE_SIZE,
+};
+use object::npc;
+use tilemap::TileMap;
 
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
@@ -47,8 +55,8 @@ impl Renderer {
             did_trans: false,
             fade_anim_time: FADE_TIME,
             camera_offset: (
-                (TILE_SIZE as f64 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64) as i32,
-                (TILE_SIZE as f64 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64) as i32,
+                (TILE_SIZE as f64 - (PIXELS_X / 2 - humanoid::WIDTH / 2) as f64) as i32,
+                (TILE_SIZE as f64 - (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as f64) as i32,
             ),
             static_npc_dir: Direction::DOWN,
             static_npc_pos: (32, 40),
@@ -60,7 +68,6 @@ impl Renderer {
         canvas: &mut Canvas<Window>,
         texture_manager: &mut TextureManager,
         map: &tilemap::TileMap,
-        obj_man: &object::ObjectManager,
     ) {
         //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
@@ -76,55 +83,48 @@ impl Renderer {
                     TILE_SIZE as u32,
                 );
                 match map.floor.get(i + j * map.size_x) {
-                    Some(tile) => { 
+                    Some(tile) => {
                         let sprite = texture_manager.get_tile(tile.clone());
                         canvas
-                        .copy(sprite.texture, sprite.src, render_quad)
-                        .unwrap() 
+                            .copy(sprite.texture, sprite.src, render_quad)
+                            .unwrap()
                     }
                     _ => {}
                 };
                 match map.walls.get(i + j * map.size_x) {
-                    Some(tile) => { 
+                    Some(tile) => {
                         let sprite = texture_manager.get_tile(tile.clone());
                         canvas
-                        .copy(sprite.texture, sprite.src, render_quad)
-                        .unwrap() 
+                            .copy(sprite.texture, sprite.src, render_quad)
+                            .unwrap()
                     }
                     _ => {}
                 };
             }
         }
+    }
 
+    pub fn render_objects(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        texture_manager: &mut TextureManager,
+        obj_man: &object::ObjectManager,
+    ) {
         for obj in &obj_man.objects {
             let sprite = texture_manager.get_object(obj);
             let render_quad = Rect::new(
-                obj.pos().0 as i32 * TILE_SIZE - self.camera_offset.0,
-                obj.pos().1 as i32 * TILE_SIZE - self.camera_offset.1,
+                obj.get_pos().0 as i32 * TILE_SIZE - self.camera_offset.0,
+                obj.get_pos().1 as i32 * TILE_SIZE - self.camera_offset.1,
                 TILE_SIZE as u32,
                 TILE_SIZE as u32,
             );
             match obj {
-                object::Object::NPC(ref o) => {
-                    let (i, j) = o.pos();
-                    let render_quad = Rect::new(
-                        i as i32 * TILE_SIZE - self.camera_offset.0,
-                        j as i32 * TILE_SIZE - self.camera_offset.1 - 4,
-                        TILE_SIZE as u32,
-                        TILE_SIZE as u32,
-                    );
-                    self.render_static_npc(
-                        canvas,
-                        texture_manager,
-                        render_quad,
-                        (i as i32 * TILE_SIZE, j as i32 * TILE_SIZE),
-                    );
-                },
-                object::Object::Door(_) |  object::Object::Berry(_)=> {
-                    canvas
-                    .copy(sprite.texture, sprite.src, render_quad)
-                    .unwrap() 
+                object::Object::NPC(ref npc) => {
+                    self.render_npc(canvas, texture_manager, npc);
                 }
+                _ => canvas
+                    .copy(sprite.texture, sprite.src, render_quad)
+                    .unwrap(),
             }
         }
     }
@@ -149,7 +149,11 @@ impl Renderer {
                 let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //TODO: change height and width of screen_quad to not require math
                 let fade_slice = Rect::new(240 * curr_fade_frame, 0, 240, 160);
                 canvas
-                    .copy(&texture_manager.textures.fade_texture, fade_slice, screen_quad)
+                    .copy(
+                        &texture_manager.textures.fade_texture,
+                        fade_slice,
+                        screen_quad,
+                    )
                     .unwrap();
                 if (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round()
                     as i32
@@ -158,11 +162,11 @@ impl Renderer {
                 {
                     match map.map_id {
                         0 => {
-                            *map = load_tilemap(Path::new("maps/map1/"), 1);
+                            *map = TileMap::load(Path::new("maps/map1/"), 1);
                             obj_man.load_objects(Path::new("maps/map1/"));
                         }
                         1 => {
-                            *map = load_tilemap(Path::new("maps/map0/"), 0);
+                            *map = TileMap::load(Path::new("maps/map0/"), 0);
                             obj_man.load_objects(Path::new("maps/map0"));
                         }
                         _ => panic!("Trying to load map that doesn't exist"),
@@ -181,10 +185,10 @@ impl Renderer {
     ) {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         let render_quad = Rect::new(
-            (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as i32,
-            (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as i32 - 4,
-            player::PLAYER_WIDTH,
-            player::PLAYER_HEIGHT,
+            (PIXELS_X / 2 - humanoid::WIDTH / 2) as i32,
+            (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as i32 - 4,
+            humanoid::WIDTH,
+            humanoid::HEIGHT,
         );
         /*let render_quad = Rect::new(
             player.pos.0 as i32,
@@ -193,37 +197,11 @@ impl Renderer {
             player::PLAYER_HEIGHT,
         );*/
         canvas
-            .copy(&texture_manager.textures.player, player.get_texture(), render_quad)
-            .unwrap();
-    }
-
-    pub fn npc_turn(&mut self) {
-        if self.camera_offset.0 > self.static_npc_pos.0 {
-            self.static_npc_dir = Direction::RIGHT;
-        } else if self.camera_offset.0 < self.static_npc_pos.0 {
-            self.static_npc_dir = Direction::LEFT;
-        } else if self.camera_offset.1 > self.static_npc_pos.1 {
-            self.static_npc_dir = Direction::DOWN;
-        } else if self.camera_offset.1 < self.static_npc_pos.1 {
-            self.static_npc_dir = Direction::UP;
-        }
-    }
-
-    pub fn render_static_npc(
-        &mut self,
-        canvas: &mut Canvas<Window>,
-        texture_manager: &TextureManager,
-        render_quad: Rect,
-        pos: (i32, i32),
-    ) {
-        let texture_quad = match self.static_npc_dir {
-            Direction::UP => Rect::new(16, 0, 16, 16),
-            Direction::RIGHT => Rect::new(16, 16, 16, 16),
-            Direction::DOWN => Rect::new(0, 0, 16, 16),
-            Direction::LEFT => Rect::new(0, 16, 16, 16),
-        };
-        canvas
-            .copy(&texture_manager.textures.dad, texture_quad, render_quad) //todo bro change this like come on this whole shit sucks
+            .copy(
+                &texture_manager.textures.player,
+                player.get_texture(),
+                render_quad,
+            )
             .unwrap();
     }
 
@@ -232,18 +210,19 @@ impl Renderer {
         &mut self,
         canvas: &mut Canvas<Window>,
         texture_manager: &TextureManager,
-        npc: &npc::Npc,
+        npc: &npc::NPC,
     ) {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
+        let Coordinate(i, j) = Humanoid::get_pos(npc);
         let render_quad = Rect::new(
-            npc.pos.0 as i32 - self.camera_offset.0,
-            npc.pos.1 as i32 - self.camera_offset.1 - 4,
-            player::PLAYER_WIDTH,
-            player::PLAYER_HEIGHT,
+            (i * TILE_SIZE as f64) as i32 - self.camera_offset.0,
+            (j * TILE_SIZE as f64) as i32 - self.camera_offset.1 - 4,
+            TILE_SIZE as u32,
+            TILE_SIZE as u32,
         );
-        canvas
-            .copy(&texture_manager.textures.jodo, npc.get_texture(), render_quad)
-            .unwrap();
+        let Sprite { texture, src } = &texture_manager.get_npc(npc);
+
+        canvas.copy(*texture, *src, render_quad).unwrap();
     }
 
     pub fn render_menus(
@@ -286,7 +265,6 @@ impl Renderer {
         font_man: &FontManager,
         delta_time: &f64,
         player: &player::Player,
-        npc: &npc::Npc,
         map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
         obj_man: &mut object::ObjectManager,
@@ -294,15 +272,15 @@ impl Renderer {
         canvas.set_draw_color(Color::RGB(255, 255, 255));
         canvas.clear();
 
+        let Coordinate(x, y) = player.get_pos();
+
         self.camera_offset = (
-            (player.pos.0 * TILE_SIZE as f64 - (PIXELS_X / 2 - player::PLAYER_WIDTH / 2) as f64)
-                as i32,
-            (player.pos.1 * TILE_SIZE as f64 - (PIXELS_Y / 2 - player::PLAYER_HEIGHT / 2) as f64)
-                as i32,
+            (x * TILE_SIZE as f64 - (PIXELS_X / 2 - humanoid::WIDTH / 2) as f64) as i32,
+            (y * TILE_SIZE as f64 - (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as f64) as i32,
         );
-        self.render_overworld_tiles(canvas, texture_manager, map, obj_man);
+        self.render_overworld_tiles(canvas, texture_manager, map);
+        self.render_objects(canvas, texture_manager, obj_man);
         self.render_player(canvas, texture_manager, player);
-        self.render_npc(canvas, texture_manager, npc);
         self.render_menus(canvas, texture_manager, font_man, menu_man);
         self.render_transition(canvas, texture_manager, delta_time, map, obj_man);
 

@@ -3,6 +3,7 @@ use sdl2::rect::Rect;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::video::WindowContext;
 
+use crate::object::npc::Character;
 use crate::tilemap::Tile;
 use crate::object::{self, Object};
 
@@ -113,6 +114,9 @@ impl TextureManager<'_> {
 
     pub fn get_npc(&self, npc: &object::npc::NPC) -> Sprite {
         match npc.character {
+            Character::Dad => Sprite { texture: &self.textures.dad, src: npc.get_texture() },
+            Character::Jodo => Sprite { texture: &self.textures.jodo, src: npc.get_texture() },
+            Character::Sika => Sprite { texture: &self.textures.sika, src: npc.get_texture() },
             _ => return Sprite { texture: &self.textures.tilesprites, src: Rect::new(96, 0, 16, 16) }
         }
     }

@@ -3,10 +3,11 @@ use sdl2::{render::Canvas, video::Window};
 pub mod main_menu;
 pub mod textbox;
 
-use crate::texture_manager::{TextureManager};
-use crate::font_manager::{FontManager};
+use crate::font_manager::FontManager;
+use crate::texture_manager::TextureManager;
 
 use self::main_menu::MainMenu;
+use self::textbox::Textbox;
 
 #[derive(PartialEq, Debug)]
 pub enum Action {
@@ -16,31 +17,51 @@ pub enum Action {
     RIGHT,
     ACCEPT,
     REJECT,
-    _START
+    _START,
 }
 
+#[enum_delegate::register]
 pub trait MenuItem {
-    fn render(&mut self, canvas: &mut Canvas<Window>, textures: &mut TextureManager, font_man: &FontManager);
+    fn render(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        textures: &mut TextureManager,
+        font_man: &FontManager,
+    );
     fn update(&mut self, action: Action) -> bool; // returns true if menu should close after interaction
 }
 
+#[enum_delegate::implement(MenuItem)]
+pub enum Menu {
+    MainMenu(MainMenu),
+    Textbox(Textbox),
+}
+
 pub struct MenuManager {
-    menus: Vec<Box<dyn MenuItem>>, // this is a stack
+    menus: Vec<Menu>, // this is a stack
+    pub paused: bool,
 }
 
 impl MenuManager {
     pub fn new() -> MenuManager {
         MenuManager {
-            menus: vec![Box::new(MainMenu::new())],
+            menus: vec![Menu::MainMenu(MainMenu::new())],
+            paused: true,
         }
     }
 
-    pub fn open_menu(&mut self, next_menu: Box<dyn MenuItem>) {
+    pub fn open_menu(&mut self, next_menu: Menu) {
         self.menus.push(next_menu);
     }
 
     pub fn close_menu(&mut self) {
-        self.menus.pop();
+        let Some(menu) = self.menus.pop() else { return; };
+        match menu {
+            Menu::MainMenu(_) => {
+                self.paused = false;
+            }
+            _ => {}
+        }
     }
 
     pub fn is_open(&self) -> bool {
@@ -60,7 +81,12 @@ impl MenuManager {
         }
     }
 
-    pub fn render(&mut self, canvas: &mut Canvas<Window>, texture_manager: &mut TextureManager, font_man: &FontManager) {
+    pub fn render(
+        &mut self,
+        canvas: &mut Canvas<Window>,
+        texture_manager: &mut TextureManager,
+        font_man: &FontManager,
+    ) {
         for menu_item in self.menus.iter_mut() {
             menu_item.render(canvas, texture_manager, font_man);
         }

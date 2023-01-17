@@ -1,15 +1,16 @@
 const TILE_SIZE: i32 = 16;
 
 mod input;
+mod menu;
+mod object;
 mod player;
 mod render;
 mod tilemap;
-mod object;
-mod menu;
-mod npc;
-mod texture_manager;
-mod font_manager;
+//mod npc;
 mod coordinate;
+mod font_manager;
+mod humanoid;
+mod texture_manager;
 
 extern crate sdl2;
 
@@ -18,16 +19,31 @@ extern crate enum_map;
 #[macro_use]
 extern crate num_derive;
 
-use tilemap::load_tilemap;
 use std::{fs, path::Path};
-
+use tilemap::TileMap;
 
 pub fn init_map_save(map_name: String) {
     //TODO: DEAD CODE
-    fs::copy("maps/".to_owned() + &map_name + "/collision.txt", "save/maps/".to_owned() + &map_name + "/collision.txt").expect("Missing collision file");
-    fs::copy("maps/".to_owned() + &map_name + "/dim.txt", "save/maps/".to_owned() + &map_name + "/dim.txt").expect("Missing dim file");
-    fs::copy("maps/".to_owned() + &map_name + "/floor.txt", "save/maps/".to_owned() + &map_name + "/floor.txt").expect("Missing floor file");
-    fs::copy("maps/".to_owned() + &map_name + "/objects.txt", "save/maps/".to_owned() + &map_name + "/objects.txt").expect("Missing objects file");
+    fs::copy(
+        "maps/".to_owned() + &map_name + "/collision.txt",
+        "save/maps/".to_owned() + &map_name + "/collision.txt",
+    )
+    .expect("Missing collision file");
+    fs::copy(
+        "maps/".to_owned() + &map_name + "/dim.txt",
+        "save/maps/".to_owned() + &map_name + "/dim.txt",
+    )
+    .expect("Missing dim file");
+    fs::copy(
+        "maps/".to_owned() + &map_name + "/floor.txt",
+        "save/maps/".to_owned() + &map_name + "/floor.txt",
+    )
+    .expect("Missing floor file");
+    fs::copy(
+        "maps/".to_owned() + &map_name + "/objects.txt",
+        "save/maps/".to_owned() + &map_name + "/objects.txt",
+    )
+    .expect("Missing objects file");
 }
 
 pub fn main() {
@@ -41,7 +57,9 @@ pub fn main() {
         .build()
         .unwrap();
 
-    window.set_minimum_size(render::PIXELS_X, render::PIXELS_Y).unwrap();
+    window
+        .set_minimum_size(render::PIXELS_X, render::PIXELS_Y)
+        .unwrap();
 
     let mut canvas = window
         .into_canvas()
@@ -54,8 +72,6 @@ pub fn main() {
 
     let input = input::Input::new();
     let mut player: player::Player = player::Player::new();
-
-    let mut npc: npc::Npc = npc::Npc::new();
 
     let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
 
@@ -76,8 +92,8 @@ pub fn main() {
     //TODO: CHANGE THIS SAVING FUNCTIONALITY WE'RE NOT EVEN USING IT ANYMORE
     //init_map_save("map0".to_string());
     //init_map_save("map1".to_string());
-    
-    let mut map = load_tilemap(Path::new("maps/map0/"), 0);
+
+    let mut map = TileMap::load(Path::new("maps/map0/"), 0);
     obj_man.load_objects(Path::new("maps/map0"));
 
     'running: loop {
@@ -87,15 +103,33 @@ pub fn main() {
             / sdl_context.timer().unwrap().performance_frequency())
             as f64;
 
-        match input.handle_input(&mut event_pump, &mut canvas, &mut player, &mut renderer, &mut map, &mut menu_man, &mut obj_man) {
+        match input.handle_input(
+            &mut event_pump,
+            &mut canvas,
+            &mut player,
+            &mut renderer,
+            &mut map,
+            &mut menu_man,
+            &mut obj_man
+        ) {
             true => break 'running,
             false => {}
         };
 
         //println!("{:?}", delta_time);
-
-        player.update(&delta_time);
-        npc.update(&delta_time);
-        renderer.render(&mut canvas, &mut texture_manager, &font_manager, &delta_time, &player, &npc, &mut map, &mut menu_man, &mut obj_man);
+        if !menu_man.paused {
+            player.update(&delta_time, &map, &obj_man.collision_manager);
+            obj_man.update_objects(&delta_time, &map);
+        }
+        renderer.render(
+            &mut canvas,
+            &mut texture_manager,
+            &font_manager,
+            &delta_time,
+            &player,
+            &mut map,
+            &mut menu_man,
+            &mut obj_man,
+        );
     }
 }

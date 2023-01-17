@@ -1,30 +1,47 @@
+use crate::coordinate::Coordinate;
+use crate::menu::{textbox::Textbox, MenuManager};
+use crate::object::{ObjectManager, TObject};
 use crate::render::Renderer;
-use crate::menu::{MenuManager, textbox::Textbox};
-use crate::object::TObject;
+use crate::{menu, tilemap};
+
+use super::CollisionManager;
 
 pub struct Berry {
-	pos: (f64, f64),
+    pos: Coordinate,
 }
 
 impl Berry {
-	pub fn new(pos: (f64, f64)) -> Berry {
-		Berry {
-            pos
-        }
-	}
+    pub fn new(pos: Coordinate) -> Berry {
+        Berry { pos }
+    }
 }
 
 impl TObject for Berry {
-    fn pos(&self) -> (f64, f64) {
+    fn get_pos(&self) -> Coordinate {
         self.pos
     }
 
-    fn update(&self) {
-
+    fn get_prev_pos(&self) -> Coordinate {
+        self.pos
     }
 
-    fn interact(&self, _renderer: &mut Renderer, menu_man: &mut MenuManager) -> bool {
-        menu_man.open_menu(Box::new(Textbox::new("Don't eat me!".to_string())));
+    fn set_pos(&mut self, pos: Coordinate) {
+        self.pos = pos;
+    }
+
+    fn update(&mut self, delta_time: &f64, map: &tilemap::TileMap, _: &CollisionManager) -> bool {
+        false
+    }
+
+    fn interact(
+        &mut self,
+        _renderer: &mut Renderer,
+        menu_man: &mut MenuManager,
+        player_position: Coordinate,
+    ) -> bool {
+        menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
+            "Don't eat me!".to_string(),
+        )));
         true
-	}
+    }
 }

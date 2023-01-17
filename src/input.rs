@@ -5,7 +5,7 @@ use sdl2::{
     video::Window,
 };
 
-use crate::{menu, player::Direction};
+use crate::{menu, humanoid::{Humanoid}, coordinate::{Coordinate, Direction}};
 use crate::{object, player, render, tilemap};
 
 pub struct Input {
@@ -23,7 +23,8 @@ impl Input {
         player: &mut player::Player,
         renderer: &mut render::Renderer,
         menu_man: &mut menu::MenuManager,
-        obj_man: &mut object::ObjectManager
+        obj_man: &mut object::ObjectManager,
+        map: &mut tilemap::TileMap,
     ) -> () {
         if menu_man.is_open() {
             match key {
@@ -49,24 +50,23 @@ impl Input {
             }
         } else {
             if key == Keycode::Space || key == Keycode::Return {
-                let temp_pos: (f64, f64);
-
-                match player.dir {
+                let Coordinate(x,y) = player.get_pos();
+                let temp_pos = match player.get_facing() {
                     Direction::LEFT => {
-                        temp_pos = (player.pos.0 - 1.0, player.pos.1);
+                       Coordinate(x - 1.0, y)
                     }
                     Direction::RIGHT => {
-                        temp_pos = (player.pos.0 + 1.0, player.pos.1);
+                        Coordinate(x + 1.0, y)
                     }
                     Direction::UP => {
-                        temp_pos = (player.pos.0, player.pos.1 - 1.0);
+                        Coordinate(x, y - 1.0)
                     }
                     Direction::DOWN => {
-                        temp_pos = (player.pos.0, player.pos.1 + 1.0);
+                        Coordinate(x, y + 1.0)
                     }
-                }
+                };
 
-                obj_man.interact(temp_pos, renderer, menu_man);
+                obj_man.interact(temp_pos, player.get_pos(), renderer, menu_man, map);
             }
         }
     }
@@ -105,7 +105,7 @@ impl Input {
                 Event::KeyDown {
                     keycode: Some(key), ..
                 } => {
-                    self.handle_keydown(key, player, renderer, menu_man, obj_man);
+                    self.handle_keydown(key, player, renderer, menu_man, obj_man, map);
                 }
                 _ => {}
             }
@@ -116,22 +116,24 @@ impl Input {
 
             if !menu_man.is_open() {
                 if ks.is_scancode_pressed(Scancode::LShift) {
-                    player.sprint(true);
+                    player.set_try_sprinting(true);
                 } else {
-                    player.sprint(false);
+                    player.set_try_sprinting(false);
                 }
 
                 if ks.is_scancode_pressed(Scancode::Left) {
-                    player.walk(player::Direction::LEFT, map, obj_man);
+                    player.set_walking(Some(Direction::LEFT));
                 } else if ks.is_scancode_pressed(Scancode::Right) {
-                    player.walk(player::Direction::RIGHT, map, obj_man);
+                    player.set_walking(Some(Direction::RIGHT));
                 } else if ks.is_scancode_pressed(Scancode::Up) {
-                    player.walk(player::Direction::UP, map, obj_man);
+                    player.set_walking(Some(Direction::UP));
                 } else if ks.is_scancode_pressed(Scancode::Down) {
-                    player.walk(player::Direction::DOWN, map, obj_man);
+                    player.set_walking(Some(Direction::DOWN));
                 } else {
-                    player.stop_walk();
+                    player.set_walking(None);
                 }
+            } else {
+                player.set_walking(None);
             }
         }
 
