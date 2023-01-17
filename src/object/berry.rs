@@ -1,9 +1,9 @@
 use crate::coordinate::Coordinate;
 use crate::menu::{textbox::Textbox, MenuManager};
 use crate::render::Renderer;
-use crate::{menu, tilemap};
+use crate::menu;
 
-use super::{TObject, CollisionManager};
+use super::TObject;
 
 pub struct Berry {
     pos: Coordinate,
@@ -19,17 +19,9 @@ impl TObject for Berry {
     fn get_pos(&self) -> Coordinate {
         self.pos
     }
-
-    fn get_prev_pos(&self) -> Coordinate {
-        self.pos
-    }
-
+    
     fn set_pos(&mut self, pos: Coordinate) {
         self.pos = pos;
-    }
-
-    fn update(&mut self, _delta_time: &f64, _map: &tilemap::TileMap, _: &CollisionManager) -> bool {
-        false
     }
 
     fn interact(

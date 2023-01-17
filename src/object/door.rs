@@ -1,10 +1,8 @@
 use crate::coordinate::Coordinate;
 use crate::menu::MenuManager;
 use crate::render::Renderer;
-use crate::tilemap;
 
-use super::{TObject, CollisionManager};
-
+use super::TObject;
 pub struct Door {
     pos: Coordinate,
     _goes_to: (usize, Coordinate),
@@ -21,16 +19,8 @@ impl TObject for Door {
         self.pos
     }
 
-    fn get_prev_pos(&self) -> Coordinate {
-        self.pos
-    }
-
     fn set_pos(&mut self, pos: Coordinate) {
         self.pos = pos;
-    }
-
-    fn update(&mut self, _delta_time: &f64, _map: &tilemap::TileMap, _: &CollisionManager) -> bool {
-        false
     }
 
     fn interact(

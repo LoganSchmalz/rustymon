@@ -19,7 +19,9 @@ use self::npc::{Character, NPC};
 pub trait TObject {
     fn get_pos(&self) -> Coordinate;
     fn set_pos(&mut self, pos: Coordinate);
-    fn get_prev_pos(&self) -> Coordinate;
+    fn get_prev_pos(&self) -> Coordinate {
+        self.get_pos()
+    }
     fn interact(
         &mut self,
         renderer: &mut render::Renderer,
@@ -28,10 +30,12 @@ pub trait TObject {
     ) -> bool; //returns if obj should be removed from map
     fn update(
         &mut self,
-        delta_time: &f64,
-        map: &tilemap::TileMap,
-        collision_manager: &CollisionManager,
-    ) -> bool; //returns if obj actually updated
+        _delta_time: &f64,
+        _map: &tilemap::TileMap,
+        _collision_manager: &CollisionManager,
+    ) -> bool {
+        false
+    } //returns if obj actually updated
 }
 
 #[enum_delegate::implement(TObject)]
@@ -168,13 +172,15 @@ impl ObjectManager {
         player_position: Coordinate,
         renderer: &mut render::Renderer,
         menu_man: &mut menu::MenuManager,
-        map: &tilemap::TileMap
+        map: &tilemap::TileMap,
     ) {
         match self.get_obj(pos) {
             Some(idx) => {
                 //todo: change this to use new collision checking
                 if self.objects[idx].interact(renderer, menu_man, player_position) {
-                    self.collision_manager.collisions.insert(self.objects[idx].get_prev_pos().to_usize(map.size_x), false);
+                    self.collision_manager
+                        .collisions
+                        .insert(self.objects[idx].get_prev_pos().to_usize(map.size_x), false);
                     self.objects.remove(idx);
                 }
             }
