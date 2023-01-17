@@ -76,13 +76,13 @@ pub fn main() {
     let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
 
     let texture_creator = canvas.texture_creator();
-    let mut textures = texture_manager::Textures::load(&texture_creator);
+    let textures = texture_manager::Textures::load(&texture_creator);
     let mut texture_manager = texture_manager::TextureManager::new(textures);
 
     let ttf_context = sdl2::ttf::init();
     let font_loader = ttf_context.expect("Missing ttf context");
-    let mut fonts = font_manager::Fonts::load(&font_loader);
-    let mut font_manager = font_manager::FontManager::new(fonts);
+    let fonts = font_manager::Fonts::load(&font_loader);
+    let font_manager = font_manager::FontManager::new(fonts);
     let mut renderer = render::Renderer::new();
     let mut menu_man = menu::MenuManager::new();
     let mut obj_man = object::ObjectManager::new();

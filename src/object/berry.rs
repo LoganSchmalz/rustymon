@@ -1,10 +1,9 @@
 use crate::coordinate::Coordinate;
 use crate::menu::{textbox::Textbox, MenuManager};
-use crate::object::{ObjectManager, TObject};
 use crate::render::Renderer;
 use crate::{menu, tilemap};
 
-use super::CollisionManager;
+use super::{TObject, CollisionManager};
 
 pub struct Berry {
     pos: Coordinate,
@@ -29,7 +28,7 @@ impl TObject for Berry {
         self.pos = pos;
     }
 
-    fn update(&mut self, delta_time: &f64, map: &tilemap::TileMap, _: &CollisionManager) -> bool {
+    fn update(&mut self, _delta_time: &f64, _map: &tilemap::TileMap, _: &CollisionManager) -> bool {
         false
     }
 
@@ -37,7 +36,7 @@ impl TObject for Berry {
         &mut self,
         _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
-        player_position: Coordinate,
+        _player_position: Coordinate,
     ) -> bool {
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
             "Don't eat me!".to_string(),

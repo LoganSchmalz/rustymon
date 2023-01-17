@@ -8,9 +8,10 @@ use sdl2::{
 use std::path::Path;
 
 use crate::{
-    coordinate::{Coordinate, Direction},
+    coordinate::Coordinate,
     font_manager::FontManager,
-    humanoid::{self, Humanoid}, menu, object,
+    humanoid::{self, Humanoid},
+    menu, object,
     object::TObject,
     player,
     texture_manager::{self, Sprite, TextureManager},
@@ -40,8 +41,6 @@ pub struct Renderer {
     did_trans: bool,
     fade_anim_time: f64,
     camera_offset: (i32, i32),
-    static_npc_dir: Direction,  //todo remove this it is horrible
-    static_npc_pos: (i32, i32), //todo please remove
 }
 
 impl Renderer {
@@ -58,8 +57,6 @@ impl Renderer {
                 (TILE_SIZE as f64 - (PIXELS_X / 2 - humanoid::WIDTH / 2) as f64) as i32,
                 (TILE_SIZE as f64 - (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as f64) as i32,
             ),
-            static_npc_dir: Direction::DOWN,
-            static_npc_pos: (32, 40),
         }
     }
 

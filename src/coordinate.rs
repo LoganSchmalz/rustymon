@@ -35,6 +35,14 @@ impl Coordinate {
     pub fn to_usize(&self, size_x: usize) -> usize {
         self.0.round() as usize + self.1.round() as usize * size_x
     }
+
+    pub fn dist2(&self, rhs: Coordinate) -> f64 {
+        (self.0 - rhs.0)*(self.0 - rhs.0) + (self.1 - rhs.1)*(self.1 - rhs.1)
+    }
+
+    pub fn dist(&self, rhs: Coordinate) -> f64 {
+        self.dist2(rhs).sqrt()
+    }
 }
 
 impl ops::Add<Coordinate> for Coordinate {

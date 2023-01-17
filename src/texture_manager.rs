@@ -108,7 +108,7 @@ impl TextureManager<'_> {
             Object::Berry(_) => return Sprite { texture: &self.textures.objectsprites, src: Rect::new(0, 0, 16, 16) },
             Object::Door(_) => return Sprite { texture: &self.textures.tilesprites, src: Rect::new(96, 0, 16, 16) },
             Object::NPC(npc) => return self.get_npc(npc),
-            _ => panic!("Bad object request to texture_manager")
+            //_ => panic!("Bad object request to texture_manager")
         }
     }
 
@@ -117,7 +117,7 @@ impl TextureManager<'_> {
             Character::Dad => Sprite { texture: &self.textures.dad, src: npc.get_texture() },
             Character::Jodo => Sprite { texture: &self.textures.jodo, src: npc.get_texture() },
             Character::Sika => Sprite { texture: &self.textures.sika, src: npc.get_texture() },
-            _ => return Sprite { texture: &self.textures.tilesprites, src: Rect::new(96, 0, 16, 16) }
+            //_ => return Sprite { texture: &self.textures.tilesprites, src: Rect::new(96, 0, 16, 16) }
         }
     }
 }

@@ -55,7 +55,7 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
         let mut cs_len: u32;
         let mut nw_len: u32;
 
-        for (i, c) in str.chars().enumerate() {
+        for (_i, c) in str.chars().enumerate() {
             next_word.push(c);
 
             curr_char = c.encode_utf8(&mut buff);

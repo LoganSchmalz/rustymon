@@ -3,12 +3,11 @@ use sdl2::rect::Rect;
 use crate::coordinate::{Coordinate, Direction};
 use crate::humanoid::{Humanoid, Leg, ROTATION_TIME, WALKING_TIME_PER_TILE};
 use crate::menu::{textbox::Textbox, MenuManager};
-use crate::object::{ObjectManager, TObject};
 use crate::render::Renderer;
 use crate::tilemap;
 use crate::{coordinate, menu};
 
-use super::CollisionManager;
+use super::{CollisionManager, TObject};
 
 #[derive(Debug, PartialEq)]
 pub enum Character {
@@ -28,20 +27,21 @@ pub struct NPC {
     facing: Direction,
     current_leg: Leg,
     walking: Option<Direction>,
-    is_moving: bool,
     rotation_timer: f64,
-    is_talking: bool,
+    path: Vec<Direction>,
+    current_idx_in_path: usize,
 }
 
 impl NPC {
     pub fn new(pos: Coordinate, character: Character, moving_towards: Option<Coordinate>) -> NPC {
-        let is_moving = match moving_towards {
-            Some(_) => true,
-            _ => false,
-        };
         let facing = match moving_towards {
             Some(next_pos) => coordinate::compute_direction(pos, next_pos),
             _ => Direction::DOWN,
+        };
+
+        let path = match moving_towards {
+            Some(_) => vec![Direction::LEFT, Direction::RIGHT],
+            None => vec![],
         };
 
         NPC {
@@ -55,9 +55,9 @@ impl NPC {
             facing,
             current_leg: Leg::LEFT,
             walking: None,
-            is_moving,
             rotation_timer: 0.0,
-            is_talking: false,
+            path,
+            current_idx_in_path: 0,
         }
     }
 }
@@ -81,32 +81,17 @@ impl TObject for NPC {
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
     ) -> bool {
-        match self.moving_towards {
-            Some(_) => {
-                self.animation_time = self.animation_time - delta_time;
-                self.move_towards_target(delta_time, map, collision_manager);
-
-                if self.moving_towards == None {
-                    self.facing = match self.facing {
-                        Direction::LEFT => Direction::RIGHT,
-                        Direction::RIGHT => Direction::LEFT,
-                        Direction::UP => Direction::DOWN,
-                        Direction::DOWN => Direction::UP,
-                    };
-                    self.rotation_timer = ROTATION_TIME; //to skip rotation check for now
-                    self.start_walk(self.facing, map, collision_manager);
-                }
-                return true;
-            }
-            None => {}
+        if !self.path.is_empty() {
+            self.walk_on_path(delta_time, map, collision_manager);
+            //println!("{:?} {:?}", self.pos, self.prev_pos);
+            return true;
         }
-
         false
     }
 
     fn interact(
         &mut self,
-        renderer: &mut Renderer,
+        _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
         player_position: Coordinate,
     ) -> bool {
@@ -167,12 +152,6 @@ impl Humanoid for NPC {
     fn set_walking(&mut self, walking: Option<Direction>) {
         self.walking = walking;
     }
-    /*fn get_is_moving(&self) -> bool {
-        self.is_moving
-    }
-    fn set_is_moving(&mut self, is_moving: bool) {
-        self.is_moving = is_moving;
-    }*/
     fn get_rotation_timer(&self) -> f64 {
         self.rotation_timer
     }
@@ -190,6 +169,33 @@ impl Humanoid for NPC {
 }
 
 impl NPC {
+    fn walk_on_path(
+        &mut self,
+        delta_time: &f64,
+        map: &tilemap::TileMap,
+        collision_manager: &CollisionManager,
+    ) {
+        match self.moving_towards {
+            Some(_) => {
+                self.animation_time = self.animation_time - delta_time;
+                self.move_towards_target(delta_time, map, collision_manager);
+
+                if self.moving_towards == None {
+                    self.facing = match self.facing {
+                        Direction::LEFT => Direction::RIGHT,
+                        Direction::RIGHT => Direction::LEFT,
+                        Direction::UP => Direction::DOWN,
+                        Direction::DOWN => Direction::UP,
+                    };
+                    self.rotation_timer = ROTATION_TIME; //to skip rotation check for now
+                    self.start_walk(self.facing, map, collision_manager);
+                }
+                return;
+            }
+            None => {}
+        }
+    }
+
     pub fn get_texture(&self) -> sdl2::rect::Rect {
         let anim_time = WALKING_TIME_PER_TILE;
 

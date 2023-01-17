@@ -26,8 +26,6 @@ pub enum Tile {
     WOODR,  //18
 }
 
-pub const TILE_COUNT: usize = 19;
-
 #[derive(FromPrimitive, ToPrimitive)]
 pub enum CollisionTile {
     NONE,

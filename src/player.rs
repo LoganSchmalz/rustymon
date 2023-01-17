@@ -100,8 +100,6 @@ impl Player {
     }
 
     pub fn update(&mut self, delta_time: &f64, map: &TileMap, collision_manager: &CollisionManager) -> bool {
-        println!("{:?} {:?} {:?} {:?}", self.walking, self.pos, self.moving_towards, self.get_rotation_timer());
-
         if self.walking != None && self.moving_towards == None {
             self.start_walk(self.walking.unwrap(), map, collision_manager);
         }
@@ -124,7 +122,7 @@ impl Player {
     }
 
     pub fn get_texture(&self) -> sdl2::rect::Rect {
-        let anim_time = if self.try_sprinting {
+        let anim_time = if self.is_sprinting {
             RUNNING_TIME_PER_TILE
         } else {
             WALKING_TIME_PER_TILE

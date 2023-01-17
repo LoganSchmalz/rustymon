@@ -77,7 +77,7 @@ impl Input {
         canvas: &mut Canvas<Window>,
         player: &mut player::Player,
         renderer: &mut render::Renderer,
-        mut map: &mut tilemap::TileMap,
+        map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
         obj_man: &mut object::ObjectManager
     ) -> bool {
@@ -103,9 +103,11 @@ impl Input {
                     renderer.toggle_fullscreen(canvas);
                 }
                 Event::KeyDown {
-                    keycode: Some(key), ..
+                    keycode: Some(key), repeat, ..
                 } => {
-                    self.handle_keydown(key, player, renderer, menu_man, obj_man, map);
+                    if !repeat {
+                        self.handle_keydown(key, player, renderer, menu_man, obj_man, map);
+                    }
                 }
                 _ => {}
             }

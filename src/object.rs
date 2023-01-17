@@ -15,8 +15,6 @@ use self::berry::Berry;
 use self::door::Door;
 use self::npc::{Character, NPC};
 
-pub const OBJECT_COUNT: usize = 5;
-
 #[enum_delegate::register]
 pub trait TObject {
     fn get_pos(&self) -> Coordinate;
@@ -58,7 +56,6 @@ impl CollisionManager {
             return false;
         }
         let Some(collision) = self.collisions.get(&pos.to_usize(size_x)) else { return false; };
-        println!("{:?}", collision);
         *collision
     }
 }
@@ -81,6 +78,7 @@ impl ObjectManager {
 
     pub fn load_objects(&mut self, mapfolder: &Path) {
         self.objects.clear();
+        self.collision_manager.collisions.clear();
 
         let dim: Vec<usize> = fs::read_to_string(mapfolder.join("dim.txt"))
             .expect(&format!("{}dim.txt not found", mapfolder.to_str().unwrap()))
@@ -151,7 +149,7 @@ impl ObjectManager {
                 let prev_pos = obj.get_prev_pos();
                 let new_pos = obj.get_pos();
 
-                if (new_pos.0.round() - prev_pos.0).abs() >= 1.0 && (new_pos.1.round() - prev_pos.1).abs() >= 1.0 {
+                if new_pos.dist(prev_pos) >= 1.0 {
                     self.collision_manager
                         .collisions
                         .insert(obj.get_prev_pos().to_usize(map.size_x), false);

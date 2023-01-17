@@ -1,19 +1,18 @@
 use crate::coordinate::Coordinate;
 use crate::menu::MenuManager;
-use crate::object::{ObjectManager, TObject};
 use crate::render::Renderer;
 use crate::tilemap;
 
-use super::CollisionManager;
+use super::{TObject, CollisionManager};
 
 pub struct Door {
     pos: Coordinate,
-    goes_to: (usize, Coordinate),
+    _goes_to: (usize, Coordinate),
 }
 
 impl Door {
-    pub fn new(pos: Coordinate, goes_to: (usize, Coordinate)) -> Door {
-        Door { pos, goes_to }
+    pub fn new(pos: Coordinate, _goes_to: (usize, Coordinate)) -> Door {
+        Door { pos, _goes_to }
     }
 }
 
@@ -30,7 +29,7 @@ impl TObject for Door {
         self.pos = pos;
     }
 
-    fn update(&mut self, delta_time: &f64, map: &tilemap::TileMap, _: &CollisionManager) -> bool {
+    fn update(&mut self, _delta_time: &f64, _map: &tilemap::TileMap, _: &CollisionManager) -> bool {
         false
     }
 
@@ -38,7 +37,7 @@ impl TObject for Door {
         &mut self,
         renderer: &mut Renderer,
         _: &mut MenuManager,
-        player_position: Coordinate,
+        _player_position: Coordinate,
     ) -> bool {
         renderer.play_fade();
         false

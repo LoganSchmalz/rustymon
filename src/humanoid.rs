@@ -1,6 +1,6 @@
 use crate::{
     coordinate::{Coordinate, Direction},
-    object::{self, CollisionManager},
+    object::CollisionManager,
     tilemap, TILE_SIZE,
 };
 
@@ -50,7 +50,7 @@ pub trait Humanoid {
         let Coordinate(x, y) = self.get_pos();
         let Coordinate(target_x, target_y) = self.get_moving_towards().unwrap();
 
-        let speed = if self.get_try_sprinting() {
+        let speed = if self.get_is_sprinting() {
             RUN_SPEED
         } else {
             WALK_SPEED
@@ -78,12 +78,10 @@ pub trait Humanoid {
             || dx != 0.0 && (target_x - x).signum() != dx.signum()
             || dy != 0.0 && (target_y - y).signum() != dy.signum()
         {
-            println!("finished moving");
             self.set_pos(Coordinate(target_x, target_y));
             self.set_moving_towards(None);
             match self.get_walking() {
                 Some(dir) => {
-                    self.set_is_sprinting(self.get_try_sprinting());
                     self.set_facing(dir);
                     self.walk(dir, &map, &collision_manager);
                 }
@@ -151,7 +149,9 @@ pub trait Humanoid {
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
     ) {
-        self.set_animation_time(if self.get_try_sprinting() {
+        self.set_is_sprinting(self.get_try_sprinting());
+
+        self.set_animation_time(if self.get_is_sprinting() {
             RUNNING_TIME_PER_TILE
         } else {
             WALKING_TIME_PER_TILE
