@@ -146,7 +146,9 @@ impl ObjectManager {
         }
     }
 
-    pub fn update_objects(&mut self, delta_time: &f64, map: &tilemap::TileMap) {
+    pub fn update_objects(&mut self, delta_time: &f64, map: &tilemap::TileMap) {   
+        //consider an alternative loop so collision management is not done without the object manager??
+        //https://stackoverflow.com/questions/71302444/borrow-a-vector-inside-a-loop
         for obj in self.objects.iter_mut() {
             let recompute_collision = obj.update(delta_time, map, &self.collision_manager);
             if recompute_collision {
