@@ -2,7 +2,7 @@ use crate::coordinate::Coordinate;
 use crate::menu::{self, MenuManager};
 use crate::{render, tilemap};
 
-use std::collections::HashMap;
+use std::collections::HashSet;
 //use num_derive::FromPrimitive;
 //use num_traits::FromPrimitive;
 use std::{fs, path::Path};
@@ -51,7 +51,7 @@ pub enum Object {
 }
 
 pub struct CollisionManager {
-    collisions: HashMap<usize, bool>, //the u32 is derived from the coordinate -> u32 calculation, consider replacing this with some sort of direct hashing in the future
+    collisions: HashSet<usize>, //the u32 is derived from the coordinate -> u32 calculation, consider replacing this with some sort of direct hashing in the future
 }
 
 impl CollisionManager {
@@ -59,8 +59,19 @@ impl CollisionManager {
         if pos == prev_pos {
             return false;
         }
-        let Some(collision) = self.collisions.get(&pos.to_usize(size_x)) else { return false; };
-        *collision
+        self.collisions.contains(&pos.to_usize(size_x))
+    }
+
+    fn recompute_collision(&mut self, recompute_objects: Vec<&Object>, size_x: usize) {
+        for obj in recompute_objects {
+            let new_pos = obj.get_pos();
+            let prev_pos = obj.get_prev_pos();
+            if new_pos.dist(prev_pos) >= 1.0 {
+                self.collisions.remove(&prev_pos.to_usize(size_x));
+            }
+    
+            self.collisions.insert(new_pos.to_usize(size_x));
+        }
     }
 }
 
@@ -75,7 +86,7 @@ impl ObjectManager {
         ObjectManager {
             objects,
             collision_manager: CollisionManager {
-                collisions: HashMap::new(),
+                collisions: HashSet::new(),
             },
         }
     }
@@ -142,29 +153,22 @@ impl ObjectManager {
             }
             self.collision_manager
                 .collisions
-                .insert(pos.to_usize(dim[0]), true);
+                .insert(pos.to_usize(dim[0]));
         }
     }
 
-    pub fn update_objects(&mut self, delta_time: &f64, map: &tilemap::TileMap) {   
+    pub fn update_objects(&mut self, delta_time: &f64, map: &tilemap::TileMap) {
         //consider an alternative loop so collision management is not done without the object manager??
         //https://stackoverflow.com/questions/71302444/borrow-a-vector-inside-a-loop
+        let mut recompute_objects: Vec<&Object> = Vec::new();
         for obj in self.objects.iter_mut() {
-            let recompute_collision = obj.update(delta_time, map, &self.collision_manager);
-            if recompute_collision {
-                let prev_pos = obj.get_prev_pos();
-                let new_pos = obj.get_pos();
-
-                if new_pos.dist(prev_pos) >= 1.0 {
-                    self.collision_manager
-                        .collisions
-                        .insert(obj.get_prev_pos().to_usize(map.size_x), false);
-                }
-
-                self.collision_manager
-                    .collisions
-                    .insert(new_pos.to_usize(map.size_x), true);
+            if obj.update(delta_time, map, &self.collision_manager) {
+                recompute_objects.push(obj);
             }
+        }
+
+        if !recompute_objects.is_empty() {
+            self.collision_manager.recompute_collision(recompute_objects, map.size_x);
         }
     }
 
@@ -182,7 +186,7 @@ impl ObjectManager {
                 if self.objects[idx].interact(renderer, menu_man, player_position) {
                     self.collision_manager
                         .collisions
-                        .insert(self.objects[idx].get_prev_pos().to_usize(map.size_x), false);
+                        .remove(&self.objects[idx].get_prev_pos().to_usize(map.size_x));
                     self.objects.remove(idx);
                 }
             }
