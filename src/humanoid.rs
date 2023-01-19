@@ -87,10 +87,6 @@ pub trait Humanoid {
                 }
                 None => {}
             }
-            self.set_current_leg(match self.get_current_leg() {
-                Leg::LEFT => Leg::RIGHT,
-                Leg::RIGHT => Leg::LEFT,
-            });
         }
     }
 
@@ -174,6 +170,10 @@ pub trait Humanoid {
         collision_manager: &CollisionManager,
     ) {
         if direction == self.get_facing() && self.get_rotation_timer() >= ROTATION_TIME {
+            self.set_current_leg(match self.get_current_leg() {
+                Leg::LEFT => Leg::RIGHT,
+                Leg::RIGHT => Leg::LEFT,
+            });
             self.walk(direction, map, collision_manager)
         } else if direction != self.get_facing() {
             if self.get_moving_towards() == None {
