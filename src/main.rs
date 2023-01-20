@@ -96,6 +96,11 @@ pub fn main() {
     let mut map = TileMap::load(Path::new("maps/map0/"), 0);
     obj_man.load_objects(Path::new("maps/map0"));
 
+    println!(
+        "{}",
+        serde_json::to_string(&obj_man.objects).expect("Error")
+    );
+
     'running: loop {
         let time_last = time_now;
         time_now = sdl_context.timer().unwrap().performance_counter();
@@ -110,7 +115,7 @@ pub fn main() {
             &mut renderer,
             &mut map,
             &mut menu_man,
-            &mut obj_man
+            &mut obj_man,
         ) {
             true => break 'running,
             false => {}

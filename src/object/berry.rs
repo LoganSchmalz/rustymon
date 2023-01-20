@@ -1,9 +1,13 @@
+use serde::{Deserialize, Serialize};
+
 use crate::coordinate::Coordinate;
 use crate::menu::{textbox::Textbox, MenuManager};
 use crate::render::Renderer;
 use crate::menu;
 
 use super::TObject;
+
+#[derive(Debug, Serialize, Deserialize)]
 
 pub struct Berry {
     pos: Coordinate,

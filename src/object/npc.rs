@@ -1,4 +1,5 @@
 use sdl2::rect::Rect;
+use serde::{Deserialize, Serialize};
 
 use crate::coordinate::{Coordinate, Direction};
 use crate::humanoid::{Humanoid, Leg, ROTATION_TIME, WALKING_TIME_PER_TILE};
@@ -9,13 +10,14 @@ use crate::{coordinate, menu};
 
 use super::{CollisionManager, TObject};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Character {
     Dad,
     Jodo,
     Sika,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct NPC {
     pos: Coordinate,
     prev_pos: Coordinate,
@@ -81,11 +83,11 @@ impl TObject for NPC {
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
     ) -> bool {
-        if !self.path.is_empty() {
+        /*if !self.path.is_empty() {
             self.walk_on_path(delta_time, map, collision_manager);
             //println!("{:?} {:?}", self.pos, self.prev_pos);
             return true;
-        }
+        }*/
         false
     }
 

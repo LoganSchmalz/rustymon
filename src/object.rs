@@ -1,3 +1,5 @@
+use serde::{Serialize, Deserialize};
+
 use crate::coordinate::Coordinate;
 use crate::menu::{self, MenuManager};
 use crate::{render, tilemap};
@@ -39,6 +41,7 @@ pub trait TObject {
 }
 
 #[enum_delegate::implement(TObject)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum Object {
     //None, //0
     Berry(Berry), //1
@@ -108,6 +111,19 @@ impl ObjectManager {
             )
         }
         let size_x = dim.get(0).unwrap();
+
+        let json = fs::read_to_string(mapfolder.join("objects.json"));
+        match json {
+            Ok(_) => {
+                self.objects = serde_json::from_str(&json.unwrap()).expect("Failed to load from objects.json.");
+                for obj in &self.objects {
+                    self.collision_manager.collisions.insert(obj.get_pos().to_usize(*size_x));
+                }
+
+                return;
+            }
+            Err(_) => {}
+        }
 
         let objects: Vec<u32> = fs::read_to_string(mapfolder.join("objects.txt"))
             .expect(&format!(

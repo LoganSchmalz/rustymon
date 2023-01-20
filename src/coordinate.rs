@@ -1,9 +1,11 @@
 use std::ops;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Coordinate(pub f64, pub f64);
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
 pub enum Direction {
     UP,
     DOWN,

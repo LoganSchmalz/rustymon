@@ -1,8 +1,11 @@
+use serde::{Deserialize, Serialize};
+
 use crate::coordinate::Coordinate;
 use crate::menu::MenuManager;
 use crate::render::Renderer;
 
 use super::TObject;
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Door {
     pos: Coordinate,
     _goes_to: (usize, Coordinate),

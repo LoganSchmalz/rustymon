@@ -1,10 +1,12 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{
     coordinate::{Coordinate, Direction},
     object::CollisionManager,
     tilemap, TILE_SIZE,
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum Leg {
     LEFT,
     RIGHT,
