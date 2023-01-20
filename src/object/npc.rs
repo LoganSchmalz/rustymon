@@ -83,11 +83,11 @@ impl TObject for NPC {
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
     ) -> bool {
-        /*if !self.path.is_empty() {
+        if !self.path.is_empty() {
             self.walk_on_path(delta_time, map, collision_manager);
             //println!("{:?} {:?}", self.pos, self.prev_pos);
             return true;
-        }*/
+        }
         false
     }
 
