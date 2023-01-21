@@ -2,6 +2,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::coordinate::Coordinate;
 use crate::menu::{self, MenuManager};
+use crate::updated::Updated;
 use crate::{render, tilemap};
 
 use std::collections::HashSet;
@@ -29,14 +30,14 @@ pub trait TObject {
         renderer: &mut render::Renderer,
         menu_man: &mut MenuManager,
         player_position: Coordinate,
-    ) -> bool; //returns if obj should be removed from map
+    ) -> Updated; //returns if obj should be removed from map
     fn update(
         &mut self,
         _delta_time: &f64,
         _map: &tilemap::TileMap,
         _collision_manager: &CollisionManager,
-    ) -> bool {
-        false
+    ) -> Updated {
+        Updated::NotUpdated
     } //returns if obj actually updated
 }
 
@@ -178,7 +179,7 @@ impl ObjectManager {
         //https://stackoverflow.com/questions/71302444/borrow-a-vector-inside-a-loop
         let mut recompute_objects: Vec<&Object> = Vec::new();
         for obj in self.objects.iter_mut() {
-            if obj.update(delta_time, map, &self.collision_manager) {
+            if obj.update(delta_time, map, &self.collision_manager) == Updated::Updated {
                 recompute_objects.push(obj);
             }
         }
@@ -199,7 +200,7 @@ impl ObjectManager {
         match self.get_obj(pos) {
             Some(idx) => {
                 //todo: change this to use new collision checking
-                if self.objects[idx].interact(renderer, menu_man, player_position) {
+                if self.objects[idx].interact(renderer, menu_man, player_position) == Updated::Updated {
                     self.collision_manager
                         .collisions
                         .remove(&self.objects[idx].get_prev_pos().to_usize(map.size_x));

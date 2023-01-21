@@ -6,11 +6,12 @@ mod object;
 mod player;
 mod render;
 mod tilemap;
-//mod npc;
-mod coordinate;
+mod engine_structures;
 mod font_manager;
 mod humanoid;
 mod texture_manager;
+
+use crate::engine_structures::{updated, coordinate};
 
 extern crate sdl2;
 

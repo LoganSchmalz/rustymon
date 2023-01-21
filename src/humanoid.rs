@@ -46,8 +46,6 @@ pub trait Humanoid {
     fn move_towards_target(
         &mut self,
         delta_time: &f64,
-        map: &tilemap::TileMap,
-        collision_manager: &CollisionManager,
     ) {
         let Coordinate(x, y) = self.get_pos();
         let Coordinate(target_x, target_y) = self.get_moving_towards().unwrap();
@@ -85,7 +83,7 @@ pub trait Humanoid {
             match self.get_walking() {
                 Some(dir) => {
                     self.set_facing(dir);
-                    self.walk(dir, &map, &collision_manager);
+                    self.set_walking(Some(dir));
                 }
                 None => {}
             }
@@ -143,10 +141,30 @@ pub trait Humanoid {
 
     fn walk(
         &mut self,
-        direction: Direction,
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
     ) {
+        if self.get_walking() == None || self.get_moving_towards() != None {
+            return;
+        }
+
+        let direction = self.get_walking().unwrap();
+
+        if direction != self.get_facing() && self.get_moving_towards() == None {
+            self.set_facing(direction);
+            self.set_rotation_timer(ROTATION_TIME);
+            return;
+        }
+
+        if self.get_rotation_timer() > 0.0 {
+            return;
+        }
+
+        self.set_current_leg(match self.get_current_leg() {
+            Leg::LEFT => Leg::RIGHT,
+            Leg::RIGHT => Leg::LEFT,
+        });
+
         self.set_is_sprinting(self.get_try_sprinting());
 
         self.set_animation_time(if self.get_is_sprinting() {
@@ -162,26 +180,6 @@ pub trait Humanoid {
             self.set_moving_towards(Some(next_pos));
         } else {
             self.set_moving_towards(None);
-        }
-    }
-
-    fn start_walk(
-        &mut self,
-        direction: Direction,
-        map: &tilemap::TileMap,
-        collision_manager: &CollisionManager,
-    ) {
-        if direction == self.get_facing() && self.get_rotation_timer() >= ROTATION_TIME {
-            self.set_current_leg(match self.get_current_leg() {
-                Leg::LEFT => Leg::RIGHT,
-                Leg::RIGHT => Leg::LEFT,
-            });
-            self.walk(direction, map, collision_manager)
-        } else if direction != self.get_facing() {
-            if self.get_moving_towards() == None {
-                self.set_facing(direction);
-                self.set_rotation_timer(0.0);
-            }
         }
     }
 }

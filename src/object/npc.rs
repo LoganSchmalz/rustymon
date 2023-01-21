@@ -6,6 +6,7 @@ use crate::humanoid::{Humanoid, Leg, ROTATION_TIME, WALKING_TIME_PER_TILE};
 use crate::menu::{textbox::Textbox, MenuManager};
 use crate::render::Renderer;
 use crate::tilemap;
+use crate::updated::Updated;
 use crate::{coordinate, menu};
 
 use super::{CollisionManager, TObject};
@@ -82,13 +83,13 @@ impl TObject for NPC {
         delta_time: &f64,
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
-    ) -> bool {
+    ) -> Updated {
         if !self.path.is_empty() {
             self.walk_on_path(delta_time, map, collision_manager);
             //println!("{:?} {:?}", self.pos, self.prev_pos);
-            return true;
+            return Updated::Updated;
         }
-        false
+        Updated::NotUpdated
     }
 
     fn interact(
@@ -96,12 +97,12 @@ impl TObject for NPC {
         _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
         player_position: Coordinate,
-    ) -> bool {
+    ) -> Updated {
         self.set_facing(coordinate::compute_direction(self.pos, player_position));
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
             "Hi hungry, I'm dad! Nice try, little child --> you are bad!".to_string(),
         )));
-        false
+        Updated::NotUpdated
     }
 }
 
@@ -180,7 +181,7 @@ impl NPC {
         match self.moving_towards {
             Some(_) => {
                 self.animation_time = self.animation_time - delta_time;
-                self.move_towards_target(delta_time, map, collision_manager);
+                self.move_towards_target(delta_time);
 
                 if self.moving_towards == None {
                     self.facing = match self.facing {
@@ -189,8 +190,9 @@ impl NPC {
                         Direction::UP => Direction::DOWN,
                         Direction::DOWN => Direction::UP,
                     };
-                    self.rotation_timer = ROTATION_TIME; //to skip rotation check for now
-                    self.start_walk(self.facing, map, collision_manager);
+                    self.walking = Some(self.facing);
+                    self.rotation_timer = 0.0; //to skip rotation check for now
+                    self.walk(map, collision_manager);
                 }
                 return;
             }

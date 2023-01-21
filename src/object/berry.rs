@@ -4,6 +4,7 @@ use crate::coordinate::Coordinate;
 use crate::menu::{textbox::Textbox, MenuManager};
 use crate::render::Renderer;
 use crate::menu;
+use crate::updated::Updated;
 
 use super::TObject;
 
@@ -33,10 +34,10 @@ impl TObject for Berry {
         _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
         _player_position: Coordinate,
-    ) -> bool {
+    ) -> Updated {
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
             "Don't eat me!".to_string(),
         )));
-        true
+        Updated::Updated
     }
 }

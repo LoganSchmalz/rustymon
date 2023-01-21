@@ -100,18 +100,20 @@ impl Player {
     }
 
     pub fn update(&mut self, delta_time: &f64, map: &TileMap, collision_manager: &CollisionManager) -> bool {
-        if self.walking != None && self.moving_towards == None {
-            self.start_walk(self.walking.unwrap(), map, collision_manager);
+        self.walk(map, collision_manager);
+
+        if self.rotation_timer > 0.0 {
+            self.rotation_timer -= delta_time;
         }
 
-        if self.rotation_timer < ROTATION_TIME {
-            self.rotation_timer += delta_time;
+        if self.animation_time > 0.0 {
+            self.animation_time -= delta_time;
         }
+
 
         match self.moving_towards {
             Some(_) => {
-                self.animation_time = self.animation_time - delta_time;
-                self.move_towards_target(delta_time, map, collision_manager);
+                self.move_towards_target(delta_time);
                 true
             }
             None => {
