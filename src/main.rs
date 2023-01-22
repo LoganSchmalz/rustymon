@@ -11,7 +11,7 @@ mod font_manager;
 mod humanoid;
 mod texture_manager;
 
-use crate::engine_structures::{updated, coordinate};
+use crate::engine_structures::*;
 
 extern crate sdl2;
 
