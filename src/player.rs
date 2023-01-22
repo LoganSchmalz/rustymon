@@ -1,6 +1,6 @@
 use crate::coordinate::{Coordinate, Direction};
 use crate::humanoid::Humanoid;
-use crate::humanoid::{Leg, WALKING_TIME_PER_TILE, RUNNING_TIME_PER_TILE, ROTATION_TIME};
+use crate::humanoid::{Leg, WALKING_TIME_PER_TILE, RUNNING_TIME_PER_TILE};
 use crate::object::CollisionManager;
 use crate::tilemap::TileMap;
 use sdl2::rect::Rect;

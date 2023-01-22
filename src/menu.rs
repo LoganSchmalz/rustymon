@@ -1,5 +1,6 @@
 use sdl2::{render::Canvas, video::Window};
 
+pub mod should_close;
 pub mod main_menu;
 pub mod textbox;
 
@@ -7,6 +8,7 @@ use crate::font_manager::FontManager;
 use crate::texture_manager::TextureManager;
 
 use self::main_menu::MainMenu;
+use self::should_close::ShouldClose;
 use self::textbox::Textbox;
 
 #[derive(PartialEq, Debug)]
@@ -28,7 +30,7 @@ pub trait MenuItem {
         textures: &mut TextureManager,
         font_man: &FontManager,
     );
-    fn update(&mut self, action: Action) -> bool; // returns true if menu should close after interaction
+    fn update(&mut self, action: Action) -> ShouldClose; // returns true if menu should close after interaction
 }
 
 #[enum_delegate::implement(MenuItem)]
@@ -74,8 +76,7 @@ impl MenuManager {
                 .menus
                 .last_mut()
                 .expect("Tried to change menu with no menus open");
-            let should_close = curr_menu.update(action);
-            if should_close {
+            if curr_menu.update(action) == ShouldClose::Close {
                 self.close_menu();
             }
         }

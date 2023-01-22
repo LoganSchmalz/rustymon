@@ -4,6 +4,7 @@ use crate::texture_manager::{TextureManager};
 use crate::font_manager::{FontManager};
 use crate::render::{PIXELS_X, PIXELS_Y};
 
+use super::should_close::ShouldClose;
 use super::{Action, MenuItem};
 
 pub struct Textbox {
@@ -60,21 +61,24 @@ impl MenuItem for Textbox {
         canvas.copy(&texture_bot, None, text_quad_bot).unwrap();
     }
 
-    fn update(&mut self, action: Action) -> bool {
+    fn update(&mut self, action: Action) -> ShouldClose {
         match action {
             Action::ACCEPT | Action::REJECT => {
                 return self.advance_text();
             }
             _ => {}
         }
-        false
+        ShouldClose::DoNotClose
     }
 }
 
 impl Textbox {
-    fn advance_text(&mut self) -> bool {
+    fn advance_text(&mut self) -> ShouldClose {
         self.text_v.drain(0..2);
-        self.text_v.len() == 0
+        match self.text_v.len() {
+            0 => ShouldClose::Close,
+            _ => ShouldClose::DoNotClose
+        }
     }
 
     fn init_vec(&mut self, b: bool, v: Vec<String>) {

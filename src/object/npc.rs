@@ -2,7 +2,7 @@ use sdl2::rect::Rect;
 use serde::{Deserialize, Serialize};
 
 use crate::coordinate::{Coordinate, Direction};
-use crate::humanoid::{Humanoid, Leg, ROTATION_TIME, WALKING_TIME_PER_TILE};
+use crate::humanoid::{Humanoid, Leg, WALKING_TIME_PER_TILE};
 use crate::menu::{textbox::Textbox, MenuManager};
 use crate::render::Renderer;
 use crate::tilemap;

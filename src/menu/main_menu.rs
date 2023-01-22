@@ -4,6 +4,7 @@ use crate::texture_manager::{TextureManager};
 use crate::font_manager::{FontManager};
 use crate::render::{PIXELS_X, PIXELS_Y};
 
+use super::should_close::ShouldClose;
 use super::{MenuItem, Action};
 
 #[derive(PartialEq)]
@@ -61,11 +62,11 @@ impl MenuItem for MainMenu {
             .unwrap();
 	}
 
-	fn update(&mut self, action: Action) -> bool {
+	fn update(&mut self, action: Action) -> ShouldClose {
 		match action {
 			Action::ACCEPT => {
 				if self.curr_button == StartButton {
-					return true;
+					return ShouldClose::Close;
 				}
 			}
 			Action::LEFT => {
@@ -98,6 +99,6 @@ impl MenuItem for MainMenu {
 			}
 			_ => {}
 		}
-		false
+		ShouldClose::DoNotClose
 	}
 }
