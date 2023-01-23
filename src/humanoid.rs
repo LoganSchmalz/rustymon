@@ -119,9 +119,8 @@ pub trait Humanoid {
             return Collision::Collision;
         }
 
-        let next_pos = Coordinate(next_x, next_y);
-        if map.check_collision(next_pos) == Collision::NoCollision {
-            return collision_manager.check_collision(next_pos, self.get_prev_pos(), map.size_x)
+        if map.check_collision(pos) == Collision::NoCollision {
+            return collision_manager.check_collision(pos, self.get_prev_pos(), map.size_x)
         }
         Collision::Collision
     }
