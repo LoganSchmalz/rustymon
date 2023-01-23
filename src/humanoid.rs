@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     coordinate::{Coordinate, Direction},
     object::CollisionManager,
-    tilemap, TILE_SIZE,
+    tilemap, TILE_SIZE, engine_structures::collision::Collision,
 };
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
@@ -35,18 +35,19 @@ pub trait Humanoid {
     fn set_try_sprinting(&mut self, is_sprinting: bool);
     fn get_is_sprinting(&self) -> bool;
     fn set_is_sprinting(&mut self, is_sprinting: bool);
-    fn get_walking(&self) -> Option<Direction>;
-    fn set_walking(&mut self, walking: Option<Direction>);
+    fn get_try_walking(&self) -> Option<Direction>;
+    fn set_try_walking(&mut self, walking: Option<Direction>);
     fn get_rotation_timer(&self) -> f64;
     fn set_rotation_timer(&mut self, time: f64);
 
     fn get_animation_time(&self) -> f64;
     fn set_animation_time(&mut self, time: f64);
 
-    fn move_towards_target(
-        &mut self,
-        delta_time: &f64,
-    ) {
+    fn move_towards_target(&mut self, delta_time: &f64) {
+        /*if self.get_moving_towards() == None {
+            return;
+        }*/
+
         let Coordinate(x, y) = self.get_pos();
         let Coordinate(target_x, target_y) = self.get_moving_towards().unwrap();
 
@@ -80,10 +81,10 @@ pub trait Humanoid {
         {
             self.set_pos(Coordinate(target_x, target_y));
             self.set_moving_towards(None);
-            match self.get_walking() {
+            match self.get_try_walking() {
                 Some(dir) => {
                     self.set_facing(dir);
-                    self.set_walking(Some(dir));
+                    self.set_try_walking(Some(dir));
                 }
                 None => {}
             }
@@ -107,7 +108,7 @@ pub trait Humanoid {
         pos: Coordinate,
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
-    ) -> bool {
+    ) -> Collision {
         let Coordinate(next_x, next_y) = pos;
 
         if next_x < 0.0
@@ -115,51 +116,50 @@ pub trait Humanoid {
             || next_y < 0.0
             || next_y >= map.size_y as f64
         {
-            return true;
+            return Collision::Collision;
         }
 
         let next_pos = Coordinate(next_x, next_y);
-        match map
-            .collision
-            .get(next_x as usize + next_y as usize * map.size_x)
-        {
-            Some(tilemap::CollisionTile::NONE) => {
-                match collision_manager.check_collision(next_pos, self.get_prev_pos(), map.size_x) {
-                    true => {
-                        return true;
-                    }
-                    false => {
-                        return false;
-                    }
-                }
-            }
-            _ => {
-                return true;
-            }
+        if map.check_collision(next_pos) == Collision::NoCollision {
+            return collision_manager.check_collision(next_pos, self.get_prev_pos(), map.size_x)
         }
+        Collision::Collision
     }
 
     fn walk(
         &mut self,
+        delta_time: &f64,
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
     ) {
-        if self.get_walking() == None || self.get_moving_towards() != None {
+        // if player is already moving towards a tile, just do that and don't do any other updates
+        if self.get_moving_towards() != None {
+            self.move_towards_target(delta_time);
             return;
         }
 
-        let direction = self.get_walking().unwrap();
+        // don't update any variables if not trying to walk
+        if self.get_try_walking() == None {
+            return;
+        }
 
-        if direction != self.get_facing() && self.get_moving_towards() == None {
-            self.set_facing(direction);
+        // otherwise, player is stopped and not moving
+        self.set_animation_time(0.0);
+        let walk_direction = self.get_try_walking().unwrap();
+
+        // set up rotation when player rotates
+        if walk_direction != self.get_facing() && self.get_moving_towards() == None {
+            self.set_facing(walk_direction);
             self.set_rotation_timer(ROTATION_TIME);
             return;
         }
 
+        // wait for rotation time to complete
         if self.get_rotation_timer() > 0.0 {
             return;
         }
 
+        // swap leg animations so movement is natural
         self.set_current_leg(match self.get_current_leg() {
             Leg::LEFT => Leg::RIGHT,
             Leg::RIGHT => Leg::LEFT,
@@ -173,11 +173,14 @@ pub trait Humanoid {
             WALKING_TIME_PER_TILE
         });
 
-        let next_pos = self.next_pos(direction);
+        // move player in requested direction if possible
+        let next_pos = self.next_pos(walk_direction);
 
-        if !self.check_collision(next_pos, map, collision_manager) {
+        if self.check_collision(next_pos, map, collision_manager) == Collision::NoCollision {
             self.set_prev_pos(self.get_pos());
             self.set_moving_towards(Some(next_pos));
+            self.move_towards_target(delta_time);
+            return;
         } else {
             self.set_moving_towards(None);
         }

@@ -124,18 +124,18 @@ impl Input {
                 }
 
                 if ks.is_scancode_pressed(Scancode::Left) {
-                    player.set_walking(Some(Direction::LEFT));
+                    player.set_try_walking(Some(Direction::LEFT));
                 } else if ks.is_scancode_pressed(Scancode::Right) {
-                    player.set_walking(Some(Direction::RIGHT));
+                    player.set_try_walking(Some(Direction::RIGHT));
                 } else if ks.is_scancode_pressed(Scancode::Up) {
-                    player.set_walking(Some(Direction::UP));
+                    player.set_try_walking(Some(Direction::UP));
                 } else if ks.is_scancode_pressed(Scancode::Down) {
-                    player.set_walking(Some(Direction::DOWN));
+                    player.set_try_walking(Some(Direction::DOWN));
                 } else {
-                    player.set_walking(None);
+                    player.set_try_walking(None);
                 }
             } else {
-                player.set_walking(None);
+                player.set_try_walking(None);
             }
         }
 

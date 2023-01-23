@@ -1,6 +1,7 @@
 use serde::{Serialize, Deserialize};
 
 use crate::coordinate::Coordinate;
+use crate::engine_structures::collision::Collision;
 use crate::menu::{self, MenuManager};
 use crate::updated::Updated;
 use crate::{render, tilemap};
@@ -59,11 +60,14 @@ pub struct CollisionManager {
 }
 
 impl CollisionManager {
-    pub fn check_collision(&self, pos: Coordinate, prev_pos: Coordinate, size_x: usize) -> bool {
+    pub fn check_collision(&self, pos: Coordinate, prev_pos: Coordinate, size_x: usize) -> Collision {
         if pos == prev_pos {
-            return false;
+            return Collision::NoCollision;
         }
-        self.collisions.contains(&pos.to_usize(size_x))
+        match self.collisions.contains(&pos.to_usize(size_x)) {
+            true => Collision::Collision,
+            false => Collision::NoCollision
+        }
     }
 
     fn recompute_collision(&mut self, recompute_objects: Vec<&Object>, size_x: usize) {

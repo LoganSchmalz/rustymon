@@ -3,6 +3,8 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use std::{fs, path::Path};
 
+use crate::engine_structures::{coordinate::Coordinate, collision::Collision};
+
 #[derive(FromPrimitive, ToPrimitive, Debug, Enum, Clone)]
 pub enum Tile {
     NONE,   //0
@@ -126,6 +128,13 @@ impl TileMap {
             walls,
             collision,
             map_id,
+        }
+    }
+
+    pub fn check_collision(&self, pos: Coordinate) -> Collision {
+        match self.collision.get(pos.to_usize(self.size_x)) {
+            Some(CollisionTile::NONE) => Collision::NoCollision,
+            _ => Collision::Collision,
         }
     }
 }

@@ -42,7 +42,7 @@
 			"animation_time": 0.0,
 			"facing": "LEFT",
 			"current_leg": "LEFT",
-			"walking": null,
+			"try_walking": null,
 			"rotation_timer": 0.0,
 			"path": [
 				"LEFT",
@@ -92,7 +92,7 @@
 			"animation_time": 0.0,
 			"facing": "DOWN",
 			"current_leg": "LEFT",
-			"walking": null,
+			"try_walking": null,
 			"rotation_timer": 0.0,
 			"path": [],
 			"current_idx_in_path": 0

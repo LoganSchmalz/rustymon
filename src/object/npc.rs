@@ -29,7 +29,7 @@ pub struct NPC {
     animation_time: f64,
     facing: Direction,
     current_leg: Leg,
-    walking: Option<Direction>,
+    try_walking: Option<Direction>,
     rotation_timer: f64,
     path: Vec<Direction>,
     current_idx_in_path: usize,
@@ -57,7 +57,7 @@ impl NPC {
             animation_time: 0.0,
             facing,
             current_leg: Leg::LEFT,
-            walking: None,
+            try_walking: None,
             rotation_timer: 0.0,
             path,
             current_idx_in_path: 0,
@@ -149,11 +149,11 @@ impl Humanoid for NPC {
     fn set_is_sprinting(&mut self, is_sprinting: bool) {
         self.is_sprinting = is_sprinting;
     }
-    fn get_walking(&self) -> Option<Direction> {
-        self.walking
+    fn get_try_walking(&self) -> Option<Direction> {
+        self.try_walking
     }
-    fn set_walking(&mut self, walking: Option<Direction>) {
-        self.walking = walking;
+    fn set_try_walking(&mut self, try_walking: Option<Direction>) {
+        self.try_walking = try_walking;
     }
     fn get_rotation_timer(&self) -> f64 {
         self.rotation_timer
@@ -190,9 +190,9 @@ impl NPC {
                         Direction::UP => Direction::DOWN,
                         Direction::DOWN => Direction::UP,
                     };
-                    self.walking = Some(self.facing);
+                    self.try_walking = Some(self.facing);
                     self.rotation_timer = 0.0; //to skip rotation check for now
-                    self.walk(map, collision_manager);
+                    self.walk(delta_time, map, collision_manager);
                 }
                 return;
             }
