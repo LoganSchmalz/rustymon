@@ -1,5 +1,5 @@
 :root {
-    --brush-scale: 5;
+    --brush-scale: 3;
     image-rendering: optimizeSpeed;             /* STOP SMOOTHING, GIVE ME SPEED  */
     image-rendering: -moz-crisp-edges;          /* Firefox                        */
     image-rendering: -o-crisp-edges;            /* Opera                          */
@@ -7,6 +7,12 @@
     image-rendering: pixelated;                 /* Universal support since 2021   */
     image-rendering: optimize-contrast;         /* CSS3 Proposed                  */
     -ms-interpolation-mode: nearest-neighbor;   /* IE8+    */ 
+}
+
+.grid {
+    width: calc(15 * 16px * var(--brush-scale));
+    height: calc(10 * 16px * var(--brush-scale));
+    margin: auto;
 }
 
 .tile {
@@ -20,6 +26,7 @@
     outline: 1px solid black;
     width: calc(16px * var(--brush-scale));
     height: calc(16px * var(--brush-scale));
+    float: left;
 }
 
 .swatches {

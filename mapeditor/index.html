@@ -11,41 +11,19 @@
 </head>
 
 <body>
+    <div class="swatches" id="swatches">
+    </div>
+    <br>
+    <button onclick="printMap()">log map</button>
+    <button onclick="expandMap(0)">Add North Row</button>
+    <button onclick="expandMap(1)">Add East Column</button>
+    <button onclick="expandMap(2)">Add South Row</button>
+    <button onclick="expandMap(3)">Add West Column</button>
+    <input type="text" id="expandSize" value="1" placeholder="size">
+    <hr>
 
     <div class="grid" id="grid">
-        <div class="tile" id="tile1" onclick="this.style.backgroundPosition='top left calc(calc(-16px * ' + selectedTile + ')* var(--brush-scale))';">
-        </div>
     </div>
-    <div class="swatches">
-        <div class="swatch" style="--nth-swatch: 1;" onclick="selectSwatch(1)"></div>
-        <div class="swatch" style="--nth-swatch: 2;" onclick="selectSwatch(2)"></div>
-        <div class="swatch" style="--nth-swatch: 3;" onclick="selectSwatch(3)"></div>
-        <div class="swatch" style="--nth-swatch: 4;" onclick="selectSwatch(4)"></div>
-        <div class="swatch" style="--nth-swatch: 5;" onclick="selectSwatch(5)"></div>
-        <div class="swatch" style="--nth-swatch: 6;" onclick="selectSwatch(6)"></div>
-        <div class="swatch" style="--nth-swatch: 7;" onclick="selectSwatch(7)"></div>
-        <div class="swatch" style="--nth-swatch: 8;" onclick="selectSwatch(8)"></div>
-        <div class="swatch" style="--nth-swatch: 9;" onclick="selectSwatch(9)"></div>
-        <div class="swatch" style="--nth-swatch: 10;" onclick="selectSwatch(10)"></div>
-        <div class="swatch" style="--nth-swatch: 11;" onclick="selectSwatch(11)"></div>
-        <div class="swatch" style="--nth-swatch: 12;" onclick="selectSwatch(12)"></div>
-        <div class="swatch" style="--nth-swatch: 13;" onclick="selectSwatch(13)"></div>
-        <div class="swatch" style="--nth-swatch: 14;" onclick="selectSwatch(14)"></div>
-        <div class="swatch" style="--nth-swatch: 15;" onclick="selectSwatch(15)"></div>
-        <div class="swatch" style="--nth-swatch: 16;" onclick="selectSwatch(16)"></div>
-        <div class="swatch" style="--nth-swatch: 17;" onclick="selectSwatch(17)"></div>
-        <div class="swatch" style="--nth-swatch: 18;" onclick="selectSwatch(18)"></div>
-        <div class="swatch" style="--nth-swatch: 19;" onclick="selectSwatch(19)"></div>
-        <div class="swatch" style="--nth-swatch: 20;" onclick="selectSwatch(20)"></div>
-        <div class="swatch" style="--nth-swatch: 21;" onclick="selectSwatch(21)"></div>
-        <div class="swatch" style="--nth-swatch: 22;" onclick="selectSwatch(22)"></div>
-        <div class="swatch" style="--nth-swatch: 23;" onclick="selectSwatch(23)"></div>
-        <div class="swatch" style="--nth-swatch: 24;" onclick="selectSwatch(24)"></div>
-        <div class="swatch" style="--nth-swatch: 25;" onclick="selectSwatch(25)"></div>
-        <div class="swatch" style="--nth-swatch: 26;" onclick="selectSwatch(26)"></div>
-    </div>
-    <button onclick="printMap()">log map</button>
-    <button onclick="addTile()">add tile</button>
+    <br>
 </body>
-
 </html>
