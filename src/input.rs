@@ -52,16 +52,16 @@ impl Input {
             if key == Keycode::Space || key == Keycode::Return {
                 let Coordinate(x,y) = player.get_pos();
                 let temp_pos = match player.get_facing() {
-                    Direction::LEFT => {
+                    Direction::Left => {
                        Coordinate(x - 1.0, y)
                     }
-                    Direction::RIGHT => {
+                    Direction::Right => {
                         Coordinate(x + 1.0, y)
                     }
-                    Direction::UP => {
+                    Direction::Up => {
                         Coordinate(x, y - 1.0)
                     }
-                    Direction::DOWN => {
+                    Direction::Down => {
                         Coordinate(x, y + 1.0)
                     }
                 };
@@ -124,13 +124,13 @@ impl Input {
                 }
 
                 if ks.is_scancode_pressed(Scancode::Left) {
-                    player.set_try_walking(Some(Direction::LEFT));
+                    player.set_try_walking(Some(Direction::Left));
                 } else if ks.is_scancode_pressed(Scancode::Right) {
-                    player.set_try_walking(Some(Direction::RIGHT));
+                    player.set_try_walking(Some(Direction::Right));
                 } else if ks.is_scancode_pressed(Scancode::Up) {
-                    player.set_try_walking(Some(Direction::UP));
+                    player.set_try_walking(Some(Direction::Up));
                 } else if ks.is_scancode_pressed(Scancode::Down) {
-                    player.set_try_walking(Some(Direction::DOWN));
+                    player.set_try_walking(Some(Direction::Down));
                 } else {
                     player.set_try_walking(None);
                 }

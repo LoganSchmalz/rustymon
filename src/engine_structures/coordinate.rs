@@ -7,10 +7,10 @@ pub struct Coordinate(pub f64, pub f64);
 
 #[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
 pub enum Direction {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
+    Up,
+    Down,
+    Left,
+    Right,
 }
 
 pub fn compute_direction(pos_from: Coordinate, pos_to: Coordinate) -> Direction {
@@ -20,15 +20,15 @@ pub fn compute_direction(pos_from: Coordinate, pos_to: Coordinate) -> Direction 
 
     if dx.abs() > dy.abs() {
         if dx.signum() >= 1.0 {
-            Direction::RIGHT
+            Direction::Right
         } else {
-            Direction::LEFT
+            Direction::Left
         }
     } else {
         if dy.signum() >= 1.0 {
-            Direction::DOWN
+            Direction::Down
         } else {
-            Direction::UP
+            Direction::Up
         }
     }
 }

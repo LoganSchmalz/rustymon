@@ -92,8 +92,8 @@ impl Player {
             is_sprinting: false,
             moving_towards: None,
             animation_time: 0.0,
-            facing: Direction::DOWN,
-            current_leg: Leg::LEFT,
+            facing: Direction::Down,
+            current_leg: Leg::Left,
             try_walking: None,
             rotation_timer: 0.0,
         }
@@ -123,23 +123,23 @@ impl Player {
             || self.animation_time < (0.25 * anim_time)
         {
             match self.facing {
-                Direction::UP => Rect::new(16, 0, 16, 16),
-                Direction::RIGHT => Rect::new(16, 16, 16, 16),
-                Direction::DOWN => Rect::new(0, 0, 16, 16),
-                Direction::LEFT => Rect::new(0, 16, 16, 16),
+                Direction::Up => Rect::new(16, 0, 16, 16),
+                Direction::Right => Rect::new(16, 16, 16, 16),
+                Direction::Down => Rect::new(0, 0, 16, 16),
+                Direction::Left => Rect::new(0, 16, 16, 16),
             }
         } else {
             match self.facing {
-                Direction::UP => match self.current_leg {
-                    Leg::LEFT => Rect::new(16, 32, 16, 16),
-                    Leg::RIGHT => Rect::new(0, 32, 16, 16),
+                Direction::Up => match self.current_leg {
+                    Leg::Left => Rect::new(16, 32, 16, 16),
+                    Leg::Right => Rect::new(0, 32, 16, 16),
                 },
-                Direction::RIGHT => Rect::new(48, 16, 16, 16),
-                Direction::DOWN => match self.current_leg {
-                    Leg::LEFT => Rect::new(32, 32, 16, 16),
-                    Leg::RIGHT => Rect::new(48, 32, 16, 16),
+                Direction::Right => Rect::new(48, 16, 16, 16),
+                Direction::Down => match self.current_leg {
+                    Leg::Left => Rect::new(32, 32, 16, 16),
+                    Leg::Right => Rect::new(48, 32, 16, 16),
                 },
-                Direction::LEFT => Rect::new(32, 16, 16, 16),
+                Direction::Left => Rect::new(32, 16, 16, 16),
             }
         }
     }

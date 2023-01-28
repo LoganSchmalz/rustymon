@@ -8,8 +8,8 @@ use crate::{
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum Leg {
-    LEFT,
-    RIGHT,
+    Left,
+    Right,
 }
 
 pub const WALK_SPEED: f64 = 1.0 / 16.0;
@@ -96,10 +96,10 @@ pub trait Humanoid {
         let x = x.round();
         let y = y.round();
         match direction {
-            Direction::LEFT => Coordinate(x - 1.0, y),
-            Direction::RIGHT => Coordinate(x + 1.0, y),
-            Direction::UP => Coordinate(x, y - 1.0),
-            Direction::DOWN => Coordinate(x, y + 1.0),
+            Direction::Left => Coordinate(x - 1.0, y),
+            Direction::Right => Coordinate(x + 1.0, y),
+            Direction::Up => Coordinate(x, y - 1.0),
+            Direction::Down => Coordinate(x, y + 1.0),
         }
     }
 
@@ -160,8 +160,8 @@ pub trait Humanoid {
 
         // swap leg animations so movement is natural
         self.set_current_leg(match self.get_current_leg() {
-            Leg::LEFT => Leg::RIGHT,
-            Leg::RIGHT => Leg::LEFT,
+            Leg::Left => Leg::Right,
+            Leg::Right => Leg::Left,
         });
 
         self.set_is_sprinting(self.get_try_sprinting());

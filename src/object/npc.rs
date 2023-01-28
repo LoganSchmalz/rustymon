@@ -39,11 +39,11 @@ impl NPC {
     pub fn new(pos: Coordinate, character: Character, moving_towards: Option<Coordinate>) -> NPC {
         let facing = match moving_towards {
             Some(next_pos) => coordinate::compute_direction(pos, next_pos),
-            _ => Direction::DOWN,
+            _ => Direction::Down,
         };
 
         let path = match moving_towards {
-            Some(_) => vec![Direction::LEFT, Direction::RIGHT],
+            Some(_) => vec![Direction::Left, Direction::Right],
             None => vec![],
         };
 
@@ -56,7 +56,7 @@ impl NPC {
             moving_towards,
             animation_time: 0.0,
             facing,
-            current_leg: Leg::LEFT,
+            current_leg: Leg::Left,
             try_walking: None,
             rotation_timer: 0.0,
             path,
@@ -185,10 +185,10 @@ impl NPC {
 
                 if self.moving_towards == None {
                     self.facing = match self.facing {
-                        Direction::LEFT => Direction::RIGHT,
-                        Direction::RIGHT => Direction::LEFT,
-                        Direction::UP => Direction::DOWN,
-                        Direction::DOWN => Direction::UP,
+                        Direction::Left => Direction::Right,
+                        Direction::Right => Direction::Left,
+                        Direction::Up => Direction::Down,
+                        Direction::Down => Direction::Up,
                     };
                     self.try_walking = Some(self.facing);
                     self.rotation_timer = 0.0; //to skip rotation check for now
@@ -208,23 +208,23 @@ impl NPC {
             || self.animation_time < (0.25 * anim_time)
         {
             match self.facing {
-                Direction::UP => Rect::new(16, 0, 16, 16),
-                Direction::RIGHT => Rect::new(16, 16, 16, 16),
-                Direction::DOWN => Rect::new(0, 0, 16, 16),
-                Direction::LEFT => Rect::new(0, 16, 16, 16),
+                Direction::Up => Rect::new(16, 0, 16, 16),
+                Direction::Right => Rect::new(16, 16, 16, 16),
+                Direction::Down => Rect::new(0, 0, 16, 16),
+                Direction::Left => Rect::new(0, 16, 16, 16),
             }
         } else {
             match self.facing {
-                Direction::UP => match self.current_leg {
-                    Leg::LEFT => Rect::new(16, 32, 16, 16),
-                    Leg::RIGHT => Rect::new(0, 32, 16, 16),
+                Direction::Up => match self.current_leg {
+                    Leg::Left => Rect::new(16, 32, 16, 16),
+                    Leg::Right => Rect::new(0, 32, 16, 16),
                 },
-                Direction::RIGHT => Rect::new(48, 16, 16, 16),
-                Direction::DOWN => match self.current_leg {
-                    Leg::LEFT => Rect::new(32, 32, 16, 16),
-                    Leg::RIGHT => Rect::new(48, 32, 16, 16),
+                Direction::Right => Rect::new(48, 16, 16, 16),
+                Direction::Down => match self.current_leg {
+                    Leg::Left => Rect::new(32, 32, 16, 16),
+                    Leg::Right => Rect::new(48, 32, 16, 16),
                 },
-                Direction::LEFT => Rect::new(32, 16, 16, 16),
+                Direction::Left => Rect::new(32, 16, 16, 16),
             }
         }
     }
