@@ -120,10 +120,10 @@ function redraw() {
     for (let i = 0; i < HEIGHT; ++i) {
         for (let j = 0; j < WIDTH; ++j) {
             document.getElementById("grid").insertAdjacentHTML('beforeend', 
-            `<div class="tile" id="${[i,j]}" 
-            onclick="this.style.backgroundPosition=\'top left calc(calc(-16px * \' + selectedTile + \') * var(--brush-scale))\';
-            updateMapArray(this.id);"
-            style='background-position: top left calc(calc(-16px * ${floor[i][j]}) * var(--brush-scale));'"></div>`)
+            `<div 
+            class="tile" id="${[i,j]}" 
+            onclick="this.style.backgroundPosition=\'top left calc(calc(-16px * \' + selectedTile + \') * var(--brush-scale))\';updateMapArray(this.id);"
+            style='background-position: top left calc(calc(-16px * \' + ${floor[i][j]} + \') * var(--brush-scale));'"></div>`)
         }
     }
 
