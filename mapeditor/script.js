@@ -25,8 +25,29 @@ window.onload = function () {
     }
 }
 
-function printMap() {
-    console.log(floor.toString())
+function exportMap() {
+    filename = document.getElementById('filename').value
+    console.table(floor)
+    let text = ''
+
+    for (let i = 0; i < HEIGHT; i++) {
+        for (let j = 0; j < WIDTH; j++) {
+            text += j==WIDTH-1 ? floor[i][j] : floor[i][j] + ' '
+        }
+        text += '\n'
+    }
+
+    // download:
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+
+    document.body.removeChild(element);
 }
 
 function selectSwatch(n) {
@@ -92,19 +113,21 @@ function expandMap(dir) {
             WIDTH += size
             // create new main array
             floor = new Array(HEIGHT)
+            console.log(WIDTH)
             for (let i = 0; i < HEIGHT; i++) {
                 floor[i] = new Array(WIDTH).fill(1)
+                console.log(floor[i][0])
             }
             // shift and copy old floor array
+            console.log(floor[0][0])
             for (let i = 0; i < HEIGHT; i++) {
-                for (let j = 0; j < WIDTH; j++) {
+                for (let j = size; j < WIDTH; j++) {
                     floor[i][j] = tmp[i][j-size]
                 }
             }
             break;
         default:
     }
-
     redraw();
 }
 
@@ -123,7 +146,7 @@ function redraw() {
             `<div 
             class="tile" id="${[i,j]}" 
             onclick="this.style.backgroundPosition=\'top left calc(calc(-16px * \' + selectedTile + \') * var(--brush-scale))\';updateMapArray(this.id);"
-            style='background-position: top left calc(calc(-16px * \' + ${floor[i][j]} + \') * var(--brush-scale));'"></div>`)
+            style='background-position: top left calc(calc(-16px * ${floor[i][j]}) * var(--brush-scale));'"></div>`)
         }
     }
 
