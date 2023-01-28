@@ -133,8 +133,8 @@ impl TileMap {
 
     pub fn check_collision(&self, pos: Coordinate) -> Collision {
         match self.collision.get(pos.to_usize(self.size_x)) {
-            Some(CollisionTile::NONE) => Collision::NoCollision,
-            _ => Collision::Collision,
+            Some(CollisionTile::NONE) => Collision(false),
+            _ => Collision(true),
         }
     }
 }

@@ -87,9 +87,9 @@ impl TObject for NPC {
         if !self.path.is_empty() {
             self.walk_on_path(delta_time, map, collision_manager);
             //println!("{:?} {:?}", self.pos, self.prev_pos);
-            return Updated::Updated;
+            return Updated(true);
         }
-        Updated::NotUpdated
+        Updated(false)
     }
 
     fn interact(
@@ -102,7 +102,7 @@ impl TObject for NPC {
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
             "Hi hungry, I'm dad! Nice try, little child --> you are bad!".to_string(),
         )));
-        Updated::NotUpdated
+        Updated(false)
     }
 }
 

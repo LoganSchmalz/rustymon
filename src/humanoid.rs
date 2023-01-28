@@ -116,13 +116,13 @@ pub trait Humanoid {
             || next_y < 0.0
             || next_y >= map.size_y as f64
         {
-            return Collision::Collision;
+            return Collision(true);
         }
 
-        if map.check_collision(pos) == Collision::NoCollision {
+        if map.check_collision(pos) == Collision(false) {
             return collision_manager.check_collision(pos, self.get_prev_pos(), map.size_x)
         }
-        Collision::Collision
+        Collision(true)
     }
 
     fn walk(
@@ -175,7 +175,7 @@ pub trait Humanoid {
         // move player in requested direction if possible
         let next_pos = self.next_pos(walk_direction);
 
-        if self.check_collision(next_pos, map, collision_manager) == Collision::NoCollision {
+        if self.check_collision(next_pos, map, collision_manager) == Collision(false) {
             self.set_prev_pos(self.get_pos());
             self.set_moving_towards(Some(next_pos));
             self.move_towards_target(delta_time);

@@ -38,6 +38,6 @@ impl TObject for Berry {
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
             "Don't eat me!".to_string(),
         )));
-        Updated::Updated
+        Updated(true)
     }
 }

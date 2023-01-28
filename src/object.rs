@@ -38,7 +38,7 @@ pub trait TObject {
         _map: &tilemap::TileMap,
         _collision_manager: &CollisionManager,
     ) -> Updated {
-        Updated::NotUpdated
+        Updated(false)
     } //returns if obj actually updated
 }
 
@@ -62,12 +62,9 @@ pub struct CollisionManager {
 impl CollisionManager {
     pub fn check_collision(&self, pos: Coordinate, prev_pos: Coordinate, size_x: usize) -> Collision {
         if pos == prev_pos {
-            return Collision::NoCollision;
+            return Collision(false);
         }
-        match self.collisions.contains(&pos.to_usize(size_x)) {
-            true => Collision::Collision,
-            false => Collision::NoCollision
-        }
+        Collision(self.collisions.contains(&pos.to_usize(size_x)))
     }
 
     fn recompute_collision(&mut self, recompute_objects: Vec<&Object>, size_x: usize) {
@@ -183,7 +180,7 @@ impl ObjectManager {
         //https://stackoverflow.com/questions/71302444/borrow-a-vector-inside-a-loop
         let mut recompute_objects: Vec<&Object> = Vec::new();
         for obj in self.objects.iter_mut() {
-            if obj.update(delta_time, map, &self.collision_manager) == Updated::Updated {
+            if obj.update(delta_time, map, &self.collision_manager) == Updated(true) {
                 recompute_objects.push(obj);
             }
         }
@@ -204,7 +201,7 @@ impl ObjectManager {
         match self.get_obj(pos) {
             Some(idx) => {
                 //todo: change this to use new collision checking
-                if self.objects[idx].interact(renderer, menu_man, player_position) == Updated::Updated {
+                if self.objects[idx].interact(renderer, menu_man, player_position) == Updated(true) {
                     self.collision_manager
                         .collisions
                         .remove(&self.objects[idx].get_prev_pos().to_usize(map.size_x));

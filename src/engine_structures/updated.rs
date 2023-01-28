@@ -1,5 +1,2 @@
 #[derive(PartialEq)]
-pub enum Updated {
-	NotUpdated,
-	Updated
-}
+pub struct Updated(pub bool);

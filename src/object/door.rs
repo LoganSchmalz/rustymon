@@ -34,6 +34,6 @@ impl TObject for Door {
         _player_position: Coordinate,
     ) -> Updated {
         renderer.play_fade();
-        Updated::NotUpdated
+        Updated(false)
     }
 }

@@ -1,5 +1,2 @@
 #[derive(PartialEq)]
-pub enum Collision {
-	NoCollision,
-	Collision
-}
+pub struct Collision(pub bool);
