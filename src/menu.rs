@@ -1,28 +1,20 @@
 use sdl2::{render::Canvas, video::Window};
 
-pub mod should_close;
+pub mod bag_menu;
 pub mod main_menu;
-pub mod textbox;
+pub mod menu_events;
 pub mod pause_menu;
+pub mod textbox;
 
+use crate::bag::{self, Bag};
 use crate::font_manager::FontManager;
 use crate::texture_manager::TextureManager;
 
+use self::bag_menu::BagMenu;
 use self::main_menu::MainMenu;
-use self::should_close::ShouldClose;
-use self::textbox::Textbox;
+use self::menu_events::{MenuEvent, MenuInput};
 use self::pause_menu::PauseMenu;
-
-#[derive(PartialEq, Debug)]
-pub enum Action {
-    Up,
-    Down,
-    Left,
-    Right,
-    Accept,
-    Reject,
-    _Start,
-}
+use self::textbox::Textbox;
 
 #[enum_delegate::register]
 pub trait MenuItem {
@@ -32,16 +24,16 @@ pub trait MenuItem {
         textures: &mut TextureManager,
         font_man: &FontManager,
     );
-    fn update(&mut self, action: Action) -> ShouldClose; // returns true if menu should close after interaction
+    fn update(&mut self, action: MenuInput, bag: &Bag) -> Option<MenuEvent>;
 }
 
 #[enum_delegate::implement(MenuItem)]
 pub enum Menu {
     MainMenu(MainMenu),
     Textbox(Textbox),
-    PauseMenu(PauseMenu<'static>)
+    PauseMenu(PauseMenu),
+    BagMenu(BagMenu<'static>),
 }
-
 pub struct MenuManager {
     menus: Vec<Menu>, // this is a stack
     pub paused: bool,
@@ -73,14 +65,15 @@ impl MenuManager {
         !self.menus.is_empty()
     }
 
-    pub fn interact(&mut self, action: Action) {
+    pub fn interact(&mut self, action: MenuInput, bag: &Bag) {
         if self.is_open() {
             let curr_menu = self
                 .menus
                 .last_mut()
                 .expect("Tried to change menu with no menus open");
-            if curr_menu.update(action) == ShouldClose(true) {
-                self.close_menu();
+            match curr_menu.update(action, bag) {
+                Some(MenuEvent::Close) => self.close_menu(),
+                _ => {}
             }
         }
     }

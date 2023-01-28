@@ -58,30 +58,30 @@ pub enum Object {
 
 pub struct CollisionManager {
     collisions: HashSet<usize>, //the u32 is derived from the coordinate -> u32 calculation, consider replacing this with some sort of direct hashing in the future
+    size_x: usize,
 }
 
 impl CollisionManager {
-    pub fn check_collision(
-        &self,
-        pos: Coordinate,
-        prev_pos: Coordinate,
-        size_x: usize,
-    ) -> Collision {
+    pub fn check_collision(&self, pos: Coordinate, prev_pos: Coordinate) -> Collision {
         if pos == prev_pos {
             return Collision(false);
         }
-        Collision(self.collisions.contains(&pos.to_usize(size_x)))
+        Collision(self.collisions.contains(&pos.to_usize(self.size_x)))
     }
 
-    fn recompute_collision(&mut self, recompute_objects: Vec<&Object>, size_x: usize) {
+    pub fn remove(&mut self, pos: &Coordinate) {
+        self.collisions.remove(&pos.to_usize(self.size_x));
+    }
+
+    fn recompute_collision(&mut self, recompute_objects: Vec<&Object>) {
         for obj in recompute_objects {
             let new_pos = obj.get_pos();
             let prev_pos = obj.get_prev_pos();
             if new_pos.dist(prev_pos) >= 1.0 {
-                self.collisions.remove(&prev_pos.to_usize(size_x));
+                self.collisions.remove(&prev_pos.to_usize(self.size_x));
             }
 
-            self.collisions.insert(new_pos.to_usize(size_x));
+            self.collisions.insert(new_pos.to_usize(self.size_x));
         }
     }
 }
@@ -98,6 +98,7 @@ impl ObjectManager {
             objects,
             collision_manager: CollisionManager {
                 collisions: HashSet::new(),
+                size_x: 0,
             },
         }
     }
@@ -119,6 +120,7 @@ impl ObjectManager {
             )
         }
         let size_x = dim.get(0).unwrap();
+        self.collision_manager.size_x = *size_x;
 
         let json = fs::read_to_string(mapfolder.join("objects.json"));
         match json {
@@ -196,7 +198,7 @@ impl ObjectManager {
 
         if !recompute_objects.is_empty() {
             self.collision_manager
-                .recompute_collision(recompute_objects, map.size_x);
+                .recompute_collision(recompute_objects);
         }
     }
 
@@ -206,7 +208,6 @@ impl ObjectManager {
         player_position: Coordinate,
         renderer: &mut render::Renderer,
         menu_man: &mut menu::MenuManager,
-        map: &tilemap::TileMap,
         bag: &mut bag::Bag,
     ) {
         match self.get_obj(pos) {
@@ -216,8 +217,7 @@ impl ObjectManager {
                     == Updated(true)
                 {
                     self.collision_manager
-                        .collisions
-                        .remove(&self.objects[idx].get_prev_pos().to_usize(map.size_x));
+                        .remove(&self.objects[idx].get_prev_pos());
                     self.objects.remove(idx);
                 }
             }

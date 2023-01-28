@@ -2,8 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     coordinate::{Coordinate, Direction},
+    engine_structures::collision::Collision,
     object::CollisionManager,
-    tilemap, TILE_SIZE, engine_structures::collision::Collision,
+    tilemap, TILE_SIZE,
 };
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
@@ -120,7 +121,7 @@ pub trait Humanoid {
         }
 
         if map.check_collision(pos) == Collision(false) {
-            return collision_manager.check_collision(pos, self.get_prev_pos(), map.size_x)
+            return collision_manager.check_collision(pos, self.get_prev_pos());
         }
         Collision(true)
     }

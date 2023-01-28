@@ -12,7 +12,14 @@ mod render;
 mod texture_manager;
 mod tilemap;
 
-use crate::{bag::Bag, engine_structures::*};
+use crate::{
+    bag::Bag,
+    engine_structures::{
+        coordinate::{Coordinate, Direction},
+        *,
+    },
+    humanoid::Humanoid,
+};
 
 extern crate sdl2;
 
@@ -112,19 +119,38 @@ pub fn main() {
             / sdl_context.timer().unwrap().performance_frequency())
             as f64;
 
-        match input.handle_input(
-            &mut event_pump,
-            &mut canvas,
-            &mut player,
-            &mut renderer,
-            &mut map,
-            &mut menu_man,
-            &mut obj_man,
-            &mut bag,
-        ) {
-            true => break 'running,
-            false => {}
-        };
+        player.set_try_walking(None);
+
+        for event in input.handle_input(&mut event_pump, &mut menu_man) {
+            use input::InputEvent::*;
+
+            match event {
+                MenuInteract(menu_input) => menu_man.interact(menu_input, &bag),
+                PlayerSprinting => player.set_try_sprinting(true),
+                PlayerWalking => player.set_try_sprinting(false),
+                PlayerMove(dir) => player.set_try_walking(dir),
+                Interact => {
+                    let Coordinate(x, y) = player.get_pos();
+                    let temp_pos = match player.get_facing() {
+                        Direction::Left => Coordinate(x - 1.0, y),
+                        Direction::Right => Coordinate(x + 1.0, y),
+                        Direction::Up => Coordinate(x, y - 1.0),
+                        Direction::Down => Coordinate(x, y + 1.0),
+                    };
+
+                    obj_man.interact(
+                        temp_pos,
+                        player.get_pos(),
+                        &mut renderer,
+                        &mut menu_man,
+                        &mut bag,
+                    );
+                }
+                ExitGame => return,
+                ToggleFullscreen => renderer.toggle_fullscreen(&mut canvas),
+                ResizeWindow(width, height) => renderer.resize(&mut canvas, width, height),
+            }
+        }
 
         //println!("{:?}", delta_time);
         if !menu_man.paused {

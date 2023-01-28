@@ -1,11 +1,12 @@
 use sdl2::{video::Window, render::Canvas, rect::Rect};
 
+use crate::bag::Bag;
 use crate::texture_manager::{TextureManager};
 use crate::font_manager::{FontManager};
 use crate::render::{PIXELS_X, PIXELS_Y};
 
-use super::should_close::ShouldClose;
-use super::{MenuItem, Action};
+use super::menu_events::MenuEvent;
+use super::{MenuItem, MenuInput};
 
 #[derive(PartialEq)]
 pub enum MainMenuButton {
@@ -62,35 +63,35 @@ impl MenuItem for MainMenu {
             .unwrap();
 	}
 
-	fn update(&mut self, action: Action) -> ShouldClose {
+	fn update(&mut self, action: MenuInput, _bag: &Bag) -> Option<MenuEvent> {
 		match action {
-			Action::Accept => {
+			MenuInput::Accept => {
 				if self.curr_button == StartButton {
-					return ShouldClose(true);
+					return Some(MenuEvent::Close);
 				}
 			}
-			Action::Left => {
+			MenuInput::Left => {
 				self.curr_button = match self.curr_button {
 					StartButton => LoadButton,
 					LoadButton => StartButton,
 					SettingsButton => LoadButton,
 				}
 			}
-			Action::Right => {
+			MenuInput::Right => {
 				self.curr_button = match self.curr_button {
 					StartButton => SettingsButton, //BUTTONS[2] == Button::SettingsButton
 					LoadButton => SettingsButton, //BUTTONS[2] == Button::SettingsButton
 					SettingsButton => StartButton, //BUTTONS[0] == Button::StartButton
 				}
 			}
-			Action::Up => {
+			MenuInput::Up => {
 				self.curr_button = match self.curr_button {
 					StartButton => SettingsButton,
 					SettingsButton => StartButton,
 					LoadButton => StartButton
 				}
 			}
-			Action::Down => {
+			MenuInput::Down => {
 				self.curr_button = match self.curr_button {
 					StartButton => LoadButton,
 					SettingsButton => StartButton,
@@ -99,6 +100,6 @@ impl MenuItem for MainMenu {
 			}
 			_ => {}
 		}
-		ShouldClose(false)
+		None
 	}
 }

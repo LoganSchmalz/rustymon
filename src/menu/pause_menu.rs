@@ -3,24 +3,24 @@ use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 use crate::{
     font_manager::FontManager,
     render::{PIXELS_X, PIXELS_Y},
-    texture_manager::TextureManager,
+    texture_manager::TextureManager, bag::Bag,
 };
 
-use super::{should_close::ShouldClose, Action, MenuItem};
+use super::{menu_events::{MenuInput, MenuEvent}, MenuItem, bag_menu, Menu};
 
-pub struct PauseMenu<'a> {
-    items: Vec<&'a str>,
+pub struct PauseMenu {
+    items: Vec<String>,
     selected: usize,
 }
 
-impl PauseMenu<'_> {
-    pub fn new() -> PauseMenu<'static> {
-        let items = vec!["Strays", "Bag", "Save", "Options", "Exit"];
+impl PauseMenu {
+    pub fn new() -> PauseMenu {
+        let items = vec![String::from("Strays"), String::from("Bag"), String::from("Save"), String::from("Options"), String::from("Exit")];
         PauseMenu { items, selected: 0 }
     }
 }
 
-impl MenuItem for PauseMenu<'_> {
+impl MenuItem for PauseMenu {
     fn render(
         &mut self,
         canvas: &mut Canvas<Window>,
@@ -58,26 +58,32 @@ impl MenuItem for PauseMenu<'_> {
         }
     }
 
-    fn update(&mut self, action: Action) -> ShouldClose {
+    fn update(&mut self, action: MenuInput, bag: &Bag) -> Option<MenuEvent> {
         match action {
-            Action::Down => {
+            MenuInput::Down => {
                 self.selected = if self.selected < self.items.len() - 1 {
                     self.selected + 1
                 } else {
                     0
                 }
             }
-            Action::Up => {
+            MenuInput::Up => {
                 self.selected = if self.selected > 0 {
                     self.selected - 1
                 } else {
                     self.items.len() - 1
                 }
             }
-            Action::Accept => return ShouldClose(self.items[self.selected] == "Exit"),
-            Action::Reject => return ShouldClose(true),
+            MenuInput::Accept => match self.items[self.selected].as_str() {
+				"Bag" => return None, //Some(MenuEvent::Open(Menu::BagMenu(bag_menu::BagMenu::new(bag)))),
+				"Exit" => if self.items[self.selected] == "Exit" {
+					return Some(MenuEvent::Close);
+				} else {},
+				_ => {}
+			}
+            MenuInput::Reject => return Some(MenuEvent::Close),
             _ => {}
         }
-        ShouldClose(false)
+        None
     }
 }

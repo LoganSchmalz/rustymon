@@ -1,11 +1,21 @@
+use std::fmt;
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Item {
     Berry,
 }
 
+impl fmt::Display for Item {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Item::Berry => write!(f, "Berry"),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Bag {
-    items: Vec<(Item, u32)>,
+    pub items: Vec<(Item, u32)>,
 }
 
 impl Bag {
