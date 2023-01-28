@@ -37,6 +37,7 @@ pub struct Renderer {
     window_y: u32,
     old_window_x: u32,
     old_window_y: u32,
+    canvas: Canvas<Window>,
     pub is_fading: bool,
     did_trans: bool,
     fade_anim_time: f64,
@@ -44,12 +45,13 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new() -> Renderer {
+    pub fn new(canvas: Canvas<Window>) -> Renderer {
         Renderer {
             window_x: PIXELS_X,
             window_y: PIXELS_Y,
             old_window_x: PIXELS_X,
             old_window_y: PIXELS_Y,
+            canvas,
             is_fading: false,
             did_trans: false,
             fade_anim_time: FADE_TIME,
@@ -62,14 +64,13 @@ impl Renderer {
 
     pub fn render_overworld_tiles(
         &mut self,
-        canvas: &mut Canvas<Window>,
         texture_manager: &mut TextureManager,
         map: &tilemap::TileMap,
     ) {
         //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.fill_rect(screen_quad).unwrap();
+        self.canvas.set_draw_color(Color::RGB(0, 0, 0));
+        self.canvas.fill_rect(screen_quad).unwrap();
 
         for i in 0..map.size_x {
             for j in 0..map.size_y {
@@ -82,7 +83,7 @@ impl Renderer {
                 match map.floor.get(i + j * map.size_x) {
                     Some(tile) => {
                         let sprite = texture_manager.get_tile(tile.clone());
-                        canvas
+                        self.canvas
                             .copy(sprite.texture, sprite.src, render_quad)
                             .unwrap()
                     }
@@ -91,7 +92,7 @@ impl Renderer {
                 match map.walls.get(i + j * map.size_x) {
                     Some(tile) => {
                         let sprite = texture_manager.get_tile(tile.clone());
-                        canvas
+                        self.canvas
                             .copy(sprite.texture, sprite.src, render_quad)
                             .unwrap()
                     }
@@ -103,7 +104,6 @@ impl Renderer {
 
     pub fn render_objects(
         &mut self,
-        canvas: &mut Canvas<Window>,
         texture_manager: &mut TextureManager,
         obj_man: &object::ObjectManager,
     ) {
@@ -117,9 +117,10 @@ impl Renderer {
             );
             match obj {
                 object::Object::NPC(ref npc) => {
-                    self.render_npc(canvas, texture_manager, npc);
+                    self.render_npc(texture_manager, npc);
                 }
-                _ => canvas
+                _ => self
+                    .canvas
                     .copy(sprite.texture, sprite.src, render_quad)
                     .unwrap(),
             }
@@ -128,7 +129,6 @@ impl Renderer {
 
     pub fn render_transition(
         &mut self,
-        canvas: &mut Canvas<Window>,
         texture_manager: &mut TextureManager,
         delta_time: &f64,
         map: &mut tilemap::TileMap,
@@ -145,7 +145,7 @@ impl Renderer {
                     .round() as i32;
                 let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //TODO: change height and width of screen_quad to not require math
                 let fade_slice = Rect::new(240 * curr_fade_frame, 0, 240, 160);
-                canvas
+                self.canvas
                     .copy(
                         &texture_manager.textures.fade_texture,
                         fade_slice,
@@ -174,13 +174,8 @@ impl Renderer {
         }
     }
 
-    pub fn render_player(
-        &mut self,
-        canvas: &mut Canvas<Window>,
-        texture_manager: &TextureManager,
-        player: &player::Player,
-    ) {
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
+    pub fn render_player(&mut self, texture_manager: &TextureManager, player: &player::Player) {
+        self.canvas.set_draw_color(Color::RGB(0, 0, 0));
         let render_quad = Rect::new(
             (PIXELS_X / 2 - humanoid::WIDTH / 2) as i32,
             (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as i32 - 4,
@@ -193,7 +188,7 @@ impl Renderer {
             player::PLAYER_WIDTH,
             player::PLAYER_HEIGHT,
         );*/
-        canvas
+        self.canvas
             .copy(
                 &texture_manager.textures.player,
                 player.get_texture(),
@@ -205,11 +200,10 @@ impl Renderer {
     pub fn render_npc(
         //TODO MAKE IT SO YOU CAN ACTUALLY HAVE MULTIPLE NPCs
         &mut self,
-        canvas: &mut Canvas<Window>,
         texture_manager: &TextureManager,
         npc: &npc::NPC,
     ) {
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        self.canvas.set_draw_color(Color::RGB(0, 0, 0));
         let Coordinate(i, j) = Humanoid::get_pos(npc);
         let render_quad = Rect::new(
             (i * TILE_SIZE as f64) as i32 - self.camera_offset.0,
@@ -219,17 +213,16 @@ impl Renderer {
         );
         let Sprite { texture, src } = &texture_manager.get_npc(npc);
 
-        canvas.copy(*texture, *src, render_quad).unwrap();
+        self.canvas.copy(*texture, *src, render_quad).unwrap();
     }
 
     pub fn render_menus(
         &mut self,
-        canvas: &mut Canvas<Window>,
         texture_manager: &mut TextureManager,
         font_man: &FontManager,
         menu_man: &mut menu::MenuManager,
     ) {
-        menu_man.render(canvas, texture_manager, font_man);
+        menu_man.render(&mut self.canvas, texture_manager, font_man);
     }
     /*pub fn render_menus(
         &mut self,
@@ -257,7 +250,6 @@ impl Renderer {
 
     pub fn render(
         &mut self,
-        canvas: &mut Canvas<Window>,
         texture_manager: &mut texture_manager::TextureManager,
         font_man: &FontManager,
         delta_time: &f64,
@@ -266,8 +258,8 @@ impl Renderer {
         menu_man: &mut menu::MenuManager,
         obj_man: &mut object::ObjectManager,
     ) {
-        canvas.set_draw_color(Color::RGB(255, 255, 255));
-        canvas.clear();
+        self.canvas.set_draw_color(Color::RGB(255, 255, 255));
+        self.canvas.clear();
 
         let Coordinate(x, y) = player.get_pos();
 
@@ -275,13 +267,13 @@ impl Renderer {
             (x * TILE_SIZE as f64 - (PIXELS_X / 2 - humanoid::WIDTH / 2) as f64) as i32,
             (y * TILE_SIZE as f64 - (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as f64) as i32,
         );
-        self.render_overworld_tiles(canvas, texture_manager, map);
-        self.render_objects(canvas, texture_manager, obj_man);
-        self.render_player(canvas, texture_manager, player);
-        self.render_menus(canvas, texture_manager, font_man, menu_man);
-        self.render_transition(canvas, texture_manager, delta_time, map, obj_man);
+        self.render_overworld_tiles(texture_manager, map);
+        self.render_objects(texture_manager, obj_man);
+        self.render_player(texture_manager, player);
+        self.render_menus(texture_manager, font_man, menu_man);
+        self.render_transition(texture_manager, delta_time, map, obj_man);
 
-        canvas.present();
+        self.canvas.present();
     }
 
     pub fn play_fade(&mut self) {
@@ -291,20 +283,20 @@ impl Renderer {
         self.fade_anim_time = FADE_TIME;
     }
 
-    pub fn toggle_fullscreen(&mut self, canvas: &mut Canvas<Window>) {
-        match canvas.window().fullscreen_state() {
+    pub fn toggle_fullscreen(&mut self) {
+        match self.canvas.window().fullscreen_state() {
             FullscreenType::Off => {
-                let display = canvas.window().subsystem().display_bounds(0).unwrap();
+                let display = self.canvas.window().subsystem().display_bounds(0).unwrap();
                 self.old_window_x = self.window_x;
                 self.old_window_y = self.window_y;
                 self.window_x = display.width();
                 self.window_y = display.height();
 
-                canvas
+                self.canvas
                     .window_mut()
                     .set_size(self.window_x, self.window_y)
                     .unwrap();
-                canvas
+                self.canvas
                     .window_mut()
                     .set_fullscreen(FullscreenType::Desktop)
                     .unwrap();
@@ -313,11 +305,11 @@ impl Renderer {
                 self.window_x = self.old_window_x;
                 self.window_y = self.old_window_y;
 
-                canvas
+                self.canvas
                     .window_mut()
                     .set_fullscreen(FullscreenType::Off)
                     .unwrap();
-                canvas
+                self.canvas
                     .window_mut()
                     .set_size(self.window_x, self.window_y)
                     .unwrap();
@@ -333,20 +325,15 @@ impl Renderer {
         } else {
             scale_y.floor()
         } as u32;
-        canvas.set_scale(scale as f32, scale as f32).unwrap();
+        self.canvas.set_scale(scale as f32, scale as f32).unwrap();
         let bb_x = ((self.window_x - PIXELS_X * scale) / 2) / scale;
         let bb_y = ((self.window_y - PIXELS_Y * scale) / 2) / scale;
-        let viewport = sdl2::rect::Rect::new(
-            bb_x as i32,
-            bb_y as i32,
-            PIXELS_X,
-            PIXELS_Y,
-        );
+        let viewport = sdl2::rect::Rect::new(bb_x as i32, bb_y as i32, PIXELS_X, PIXELS_Y);
         println!("{:?}", viewport);
-        canvas.set_viewport(viewport);
+        self.canvas.set_viewport(viewport);
     }
 
-    pub fn resize(&mut self, canvas: &mut Canvas<Window>, width: i32, height: i32) {
+    pub fn resize(&mut self, width: i32, height: i32) {
         self.window_x = width as u32;
         self.window_y = height as u32;
         //canvas.set_integer_scale(true).unwrap();
@@ -357,11 +344,11 @@ impl Renderer {
         } else {
             scale_y.floor()
         } as u32;
-        canvas.set_scale(scale as f32, scale as f32).unwrap();
+        self.canvas.set_scale(scale as f32, scale as f32).unwrap();
         // put top left corner of renderer at top left scaled of "screen" to maintain aspect ratio
         let bb_x = ((self.window_x - PIXELS_X * scale) / 2) / scale; //TODO: FIX BUG THAT CRASHES GAME WHEN YOU RESIZE SCREEN TOO SMALL
         let bb_y = ((self.window_y - PIXELS_Y * scale) / 2) / scale;
         let viewport = sdl2::rect::Rect::new(bb_x as i32, bb_y as i32, PIXELS_X, PIXELS_Y);
-        canvas.set_viewport(viewport);
+        self.canvas.set_viewport(viewport);
     }
 }

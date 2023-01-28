@@ -70,7 +70,7 @@ pub fn main() {
         .set_minimum_size(render::PIXELS_X, render::PIXELS_Y)
         .unwrap();
 
-    let mut canvas = window
+    let canvas = window
         .into_canvas()
         .accelerated()
         .present_vsync()
@@ -92,7 +92,7 @@ pub fn main() {
     let font_loader = ttf_context.expect("Missing ttf context");
     let fonts = font_manager::Fonts::load(&font_loader);
     let font_manager = font_manager::FontManager::new(fonts);
-    let mut renderer = render::Renderer::new();
+    let mut renderer = render::Renderer::new(canvas);
     let mut menu_man = menu::MenuManager::new();
     let mut obj_man = object::ObjectManager::new();
     //menu_man.borrow_mut().open_menu(Box::new(MainMenu));
@@ -146,9 +146,9 @@ pub fn main() {
                         &mut bag,
                     );
                 }
-                ExitGame => return,
-                ToggleFullscreen => renderer.toggle_fullscreen(&mut canvas),
-                ResizeWindow(width, height) => renderer.resize(&mut canvas, width, height),
+                ExitGame => break 'running,
+                ToggleFullscreen => renderer.toggle_fullscreen(),
+                ResizeWindow(width, height) => renderer.resize(width, height),
             }
         }
 
@@ -158,7 +158,6 @@ pub fn main() {
             obj_man.update_objects(&delta_time, &map);
         }
         renderer.render(
-            &mut canvas,
             &mut texture_manager,
             &font_manager,
             &delta_time,
