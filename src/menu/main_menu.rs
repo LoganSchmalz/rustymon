@@ -64,33 +64,33 @@ impl MenuItem for MainMenu {
 
 	fn update(&mut self, action: Action) -> ShouldClose {
 		match action {
-			Action::ACCEPT => {
+			Action::Accept => {
 				if self.curr_button == StartButton {
 					return ShouldClose(true);
 				}
 			}
-			Action::LEFT => {
+			Action::Left => {
 				self.curr_button = match self.curr_button {
 					StartButton => LoadButton,
 					LoadButton => StartButton,
 					SettingsButton => LoadButton,
 				}
 			}
-			Action::RIGHT => {
+			Action::Right => {
 				self.curr_button = match self.curr_button {
 					StartButton => SettingsButton, //BUTTONS[2] == Button::SettingsButton
 					LoadButton => SettingsButton, //BUTTONS[2] == Button::SettingsButton
 					SettingsButton => StartButton, //BUTTONS[0] == Button::StartButton
 				}
 			}
-			Action::UP => {
+			Action::Up => {
 				self.curr_button = match self.curr_button {
 					StartButton => SettingsButton,
 					SettingsButton => StartButton,
 					LoadButton => StartButton
 				}
 			}
-			Action::DOWN => {
+			Action::Down => {
 				self.curr_button = match self.curr_button {
 					StartButton => LoadButton,
 					SettingsButton => StartButton,

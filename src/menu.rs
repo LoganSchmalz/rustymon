@@ -3,6 +3,7 @@ use sdl2::{render::Canvas, video::Window};
 pub mod should_close;
 pub mod main_menu;
 pub mod textbox;
+pub mod pause_menu;
 
 use crate::font_manager::FontManager;
 use crate::texture_manager::TextureManager;
@@ -10,16 +11,17 @@ use crate::texture_manager::TextureManager;
 use self::main_menu::MainMenu;
 use self::should_close::ShouldClose;
 use self::textbox::Textbox;
+use self::pause_menu::PauseMenu;
 
 #[derive(PartialEq, Debug)]
 pub enum Action {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-    ACCEPT,
-    REJECT,
-    _START,
+    Up,
+    Down,
+    Left,
+    Right,
+    Accept,
+    Reject,
+    _Start,
 }
 
 #[enum_delegate::register]
@@ -37,6 +39,7 @@ pub trait MenuItem {
 pub enum Menu {
     MainMenu(MainMenu),
     Textbox(Textbox),
+    PauseMenu(PauseMenu<'static>)
 }
 
 pub struct MenuManager {

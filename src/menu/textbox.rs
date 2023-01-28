@@ -63,7 +63,7 @@ impl MenuItem for Textbox {
 
     fn update(&mut self, action: Action) -> ShouldClose {
         match action {
-            Action::ACCEPT | Action::REJECT => {
+            Action::Accept | Action::Reject => {
                 return self.advance_text();
             }
             _ => {}

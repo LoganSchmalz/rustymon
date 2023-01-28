@@ -5,7 +5,7 @@ use sdl2::{
     video::Window,
 };
 
-use crate::{menu, humanoid::{Humanoid}, coordinate::{Coordinate, Direction}};
+use crate::{menu::{self, pause_menu::PauseMenu}, humanoid::{Humanoid}, coordinate::{Coordinate, Direction}};
 use crate::{object, player, render, tilemap};
 
 pub struct Input {
@@ -29,26 +29,30 @@ impl Input {
         if menu_man.is_open() {
             match key {
                 Keycode::Up => {
-                    menu_man.interact(menu::Action::UP);
+                    menu_man.interact(menu::Action::Up);
                 }
                 Keycode::Left => {
-                    menu_man.interact(menu::Action::LEFT);
+                    menu_man.interact(menu::Action::Left);
                 }
                 Keycode::Down => {
-                    menu_man.interact(menu::Action::DOWN);
+                    menu_man.interact(menu::Action::Down);
                 }
                 Keycode::Right => {
-                    menu_man.interact(menu::Action::RIGHT);
+                    menu_man.interact(menu::Action::Right);
                 }
                 Keycode::Space | Keycode::Return => {
-                    menu_man.interact(menu::Action::ACCEPT);
+                    menu_man.interact(menu::Action::Accept);
                 }
                 Keycode::X => {
-                    menu_man.interact(menu::Action::REJECT);
+                    menu_man.interact(menu::Action::Reject);
                 }
                 _ => {}
             }
         } else {
+            if key == Keycode::Return {
+                menu_man.open_menu(menu::Menu::PauseMenu(PauseMenu::new()));
+            }
+
             if key == Keycode::Space || key == Keycode::Return {
                 let Coordinate(x,y) = player.get_pos();
                 let temp_pos = match player.get_facing() {
