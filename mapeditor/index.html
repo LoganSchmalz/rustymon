@@ -14,14 +14,16 @@
     <div class="swatches" id="swatches">
     </div>
     <br>
-    <button onclick="printMap()">log map</button>
     <button onclick="expandMap(0)">Add North Row</button>
     <button onclick="expandMap(1)">Add East Column</button>
     <button onclick="expandMap(2)">Add South Row</button>
     <button onclick="expandMap(3)">Add West Column</button>
+    <label>Expand Size: </label>
     <input type="text" id="expandSize" value="1" placeholder="size">
+    
+    <input type="text" id="filename" name="name" value="floor.txt">
+    <button onclick="exportMap()">Download</button>
     <hr>
-
     <div class="grid" id="grid">
     </div>
     <br>

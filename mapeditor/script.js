@@ -25,8 +25,29 @@ window.onload = function () {
     }
 }
 
-function printMap() {
-    console.log(floor.toString())
+function exportMap() {
+    filename = document.getElementById('filename').value
+    console.table(floor)
+    let text = ''
+
+    for (let i = 0; i < HEIGHT; i++) {
+        for (let j = 0; j < WIDTH; j++) {
+            text += j==WIDTH-1 ? floor[i][j] : floor[i][j] + ' '
+        }
+        text += '\n'
+    }
+
+    // download:
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+
+    document.body.removeChild(element);
 }
 
 function selectSwatch(n) {
