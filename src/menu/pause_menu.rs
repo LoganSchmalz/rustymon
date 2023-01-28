@@ -15,7 +15,7 @@ pub struct PauseMenu<'a> {
 
 impl PauseMenu<'_> {
     pub fn new() -> PauseMenu<'static> {
-        let items = vec!["Bag", "Save", "Exit"];
+        let items = vec!["Strays", "Bag", "Save", "Options", "Exit"];
         PauseMenu { items, selected: 0 }
     }
 }
@@ -34,14 +34,14 @@ impl MenuItem for PauseMenu<'_> {
             .copy(&texture_manager.textures.text_box, None, box_quad)
             .unwrap();
 
-        let mut text_quad = Rect::new(200, 10, 0, 0);
+        let mut text_quad = Rect::new(180, 10, 0, 0);
 
         for (idx, item) in self.items.iter().enumerate() {
             let surface = font_man.fonts.press_start_2p.render(item);
             let surface = if idx == self.selected {
-                surface.blended(Color::RGB(133, 177, 179))
+                surface.blended(Color::RGB(0,183,235))
             } else {
-                surface.blended(Color::RGB(179, 145, 133))
+                surface.blended(Color::RGB(40, 40, 40))
             };
             let surface = surface.unwrap();
 

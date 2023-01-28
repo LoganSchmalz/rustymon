@@ -30,13 +30,13 @@ impl MenuItem for Textbox {
         let surface_top = font_man.fonts
             .press_start_2p
             .render(self.text_v[0].as_str())
-            .blended(Color::RGB(179, 145, 133))
+            .blended(Color::RGB(40, 40, 40))
             .unwrap();
 
         let surface_bot = font_man.fonts
             .press_start_2p
             .render(self.text_v[1].as_str())
-            .blended(Color::RGB(179, 145, 133))
+            .blended(Color::RGB(40, 40, 40))
             .unwrap();
 		
         let text_quad_top = Rect::new(

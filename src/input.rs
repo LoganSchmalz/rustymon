@@ -53,7 +53,7 @@ impl Input {
                 menu_man.open_menu(menu::Menu::PauseMenu(PauseMenu::new()));
             }
 
-            if key == Keycode::Space || key == Keycode::Return {
+            if key == Keycode::Space {
                 let Coordinate(x,y) = player.get_pos();
                 let temp_pos = match player.get_facing() {
                     Direction::Left => {
