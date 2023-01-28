@@ -336,7 +336,13 @@ impl Renderer {
         canvas.set_scale(scale as f32, scale as f32).unwrap();
         let bb_x = ((self.window_x - PIXELS_X * scale) / 2) / scale;
         let bb_y = ((self.window_y - PIXELS_Y * scale) / 2) / scale;
-        let viewport = sdl2::rect::Rect::new(bb_x as i32, bb_y as i32, 10, 10);
+        let viewport = sdl2::rect::Rect::new(
+            bb_x as i32,
+            bb_y as i32,
+            PIXELS_X,
+            PIXELS_Y,
+        );
+        println!("{:?}", viewport);
         canvas.set_viewport(viewport);
     }
 
