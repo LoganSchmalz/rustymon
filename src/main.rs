@@ -124,6 +124,8 @@ pub fn main() {
         for event in input.handle_input(&mut event_pump, &mut menu_man) {
             use input::InputEvent::*;
 
+            //todo: fix player moving other events happen. probably requires more redesign
+
             match event {
                 MenuInteract(menu_input) => menu_man.interact(menu_input, &bag),
                 PlayerSprinting => player.set_try_sprinting(true),

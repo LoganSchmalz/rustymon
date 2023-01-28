@@ -75,6 +75,8 @@ impl MenuManager {
                 Some(MenuEvent::Close) => self.close_menu(),
                 _ => {}
             }
+        } else if action == MenuInput::Start {
+                self.open_menu(Menu::PauseMenu(PauseMenu::new()));
         }
     }
 
