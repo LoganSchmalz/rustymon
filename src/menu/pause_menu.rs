@@ -28,10 +28,11 @@ impl MenuItem for PauseMenu<'_> {
         font_man: &FontManager,
     ) {
         // create new quad over the textbox texture (which is 41 px tall)
-        let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41 as u32);
+        //let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41 as u32);
+        let box_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
 
         canvas
-            .copy(&texture_manager.textures.text_box, None, box_quad)
+            .copy(&texture_manager.textures.pause_menu, None, box_quad)
             .unwrap();
 
         let mut text_quad = Rect::new(180, 10, 0, 0);

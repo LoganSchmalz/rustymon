@@ -31,6 +31,8 @@ pub struct Textures<'a> {
     sika: Texture<'a>,
     //Text Box
     pub text_box: Texture<'a>,
+    //Pause Menu
+    pub pause_menu: Texture<'a>,
 }
 
 impl<'a> Textures<'a> {
@@ -47,6 +49,7 @@ impl<'a> Textures<'a> {
         let jodo = creator.load_texture("assets/jodocharsprite.png").unwrap();
         let sika = creator.load_texture("assets/sikacharsprite.png").unwrap();
         let text_box = creator.load_texture("assets/text_box.png").unwrap();
+        let pause_menu = creator.load_texture("assets/pause_menu.png").unwrap();
 
         Textures {
             tilesprites,
@@ -61,6 +64,7 @@ impl<'a> Textures<'a> {
             jodo,
             sika,
             text_box,
+            pause_menu,
         }
     }
 }
