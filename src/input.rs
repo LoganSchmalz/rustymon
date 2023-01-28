@@ -5,7 +5,12 @@ use sdl2::{
     video::Window,
 };
 
-use crate::{menu::{self, pause_menu::PauseMenu}, humanoid::{Humanoid}, coordinate::{Coordinate, Direction}};
+use crate::{
+    bag,
+    coordinate::{Coordinate, Direction},
+    humanoid::Humanoid,
+    menu::{self, pause_menu::PauseMenu},
+};
 use crate::{object, player, render, tilemap};
 
 pub struct Input {
@@ -25,6 +30,7 @@ impl Input {
         menu_man: &mut menu::MenuManager,
         obj_man: &mut object::ObjectManager,
         map: &mut tilemap::TileMap,
+        bag: &mut bag::Bag,
     ) -> () {
         if menu_man.is_open() {
             match key {
@@ -54,23 +60,15 @@ impl Input {
             }
 
             if key == Keycode::Space {
-                let Coordinate(x,y) = player.get_pos();
+                let Coordinate(x, y) = player.get_pos();
                 let temp_pos = match player.get_facing() {
-                    Direction::Left => {
-                       Coordinate(x - 1.0, y)
-                    }
-                    Direction::Right => {
-                        Coordinate(x + 1.0, y)
-                    }
-                    Direction::Up => {
-                        Coordinate(x, y - 1.0)
-                    }
-                    Direction::Down => {
-                        Coordinate(x, y + 1.0)
-                    }
+                    Direction::Left => Coordinate(x - 1.0, y),
+                    Direction::Right => Coordinate(x + 1.0, y),
+                    Direction::Up => Coordinate(x, y - 1.0),
+                    Direction::Down => Coordinate(x, y + 1.0),
                 };
 
-                obj_man.interact(temp_pos, player.get_pos(), renderer, menu_man, map);
+                obj_man.interact(temp_pos, player.get_pos(), renderer, menu_man, map, bag);
             }
         }
     }
@@ -83,7 +81,8 @@ impl Input {
         renderer: &mut render::Renderer,
         map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
-        obj_man: &mut object::ObjectManager
+        obj_man: &mut object::ObjectManager,
+        bag: &mut bag::Bag,
     ) -> bool {
         for event in event_pump.poll_iter() {
             match event {
@@ -107,10 +106,12 @@ impl Input {
                     renderer.toggle_fullscreen(canvas);
                 }
                 Event::KeyDown {
-                    keycode: Some(key), repeat, ..
+                    keycode: Some(key),
+                    repeat,
+                    ..
                 } => {
                     if !repeat {
-                        self.handle_keydown(key, player, renderer, menu_man, obj_man, map);
+                        self.handle_keydown(key, player, renderer, menu_man, obj_man, map, bag);
                     }
                 }
                 _ => {}

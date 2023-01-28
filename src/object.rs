@@ -1,10 +1,10 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::coordinate::Coordinate;
 use crate::engine_structures::collision::Collision;
 use crate::menu::{self, MenuManager};
 use crate::updated::Updated;
-use crate::{render, tilemap};
+use crate::{bag, render, tilemap};
 
 use std::collections::HashSet;
 //use num_derive::FromPrimitive;
@@ -31,6 +31,7 @@ pub trait TObject {
         renderer: &mut render::Renderer,
         menu_man: &mut MenuManager,
         player_position: Coordinate,
+        bag: &mut bag::Bag,
     ) -> Updated; //returns if obj should be removed from map
     fn update(
         &mut self,
@@ -60,7 +61,12 @@ pub struct CollisionManager {
 }
 
 impl CollisionManager {
-    pub fn check_collision(&self, pos: Coordinate, prev_pos: Coordinate, size_x: usize) -> Collision {
+    pub fn check_collision(
+        &self,
+        pos: Coordinate,
+        prev_pos: Coordinate,
+        size_x: usize,
+    ) -> Collision {
         if pos == prev_pos {
             return Collision(false);
         }
@@ -74,7 +80,7 @@ impl CollisionManager {
             if new_pos.dist(prev_pos) >= 1.0 {
                 self.collisions.remove(&prev_pos.to_usize(size_x));
             }
-    
+
             self.collisions.insert(new_pos.to_usize(size_x));
         }
     }
@@ -117,9 +123,12 @@ impl ObjectManager {
         let json = fs::read_to_string(mapfolder.join("objects.json"));
         match json {
             Ok(_) => {
-                self.objects = serde_json::from_str(&json.unwrap()).expect("Failed to load from objects.json.");
+                self.objects = serde_json::from_str(&json.unwrap())
+                    .expect("Failed to load from objects.json.");
                 for obj in &self.objects {
-                    self.collision_manager.collisions.insert(obj.get_pos().to_usize(*size_x));
+                    self.collision_manager
+                        .collisions
+                        .insert(obj.get_pos().to_usize(*size_x));
                 }
 
                 return;
@@ -186,7 +195,8 @@ impl ObjectManager {
         }
 
         if !recompute_objects.is_empty() {
-            self.collision_manager.recompute_collision(recompute_objects, map.size_x);
+            self.collision_manager
+                .recompute_collision(recompute_objects, map.size_x);
         }
     }
 
@@ -197,11 +207,14 @@ impl ObjectManager {
         renderer: &mut render::Renderer,
         menu_man: &mut menu::MenuManager,
         map: &tilemap::TileMap,
+        bag: &mut bag::Bag,
     ) {
         match self.get_obj(pos) {
             Some(idx) => {
                 //todo: change this to use new collision checking
-                if self.objects[idx].interact(renderer, menu_man, player_position) == Updated(true) {
+                if self.objects[idx].interact(renderer, menu_man, player_position, bag)
+                    == Updated(true)
+                {
                     self.collision_manager
                         .collisions
                         .remove(&self.objects[idx].get_prev_pos().to_usize(map.size_x));

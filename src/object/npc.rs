@@ -5,7 +5,7 @@ use crate::coordinate::{Coordinate, Direction};
 use crate::humanoid::{Humanoid, Leg, WALKING_TIME_PER_TILE};
 use crate::menu::{textbox::Textbox, MenuManager};
 use crate::render::Renderer;
-use crate::tilemap;
+use crate::{tilemap, bag};
 use crate::updated::Updated;
 use crate::{coordinate, menu};
 
@@ -97,6 +97,7 @@ impl TObject for NPC {
         _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
         player_position: Coordinate,
+        _bag: &mut bag::Bag,
     ) -> Updated {
         self.set_facing(coordinate::compute_direction(self.pos, player_position));
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(

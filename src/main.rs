@@ -1,17 +1,18 @@
 const TILE_SIZE: i32 = 16;
 
+mod bag;
+mod engine_structures;
+mod font_manager;
+mod humanoid;
 mod input;
 mod menu;
 mod object;
 mod player;
 mod render;
-mod tilemap;
-mod engine_structures;
-mod font_manager;
-mod humanoid;
 mod texture_manager;
+mod tilemap;
 
-use crate::engine_structures::*;
+use crate::{bag::Bag, engine_structures::*};
 
 extern crate sdl2;
 
@@ -102,6 +103,8 @@ pub fn main() {
         serde_json::to_string(&obj_man.objects).expect("Error")
     );
 
+    let mut bag = Bag::new();
+
     'running: loop {
         let time_last = time_now;
         time_now = sdl_context.timer().unwrap().performance_counter();
@@ -117,6 +120,7 @@ pub fn main() {
             &mut map,
             &mut menu_man,
             &mut obj_man,
+            &mut bag,
         ) {
             true => break 'running,
             false => {}

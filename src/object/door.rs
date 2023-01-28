@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::bag;
 use crate::coordinate::Coordinate;
 use crate::menu::MenuManager;
 use crate::render::Renderer;
@@ -32,6 +33,7 @@ impl TObject for Door {
         renderer: &mut Renderer,
         _: &mut MenuManager,
         _player_position: Coordinate,
+        bag: &mut bag::Bag
     ) -> Updated {
         renderer.play_fade();
         Updated(false)

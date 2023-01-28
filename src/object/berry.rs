@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::coordinate::Coordinate;
 use crate::menu::{textbox::Textbox, MenuManager};
 use crate::render::Renderer;
-use crate::menu;
+use crate::{menu, bag};
 use crate::updated::Updated;
 
 use super::TObject;
@@ -34,10 +34,13 @@ impl TObject for Berry {
         _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
         _player_position: Coordinate,
+        bag: &mut bag::Bag
     ) -> Updated {
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
             "Don't eat me!".to_string(),
         )));
+        bag.add_one(bag::Item::Berry);
+        println!("{:?}", bag);
         Updated(true)
     }
 }
