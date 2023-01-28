@@ -1,5 +1,2 @@
 #[derive(PartialEq)]
-pub enum ShouldClose {
-	DoNotClose,
-	Close
-}
+pub struct ShouldClose(pub bool);

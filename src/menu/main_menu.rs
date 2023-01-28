@@ -66,7 +66,7 @@ impl MenuItem for MainMenu {
 		match action {
 			Action::ACCEPT => {
 				if self.curr_button == StartButton {
-					return ShouldClose::Close;
+					return ShouldClose(true);
 				}
 			}
 			Action::LEFT => {
@@ -99,6 +99,6 @@ impl MenuItem for MainMenu {
 			}
 			_ => {}
 		}
-		ShouldClose::DoNotClose
+		ShouldClose(false)
 	}
 }

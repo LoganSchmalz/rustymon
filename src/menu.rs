@@ -76,7 +76,7 @@ impl MenuManager {
                 .menus
                 .last_mut()
                 .expect("Tried to change menu with no menus open");
-            if curr_menu.update(action) == ShouldClose::Close {
+            if curr_menu.update(action) == ShouldClose(true) {
                 self.close_menu();
             }
         }

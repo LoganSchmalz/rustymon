@@ -68,7 +68,7 @@ impl MenuItem for Textbox {
             }
             _ => {}
         }
-        ShouldClose::DoNotClose
+        ShouldClose(false)
     }
 }
 
@@ -76,8 +76,8 @@ impl Textbox {
     fn advance_text(&mut self) -> ShouldClose {
         self.text_v.drain(0..2);
         match self.text_v.len() {
-            0 => ShouldClose::Close,
-            _ => ShouldClose::DoNotClose
+            0 => ShouldClose(true),
+            _ => ShouldClose(false)
         }
     }
 
