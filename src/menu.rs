@@ -9,7 +9,7 @@ pub mod menu_events;
 pub mod pause_menu;
 pub mod textbox;
 
-use crate::bag::{self, Bag, Item};
+use crate::bag;
 use crate::font_manager::FontManager;
 use crate::texture_manager::TextureManager;
 
@@ -82,7 +82,7 @@ impl<'a> MenuManager {
                 _ => {}
             }
         } else if action == MenuInput::Start {
-                self.open_menu(Menu::PauseMenu(PauseMenu::new()));
+            self.open_menu(Menu::PauseMenu(PauseMenu::new()));
         }
     }
 

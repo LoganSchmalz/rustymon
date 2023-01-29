@@ -36,7 +36,7 @@ impl TObject for Door {
         renderer: &mut Renderer,
         _: &mut MenuManager,
         _player_position: Coordinate,
-        bag: Rc<RefCell<bag::Bag>>
+        _bag: Rc<RefCell<bag::Bag>>,
     ) -> Updated {
         renderer.play_fade();
         Updated(false)
