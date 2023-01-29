@@ -6,7 +6,9 @@ use crate::menu::{self, MenuManager};
 use crate::updated::Updated;
 use crate::{bag, render, tilemap};
 
+use std::cell::RefCell;
 use std::collections::HashSet;
+use std::rc::Rc;
 //use num_derive::FromPrimitive;
 //use num_traits::FromPrimitive;
 use std::{fs, path::Path};
@@ -31,7 +33,7 @@ pub trait TObject {
         renderer: &mut render::Renderer,
         menu_man: &mut MenuManager,
         player_position: Coordinate,
-        bag: &mut bag::Bag,
+        bag: Rc<RefCell<bag::Bag>>,
     ) -> Updated; //returns if obj should be removed from map
     fn update(
         &mut self,
@@ -208,7 +210,7 @@ impl ObjectManager {
         player_position: Coordinate,
         renderer: &mut render::Renderer,
         menu_man: &mut menu::MenuManager,
-        bag: &mut bag::Bag,
+        bag: Rc<RefCell<bag::Bag>>,
     ) {
         match self.get_obj(pos) {
             Some(idx) => {

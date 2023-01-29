@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use sdl2::rect::Rect;
 use serde::{Deserialize, Serialize};
 
@@ -97,7 +100,7 @@ impl TObject for NPC {
         _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
         player_position: Coordinate,
-        _bag: &mut bag::Bag,
+        _bag: Rc<RefCell<bag::Bag>>,
     ) -> Updated {
         self.set_facing(coordinate::compute_direction(self.pos, player_position));
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(

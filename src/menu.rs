@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use sdl2::{render::Canvas, video::Window};
 
 pub mod bag_menu;
@@ -6,7 +9,7 @@ pub mod menu_events;
 pub mod pause_menu;
 pub mod textbox;
 
-use crate::bag::{self, Bag};
+use crate::bag::{self, Bag, Item};
 use crate::font_manager::FontManager;
 use crate::texture_manager::TextureManager;
 
@@ -24,7 +27,7 @@ pub trait MenuItem {
         textures: &mut TextureManager,
         font_man: &FontManager,
     );
-    fn update(&mut self, action: MenuInput, bag: &Bag) -> Option<MenuEvent>;
+    fn update(&mut self, action: MenuInput) -> Option<MenuEvent>;
 }
 
 #[enum_delegate::implement(MenuItem)]
@@ -32,14 +35,14 @@ pub enum Menu {
     MainMenu(MainMenu),
     Textbox(Textbox),
     PauseMenu(PauseMenu),
-    BagMenu(BagMenu<'static>),
+    BagMenu(BagMenu),
 }
 pub struct MenuManager {
     menus: Vec<Menu>, // this is a stack
     pub paused: bool,
 }
 
-impl MenuManager {
+impl<'a> MenuManager {
     pub fn new() -> MenuManager {
         MenuManager {
             menus: vec![Menu::MainMenu(MainMenu::new())],
@@ -65,13 +68,16 @@ impl MenuManager {
         !self.menus.is_empty()
     }
 
-    pub fn interact(&mut self, action: MenuInput, bag: &Bag) {
+    pub fn interact(&mut self, action: MenuInput, bag: Rc<RefCell<bag::Bag>>) {
         if self.is_open() {
             let curr_menu = self
                 .menus
                 .last_mut()
                 .expect("Tried to change menu with no menus open");
-            match curr_menu.update(action, bag) {
+            match curr_menu.update(action) {
+                Some(MenuEvent::OpenStrays) => {}
+                Some(MenuEvent::OpenSave) => {}
+                Some(MenuEvent::OpenBag) => self.open_menu(Menu::BagMenu(BagMenu::new(bag))),
                 Some(MenuEvent::Close) => self.close_menu(),
                 _ => {}
             }

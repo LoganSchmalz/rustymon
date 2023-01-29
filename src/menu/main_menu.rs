@@ -63,7 +63,7 @@ impl MenuItem for MainMenu {
             .unwrap();
 	}
 
-	fn update(&mut self, action: MenuInput, _bag: &Bag) -> Option<MenuEvent> {
+	fn update(&mut self, action: MenuInput) -> Option<MenuEvent> {
 		match action {
 			MenuInput::Accept => {
 				if self.curr_button == StartButton {

@@ -58,7 +58,7 @@ impl MenuItem for PauseMenu {
         }
     }
 
-    fn update(&mut self, action: MenuInput, bag: &Bag) -> Option<MenuEvent> {
+    fn update(&mut self, action: MenuInput) -> Option<MenuEvent> {
         match action {
             MenuInput::Down => {
                 self.selected = if self.selected < self.items.len() - 1 {
@@ -75,7 +75,7 @@ impl MenuItem for PauseMenu {
                 }
             }
             MenuInput::Accept => match self.items[self.selected].as_str() {
-				"Bag" => return None, //Some(MenuEvent::Open(Menu::BagMenu(bag_menu::BagMenu::new(bag)))),
+				"Bag" => return Some(MenuEvent::OpenBag),
 				"Exit" => if self.items[self.selected] == "Exit" {
 					return Some(MenuEvent::Close);
 				} else {},

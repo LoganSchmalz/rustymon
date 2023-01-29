@@ -12,6 +12,8 @@ pub enum MenuInput {
 }
 
 pub enum MenuEvent {
-    Open(Menu),
+    OpenStrays,
+	OpenBag,
+	OpenSave,
     Close,
 }

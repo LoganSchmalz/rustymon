@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use serde::{Deserialize, Serialize};
 
 use crate::coordinate::Coordinate;
@@ -34,12 +37,12 @@ impl TObject for Berry {
         _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
         _player_position: Coordinate,
-        bag: &mut bag::Bag
+        bag: Rc<RefCell<bag::Bag>>
     ) -> Updated {
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
             "Don't eat me!".to_string(),
         )));
-        bag.add_one(bag::Item::Berry);
+        bag.borrow_mut().add_one(bag::Item::Berry);
         println!("{:?}", bag);
         Updated(true)
     }

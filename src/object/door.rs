@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use serde::{Deserialize, Serialize};
 
 use crate::bag;
@@ -33,7 +36,7 @@ impl TObject for Door {
         renderer: &mut Renderer,
         _: &mut MenuManager,
         _player_position: Coordinate,
-        bag: &mut bag::Bag
+        bag: Rc<RefCell<bag::Bag>>
     ) -> Updated {
         renderer.play_fade();
         Updated(false)

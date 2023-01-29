@@ -2,6 +2,7 @@ const TILE_SIZE: i32 = 16;
 
 mod bag;
 mod engine_structures;
+mod event;
 mod font_manager;
 mod humanoid;
 mod input;
@@ -28,7 +29,8 @@ extern crate enum_map;
 #[macro_use]
 extern crate num_derive;
 
-use std::{fs, path::Path};
+use sdl2::sys::exit;
+use std::{borrow::BorrowMut, fs, path::Path, process::ExitCode, rc::Rc, cell::RefCell};
 use tilemap::TileMap;
 
 pub fn init_map_save(map_name: String) {
@@ -110,7 +112,7 @@ pub fn main() {
         serde_json::to_string(&obj_man.objects).expect("Error")
     );
 
-    let mut bag = Bag::new();
+    let mut bag = Rc::new(RefCell::new(Bag::new()));
 
     'running: loop {
         let time_last = time_now;
@@ -121,37 +123,17 @@ pub fn main() {
 
         player.set_try_walking(None);
 
-        for event in input.handle_input(&mut event_pump, &mut menu_man) {
-            use input::InputEvent::*;
-
-            //todo: fix player moving other events happen. probably requires more redesign
-
-            match event {
-                MenuInteract(menu_input) => menu_man.interact(menu_input, &bag),
-                PlayerSprinting => player.set_try_sprinting(true),
-                PlayerWalking => player.set_try_sprinting(false),
-                PlayerMove(dir) => player.set_try_walking(dir),
-                Interact => {
-                    let Coordinate(x, y) = player.get_pos();
-                    let temp_pos = match player.get_facing() {
-                        Direction::Left => Coordinate(x - 1.0, y),
-                        Direction::Right => Coordinate(x + 1.0, y),
-                        Direction::Up => Coordinate(x, y - 1.0),
-                        Direction::Down => Coordinate(x, y + 1.0),
-                    };
-
-                    obj_man.interact(
-                        temp_pos,
-                        player.get_pos(),
-                        &mut renderer,
-                        &mut menu_man,
-                        &mut bag,
-                    );
-                }
-                ExitGame => break 'running,
-                ToggleFullscreen => renderer.toggle_fullscreen(),
-                ResizeWindow(width, height) => renderer.resize(width, height),
-            }
+        match event::handle_event(
+            &input,
+            &mut event_pump,
+            &mut menu_man,
+            &mut player,
+            &mut obj_man,
+            &mut renderer,
+            bag.clone(),
+        ) {
+            Some(_) => break 'running,
+            _ => {}
         }
 
         //println!("{:?}", delta_time);

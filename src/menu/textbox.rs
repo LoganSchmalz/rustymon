@@ -75,7 +75,7 @@ impl MenuItem for Textbox {
         canvas.copy(&texture_bot, None, text_quad_bot).unwrap();
     }
 
-    fn update(&mut self, action: MenuInput, _bag: &Bag) -> Option<MenuEvent> {
+    fn update(&mut self, action: MenuInput) -> Option<MenuEvent> {
         match action {
             MenuInput::Accept | MenuInput::Reject => {
                 return self.advance_text();
