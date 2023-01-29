@@ -44,3 +44,7 @@
     width: calc(16px * var(--brush-scale));
     height: calc(16px * var(--brush-scale));
 }
+
+.swatch:hover,.tile:hover {
+    opacity: 80%;
+}
