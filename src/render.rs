@@ -178,7 +178,7 @@ impl Renderer {
         self.canvas.set_draw_color(Color::RGB(0, 0, 0));
         let render_quad = Rect::new(
             (PIXELS_X / 2 - humanoid::WIDTH / 2) as i32,
-            (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as i32 - 4,
+            (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as i32 - 8,
             humanoid::WIDTH,
             humanoid::HEIGHT,
         );
@@ -207,7 +207,7 @@ impl Renderer {
         let Coordinate(i, j) = Humanoid::get_pos(npc);
         let render_quad = Rect::new(
             (i * TILE_SIZE as f64) as i32 - self.camera_offset.0,
-            (j * TILE_SIZE as f64) as i32 - self.camera_offset.1 - 4,
+            (j * TILE_SIZE as f64) as i32 - self.camera_offset.1 - 8,
             humanoid::WIDTH,
             humanoid::HEIGHT,
         );
