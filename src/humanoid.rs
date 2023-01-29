@@ -18,7 +18,7 @@ pub const WALKING_TIME_PER_TILE: f64 = 1.0 / (WALK_SPEED / crate::TILE_SIZE as f
 pub const RUN_SPEED: f64 = 2.0 / 16.0;
 pub const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * RUN_SPEED / crate::TILE_SIZE as f64); // in ms b/c delta_time in ms
 pub const WIDTH: u32 = 16;
-pub const HEIGHT: u32 = 16;
+pub const HEIGHT: u32 = 20;
 pub const ROTATION_TIME: f64 = RUNNING_TIME_PER_TILE;
 
 pub trait Humanoid {

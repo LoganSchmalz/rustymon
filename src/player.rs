@@ -123,23 +123,29 @@ impl Player {
             || self.animation_time < (0.25 * anim_time)
         {
             match self.facing {
-                Direction::Up => Rect::new(16, 0, 16, 16),
-                Direction::Right => Rect::new(16, 16, 16, 16),
-                Direction::Down => Rect::new(0, 0, 16, 16),
-                Direction::Left => Rect::new(0, 16, 16, 16),
+                Direction::Up => Rect::new(16, 0, 16, 20),
+                Direction::Right => Rect::new(48, 0, 16, 20),
+                Direction::Down => Rect::new(0, 0, 16, 20),
+                Direction::Left => Rect::new(32, 0, 16, 20),
             }
         } else {
             match self.facing {
                 Direction::Up => match self.current_leg {
-                    Leg::Left => Rect::new(16, 32, 16, 16),
-                    Leg::Right => Rect::new(0, 32, 16, 16),
+                    Leg::Left => Rect::new(16, 40, 16, 20),
+                    Leg::Right => Rect::new(16, 20, 16, 20),
                 },
-                Direction::Right => Rect::new(48, 16, 16, 16),
+                Direction::Right => match self.current_leg {
+                    Leg::Left => Rect::new(48, 40, 16, 20),
+                    Leg::Right => Rect::new(48, 20, 16, 20),
+                },
                 Direction::Down => match self.current_leg {
-                    Leg::Left => Rect::new(32, 32, 16, 16),
-                    Leg::Right => Rect::new(48, 32, 16, 16),
+                    Leg::Left => Rect::new(0, 40, 16, 20),
+                    Leg::Right => Rect::new(0, 20, 16, 20),
                 },
-                Direction::Left => Rect::new(32, 16, 16, 16),
+                Direction::Left => match self.current_leg {
+                    Leg::Left => Rect::new(32, 40, 16, 20),
+                    Leg::Right => Rect::new(32, 20, 16, 20),
+                },
             }
         }
     }

@@ -208,8 +208,8 @@ impl Renderer {
         let render_quad = Rect::new(
             (i * TILE_SIZE as f64) as i32 - self.camera_offset.0,
             (j * TILE_SIZE as f64) as i32 - self.camera_offset.1 - 4,
-            TILE_SIZE as u32,
-            TILE_SIZE as u32,
+            humanoid::WIDTH,
+            humanoid::HEIGHT,
         );
         let Sprite { texture, src } = &texture_manager.get_npc(npc);
 
