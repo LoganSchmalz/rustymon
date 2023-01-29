@@ -1,9 +1,9 @@
-use std::{rc::Rc, cell::RefCell};
+use std::{cell::RefCell, rc::Rc};
 
 use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 
 use crate::{
-    bag::{Bag, Item},
+    bag::Bag,
     font_manager::FontManager,
     render::{PIXELS_X, PIXELS_Y},
     texture_manager::TextureManager,

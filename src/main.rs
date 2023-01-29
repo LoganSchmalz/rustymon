@@ -15,10 +15,7 @@ mod tilemap;
 
 use crate::{
     bag::Bag,
-    engine_structures::{
-        coordinate::{Coordinate, Direction},
-        *,
-    },
+    engine_structures::{coordinate, *},
     humanoid::Humanoid,
 };
 
@@ -29,8 +26,7 @@ extern crate enum_map;
 #[macro_use]
 extern crate num_derive;
 
-use sdl2::sys::exit;
-use std::{borrow::BorrowMut, fs, path::Path, process::ExitCode, rc::Rc, cell::RefCell};
+use std::{cell::RefCell, fs, path::Path, rc::Rc};
 use tilemap::TileMap;
 
 pub fn init_map_save(map_name: String) {
@@ -112,7 +108,7 @@ pub fn main() {
         serde_json::to_string(&obj_man.objects).expect("Error")
     );
 
-    let mut bag = Rc::new(RefCell::new(Bag::new()));
+    let bag = Rc::new(RefCell::new(Bag::new()));
 
     'running: loop {
         let time_last = time_now;

@@ -3,10 +3,13 @@ use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 use crate::{
     font_manager::FontManager,
     render::{PIXELS_X, PIXELS_Y},
-    texture_manager::TextureManager, bag::Bag,
+    texture_manager::TextureManager,
 };
 
-use super::{menu_events::{MenuInput, MenuEvent}, MenuItem, bag_menu, Menu};
+use super::{
+    menu_events::{MenuEvent, MenuInput},
+    MenuItem,
+};
 
 pub struct PauseMenu {
     items: Vec<String>,
@@ -15,7 +18,13 @@ pub struct PauseMenu {
 
 impl PauseMenu {
     pub fn new() -> PauseMenu {
-        let items = vec![String::from("Strays"), String::from("Bag"), String::from("Save"), String::from("Options"), String::from("Exit")];
+        let items = vec![
+            String::from("Strays"),
+            String::from("Bag"),
+            String::from("Save"),
+            String::from("Options"),
+            String::from("Exit"),
+        ];
         PauseMenu { items, selected: 0 }
     }
 }
@@ -40,7 +49,7 @@ impl MenuItem for PauseMenu {
         for (idx, item) in self.items.iter().enumerate() {
             let surface = font_man.fonts.press_start_2p.render(item);
             let surface = if idx == self.selected {
-                surface.blended(Color::RGB(0,183,235))
+                surface.blended(Color::RGB(0, 183, 235))
             } else {
                 surface.blended(Color::RGB(40, 40, 40))
             };
@@ -75,12 +84,15 @@ impl MenuItem for PauseMenu {
                 }
             }
             MenuInput::Accept => match self.items[self.selected].as_str() {
-				"Bag" => return Some(MenuEvent::OpenBag),
-				"Exit" => if self.items[self.selected] == "Exit" {
-					return Some(MenuEvent::Close);
-				} else {},
-				_ => {}
-			}
+                "Bag" => return Some(MenuEvent::OpenBag),
+                "Exit" => {
+                    if self.items[self.selected] == "Exit" {
+                        return Some(MenuEvent::Close);
+                    } else {
+                    }
+                }
+                _ => {}
+            },
             MenuInput::Reject => return Some(MenuEvent::Close),
             _ => {}
         }

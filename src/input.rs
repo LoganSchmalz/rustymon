@@ -1,16 +1,12 @@
 use sdl2::{
     event::{Event, WindowEvent},
     keyboard::{Keycode, Scancode},
-    render::Canvas,
-    video::Window,
 };
 
 use crate::{
-    bag,
     coordinate::Direction,
     menu::{self, menu_events::MenuInput},
 };
-use crate::{object, player, render, tilemap};
 
 pub struct Input {
     pub allow_input: bool,

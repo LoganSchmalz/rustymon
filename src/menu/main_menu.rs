@@ -1,6 +1,5 @@
 use sdl2::{video::Window, render::Canvas, rect::Rect};
 
-use crate::bag::Bag;
 use crate::texture_manager::{TextureManager};
 use crate::font_manager::{FontManager};
 use crate::render::{PIXELS_X, PIXELS_Y};
