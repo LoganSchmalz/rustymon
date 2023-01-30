@@ -46,9 +46,9 @@ impl<'a> Textures<'a> {
         let load_button = creator.load_texture("assets/SAVELOADbutton.png").unwrap();
         let settings_button = creator.load_texture("assets/SETTINGSbutton.png").unwrap();
         let fade_texture = creator.load_texture("assets/gooWipe.png").unwrap();
-        let player = creator.load_texture("assets/nakedcharsprite.png").unwrap();
-        let dad = creator.load_texture("assets/nakedcharsprite.png").unwrap();
-        let jodo = creator.load_texture("assets/nakedcharsprite.png").unwrap();
+        let player = creator.load_texture("assets/augosprite.png").unwrap();
+        let dad = creator.load_texture("assets/dadsprite.png").unwrap();
+        let jodo = creator.load_texture("assets/shamansprite.png").unwrap();
         let sika = creator.load_texture("assets/nakedcharsprite.png").unwrap();
         let text_box = creator.load_texture("assets/text_box.png").unwrap();
         let pause_menu = creator.load_texture("assets/pause_menu.png").unwrap();
