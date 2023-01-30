@@ -43,48 +43,47 @@ An aggressive flying stray, emboldened by the extended and tough beak the protru
 - SCREECH
 - PECK
 
----
-
-# **Aeternisc**: X Type
+# **Aeternisc**: Time and Water Type
 ![Aeternisc Image](assets/aeternisc.png "Aeternisc")
 ### Description
-
+An immortal stray that lives forever by periodically restarting its life cycle. It is extremely elusive as one of the two known time type strays, and at the same time highly sought after. It floats in the air, though its tentacles move as if it were in water.
 
 ### Base Stats
-- HP: 15
-- ATK: 35
-- DEF: 25
-- SPEED: 25
+- HP: 50
+- ATK: 25
+- DEF: 35
+- SPEED: 10
 
 ### Starting Moves
-- SCREECH
-- PECK
+- REINCARNATE
+- FLAIL
 
-# **Solikigoi**: X Type
+# **Solikigoi**: Water Type
 ![Solikigoi Image](assets/solikigoi.png "Solikigoi")
 ### Description
-
+An extremely large and vibrant fish stray. Solikigois can frequently be found in rivers, taking up a significant portion of the width of the river, feeding off of the smaller water strays it pushes up in its way. One will commonly find solikigois with damaged dorsal fins, as they tend to be weaker tissue and tend to stick far out of the water, waving in the wind.
 
 ### Base Stats
-- HP: 15
-- ATK: 35
-- DEF: 25
-- SPEED: 25
+- HP: 20
+- ATK: 15
+- DEF: 35
+- SPEED: 15
 
 ### Starting Moves
-- SCREECH
-- PECK
+- WAVE
+- HIGH TIDE
 
-# **X**: X Type
+# **Catis**: Earth Type
 ### Description
-
+A very slow stray with one of the largest mouth to body ratios of the earth types. Catii have very weak teeth and tend to eat bugs and other small strays off of the ground, sucking them into its large mouth. Sometimes they can be found sitting motionless, mouth wide open on the ground, seducing small strays to walk into its mouth.
 
 ### Base Stats
-- HP: 15
-- ATK: 35
-- DEF: 25
-- SPEED: 25
+- HP: 25
+- ATK: 15
+- DEF: 30
+- SPEED: 10
 
 ### Starting Moves
-- SCREECH
-- PECK
+- VORTEX
+- BASH
+
