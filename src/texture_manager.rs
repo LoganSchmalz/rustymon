@@ -33,6 +33,8 @@ pub struct Textures<'a> {
     pub text_box: Texture<'a>,
     //Pause Menu
     pub pause_menu: Texture<'a>,
+    //Bag Menu
+    pub bag_menu: Texture<'a>,
 }
 
 impl<'a> Textures<'a> {
@@ -50,6 +52,7 @@ impl<'a> Textures<'a> {
         let sika = creator.load_texture("assets/nakedcharsprite.png").unwrap();
         let text_box = creator.load_texture("assets/text_box.png").unwrap();
         let pause_menu = creator.load_texture("assets/pause_menu.png").unwrap();
+        let bag_menu = creator.load_texture("assets/bag_menu.png").unwrap();
 
         Textures {
             tilesprites,
@@ -65,6 +68,7 @@ impl<'a> Textures<'a> {
             sika,
             text_box,
             pause_menu,
+            bag_menu,
         }
     }
 }

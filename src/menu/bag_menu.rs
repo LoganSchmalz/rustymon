@@ -37,7 +37,7 @@ impl MenuItem for BagMenu {
         let box_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
 
         canvas
-            .copy(&texture_manager.textures.pause_menu, None, box_quad)
+            .copy(&texture_manager.textures.bag_menu, None, box_quad)
             .unwrap();
 
         let mut text_quad = Rect::new(140, 10, 0, 0);
