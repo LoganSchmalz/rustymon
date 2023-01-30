@@ -49,7 +49,7 @@ impl<'a> Textures<'a> {
         let player = creator.load_texture("assets/augosprite.png").unwrap();
         let dad = creator.load_texture("assets/dadsprite.png").unwrap();
         let jodo = creator.load_texture("assets/shamansprite.png").unwrap();
-        let sika = creator.load_texture("assets/nakedcharsprite.png").unwrap();
+        let sika = creator.load_texture("assets/sikasprite.png").unwrap();
         let text_box = creator.load_texture("assets/text_box.png").unwrap();
         let pause_menu = creator.load_texture("assets/pause_menu.png").unwrap();
         let bag_menu = creator.load_texture("assets/bag_menu.png").unwrap();
