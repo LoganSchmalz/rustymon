@@ -23,6 +23,8 @@
     
     <input type="text" id="filename" name="name" value="floor.txt">
     <button onclick="exportMap()">Download</button>
+    <input type="file" id="file-selector"> <!--change to accept multiple or just input a directory once we add layering <input type="file" id="file-selector" multiple accept=".txt"> -->
+    <button onclick="importMap()">Import</button>
     <hr>
     <div class="grid" id="grid">
     </div>

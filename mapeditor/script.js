@@ -137,6 +137,11 @@ function updateMapArray(id) {
     floor[id[0]][id[1]] = selectedTile
 }
 
+
+function importMap() {   
+
+}
+
 function redraw() {
     const element = document.querySelector('.grid');
     element.innerHTML = '';
