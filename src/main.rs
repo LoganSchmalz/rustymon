@@ -16,6 +16,7 @@ mod tilemap;
 use crate::{
     bag::Bag,
     engine_structures::{coordinate, *},
+    event::handle_gameplay_event,
     humanoid::Humanoid,
 };
 
@@ -77,7 +78,7 @@ pub fn main() {
 
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    let input = input::Input::new();
+    let mut input = input::Input::new();
     let mut player: player::Player = player::Player::new();
 
     let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
@@ -119,18 +120,22 @@ pub fn main() {
 
         player.set_try_walking(None);
 
-        match event::handle_event(
-            &input,
-            &mut event_pump,
+        let events = input.handle_input(&mut event_pump);
+
+        let (events, exit) = event::handle_input_event(events, &mut menu_man, &mut renderer);
+
+        if exit {
+            break 'running;
+        }
+
+        handle_gameplay_event(
+            events,
             &mut menu_man,
             &mut player,
             &mut obj_man,
             &mut renderer,
             bag.clone(),
-        ) {
-            Some(_) => break 'running,
-            _ => {}
-        }
+        );
 
         //println!("{:?}", delta_time);
         if !menu_man.paused {

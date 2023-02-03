@@ -211,7 +211,7 @@ impl ObjectManager {
         renderer: &mut render::Renderer,
         menu_man: &mut menu::MenuManager,
         bag: Rc<RefCell<bag::Bag>>,
-    ) {
+    ) -> bool {
         match self.get_obj(pos) {
             Some(idx) => {
                 //todo: change this to use new collision checking
@@ -222,8 +222,9 @@ impl ObjectManager {
                         .remove(&self.objects[idx].get_prev_pos());
                     self.objects.remove(idx);
                 }
+                true
             }
-            _ => {}
+            _ => false
         }
     }
 
