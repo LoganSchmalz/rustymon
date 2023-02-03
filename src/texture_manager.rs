@@ -39,20 +39,20 @@ pub struct Textures<'a> {
 
 impl<'a> Textures<'a> {
     pub fn load(creator: &'a TextureCreator<WindowContext>) -> Self {
-        let tilesprites = creator.load_texture("assets/tilesprites.png").unwrap();
-        let objectsprites = creator.load_texture("assets/objectsprites.png").unwrap();
-        let main_menu = creator.load_texture("assets/titlescreen.png").unwrap();
-        let start_button = creator.load_texture("assets/STARTbutton.png").unwrap();
-        let load_button = creator.load_texture("assets/SAVELOADbutton.png").unwrap();
-        let settings_button = creator.load_texture("assets/SETTINGSbutton.png").unwrap();
-        let fade_texture = creator.load_texture("assets/gooWipe.png").unwrap();
-        let player = creator.load_texture("assets/augosprite.png").unwrap();
-        let dad = creator.load_texture("assets/dadsprite.png").unwrap();
-        let jodo = creator.load_texture("assets/shamansprite.png").unwrap();
-        let sika = creator.load_texture("assets/sikasprite.png").unwrap();
-        let text_box = creator.load_texture("assets/text_box.png").unwrap();
-        let pause_menu = creator.load_texture("assets/pause_menu.png").unwrap();
-        let bag_menu = creator.load_texture("assets/bag_menu.png").unwrap();
+        let tilesprites = creator.load_texture("assets/tiles/tilesprites.png").unwrap();
+        let objectsprites = creator.load_texture("assets/tiles/objectsprites.png").unwrap();
+        let main_menu = creator.load_texture("assets/UI/titlescreen.png").unwrap();
+        let start_button = creator.load_texture("assets/UI/STARTbutton.png").unwrap();
+        let load_button = creator.load_texture("assets/UI/SAVELOADbutton.png").unwrap();
+        let settings_button = creator.load_texture("assets/UI/SETTINGSbutton.png").unwrap();
+        let fade_texture = creator.load_texture("assets/transitions/gooWipe.png").unwrap();
+        let player = creator.load_texture("assets/char-sprites/augosprite.png").unwrap();
+        let dad = creator.load_texture("assets/char-sprites/dadsprite.png").unwrap();
+        let jodo = creator.load_texture("assets/char-sprites/shamansprite.png").unwrap();
+        let sika = creator.load_texture("assets/char-sprites/sikasprite.png").unwrap();
+        let text_box = creator.load_texture("assets/UI/text_box.png").unwrap();
+        let pause_menu = creator.load_texture("assets/UI/pause_menu.png").unwrap();
+        let bag_menu = creator.load_texture("assets/UI/bag_menu.png").unwrap();
 
         Textures {
             tilesprites,

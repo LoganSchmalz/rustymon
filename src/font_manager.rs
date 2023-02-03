@@ -8,7 +8,7 @@ pub struct Fonts<'ttf_module, 'rwops> {
 impl<'ttf_module, 'rwops> Fonts<'ttf_module, 'rwops> {
     pub fn load(font_loader: &'ttf_module Sdl2TtfContext) -> Self {
         let press_start_2p = font_loader
-            .load_font("assets/PressStart2P-Regular.ttf", 8)
+            .load_font("assets/fonts/PressStart2P-Regular.ttf", 8)
             .unwrap();
 
         Fonts { press_start_2p }
