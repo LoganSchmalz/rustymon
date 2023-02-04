@@ -33,7 +33,7 @@ pub trait TObject {
     ) -> Vec<Command>; //returns if obj should be removed from map
     fn update(
         &mut self,
-        _delta_time: &f64,
+        _delta_time: &f32,
         _map: &tilemap::TileMap,
         _collision_manager: &CollisionManager,
     ) -> Updated {
@@ -149,7 +149,7 @@ impl ObjectManager {
 
         //todo: improve object loading, stop loading from map by coordinates and instead load from list
         for (idx, obj) in objects.iter().enumerate() {
-            let pos = Coordinate((idx % size_x) as f64, (idx / size_x) as f64);
+            let pos = Coordinate((idx % size_x) as f32, (idx / size_x) as f32);
 
             match obj {
                 1 => {
@@ -184,7 +184,7 @@ impl ObjectManager {
         }
     }
 
-    pub fn update_objects(&mut self, delta_time: &f64, map: &tilemap::TileMap) {
+    pub fn update_objects(&mut self, delta_time: &f32, map: &tilemap::TileMap) {
         //consider an alternative loop so collision management is not done without the object manager??
         //https://stackoverflow.com/questions/71302444/borrow-a-vector-inside-a-loop
         let mut recompute_objects: Vec<&Object> = Vec::new();

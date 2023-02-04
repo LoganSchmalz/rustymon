@@ -116,9 +116,9 @@ pub fn main() {
     'running: loop {
         let time_last = time_now;
         time_now = sdl_context.timer().unwrap().performance_counter();
-        let delta_time: f64 = ((time_now - time_last) * 1000
+        let delta_time: f32 = ((time_now - time_last) * 1000
             / sdl_context.timer().unwrap().performance_frequency())
-            as f64;
+            as f32;
 
         player.set_try_walking(None);
 

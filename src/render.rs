@@ -23,8 +23,8 @@ use tilemap::TileMap;
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
 const FADE_FRAMES: i32 = 14;
-const FADE_TIME: f64 = FADE_FRAMES as f64 * 64.0;
-const _TEXT_TIME: f64 = 500.0;
+const FADE_TIME: f32 = FADE_FRAMES as f32 * 64.0;
+const _TEXT_TIME: f32 = 500.0;
 
 #[derive(PartialEq)]
 pub enum DisplayScreen {
@@ -40,7 +40,7 @@ pub struct Renderer {
     canvas: Canvas<Window>,
     pub is_fading: bool,
     did_trans: bool,
-    fade_anim_time: f64,
+    fade_anim_time: f32,
     camera_offset: (i32, i32),
 }
 
@@ -130,7 +130,7 @@ impl Renderer {
     pub fn render_transition(
         &mut self,
         texture_manager: &mut TextureManager,
-        delta_time: &f64,
+        delta_time: &f32,
         map: &mut tilemap::TileMap,
         obj_man: &mut object::ObjectManager,
     ) {
@@ -206,8 +206,8 @@ impl Renderer {
         self.canvas.set_draw_color(Color::RGB(0, 0, 0));
         let Coordinate(i, j) = Humanoid::get_pos(npc);
         let render_quad = Rect::new(
-            (i * TILE_SIZE as f64) as i32 - self.camera_offset.0,
-            (j * TILE_SIZE as f64) as i32 - self.camera_offset.1 - 8,
+            (i * TILE_SIZE as f32) as i32 - self.camera_offset.0,
+            (j * TILE_SIZE as f32) as i32 - self.camera_offset.1 - 8,
             humanoid::WIDTH,
             humanoid::HEIGHT,
         );
@@ -252,7 +252,7 @@ impl Renderer {
         &mut self,
         texture_manager: &mut texture_manager::TextureManager,
         font_man: &FontManager,
-        delta_time: &f64,
+        delta_time: &f32,
         player: &player::Player,
         map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
@@ -264,8 +264,8 @@ impl Renderer {
         let Coordinate(x, y) = player.get_pos();
 
         self.camera_offset = (
-            (x * TILE_SIZE as f64 - (PIXELS_X / 2 - humanoid::WIDTH / 2) as f64) as i32,
-            (y * TILE_SIZE as f64 - (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as f64) as i32,
+            (x * TILE_SIZE as f32 - (PIXELS_X / 2 - humanoid::WIDTH / 2) as f32) as i32,
+            (y * TILE_SIZE as f32 - (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as f32) as i32,
         );
         self.render_overworld_tiles(texture_manager, map);
         self.render_objects(texture_manager, obj_man);

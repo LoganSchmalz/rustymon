@@ -27,11 +27,11 @@ pub struct NPC {
     try_sprinting: bool,
     is_sprinting: bool,
     moving_towards: Option<Coordinate>,
-    animation_time: f64,
+    animation_time: f32,
     facing: Direction,
     current_leg: Leg,
     try_walking: Option<Direction>,
-    rotation_timer: f64,
+    rotation_timer: f32,
     path: Vec<Direction>,
     current_idx_in_path: usize,
 }
@@ -81,7 +81,7 @@ impl TObject for NPC {
 
     fn update(
         &mut self,
-        delta_time: &f64,
+        delta_time: &f32,
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
     ) -> Updated {
@@ -156,18 +156,18 @@ impl Humanoid for NPC {
     fn set_try_walking(&mut self, try_walking: Option<Direction>) {
         self.try_walking = try_walking;
     }
-    fn get_rotation_timer(&self) -> f64 {
+    fn get_rotation_timer(&self) -> f32 {
         self.rotation_timer
     }
-    fn set_rotation_timer(&mut self, time: f64) {
+    fn set_rotation_timer(&mut self, time: f32) {
         self.rotation_timer = time;
     }
 
-    fn get_animation_time(&self) -> f64 {
+    fn get_animation_time(&self) -> f32 {
         self.animation_time
     }
 
-    fn set_animation_time(&mut self, time: f64) {
+    fn set_animation_time(&mut self, time: f32) {
         self.animation_time = time;
     }
 }
@@ -175,7 +175,7 @@ impl Humanoid for NPC {
 impl NPC {
     fn walk_on_path(
         &mut self,
-        delta_time: &f64,
+        delta_time: &f32,
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
     ) {

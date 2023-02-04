@@ -13,13 +13,13 @@ pub enum Leg {
     Right,
 }
 
-pub const WALK_SPEED: f64 = 1.0 / 16.0;
-pub const WALKING_TIME_PER_TILE: f64 = 1.0 / (WALK_SPEED / crate::TILE_SIZE as f64); // in ms b/c delta_time in ms
-pub const RUN_SPEED: f64 = 2.0 / 16.0;
-pub const RUNNING_TIME_PER_TILE: f64 = 1.0 / (1.0 * RUN_SPEED / crate::TILE_SIZE as f64); // in ms b/c delta_time in ms
+pub const WALK_SPEED: f32 = 1.0 / 16.0;
+pub const WALKING_TIME_PER_TILE: f32 = 1.0 / (WALK_SPEED / crate::TILE_SIZE as f32); // in ms b/c delta_time in ms
+pub const RUN_SPEED: f32 = 2.0 / 16.0;
+pub const RUNNING_TIME_PER_TILE: f32 = 1.0 / (1.0 * RUN_SPEED / crate::TILE_SIZE as f32); // in ms b/c delta_time in ms
 pub const WIDTH: u32 = 16;
 pub const HEIGHT: u32 = 20;
-pub const ROTATION_TIME: f64 = RUNNING_TIME_PER_TILE;
+pub const ROTATION_TIME: f32 = RUNNING_TIME_PER_TILE;
 
 pub trait Humanoid {
     fn get_pos(&self) -> Coordinate;
@@ -38,13 +38,13 @@ pub trait Humanoid {
     fn set_is_sprinting(&mut self, is_sprinting: bool);
     fn get_try_walking(&self) -> Option<Direction>;
     fn set_try_walking(&mut self, walking: Option<Direction>);
-    fn get_rotation_timer(&self) -> f64;
-    fn set_rotation_timer(&mut self, time: f64);
+    fn get_rotation_timer(&self) -> f32;
+    fn set_rotation_timer(&mut self, time: f32);
 
-    fn get_animation_time(&self) -> f64;
-    fn set_animation_time(&mut self, time: f64);
+    fn get_animation_time(&self) -> f32;
+    fn set_animation_time(&mut self, time: f32);
 
-    fn move_towards_target(&mut self, delta_time: &f64) {
+    fn move_towards_target(&mut self, delta_time: &f32) {
         /*if self.get_moving_towards() == None {
             return;
         }*/
@@ -63,12 +63,12 @@ pub trait Humanoid {
         let dy = target_y - y;
         //compute move distance (signum normalizes)
         let mx = if dx != 0.0 {
-            speed * delta_time * dx.signum() / TILE_SIZE as f64
+            speed * delta_time * dx.signum() / TILE_SIZE as f32
         } else {
             0.0
         };
         let my = if dy != 0.0 {
-            speed * delta_time * dy.signum() / TILE_SIZE as f64
+            speed * delta_time * dy.signum() / TILE_SIZE as f32
         } else {
             0.0
         };
@@ -113,9 +113,9 @@ pub trait Humanoid {
         let Coordinate(next_x, next_y) = pos;
 
         if next_x < 0.0
-            || next_x >= map.size_x as f64
+            || next_x >= map.size_x as f32
             || next_y < 0.0
-            || next_y >= map.size_y as f64
+            || next_y >= map.size_y as f32
         {
             return Collision(true);
         }
@@ -128,7 +128,7 @@ pub trait Humanoid {
 
     fn walk(
         &mut self,
-        delta_time: &f64,
+        delta_time: &f32,
         map: &tilemap::TileMap,
         collision_manager: &CollisionManager,
     ) {

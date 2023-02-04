@@ -3,7 +3,7 @@ use std::ops;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Coordinate(pub f64, pub f64);
+pub struct Coordinate(pub f32, pub f32);
 
 #[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
 pub enum Direction {
@@ -43,11 +43,11 @@ impl Coordinate {
         x as usize + y as usize * size_x
     }
 
-    pub fn dist2(&self, rhs: Coordinate) -> f64 {
+    pub fn dist2(&self, rhs: Coordinate) -> f32 {
         (self.0 - rhs.0)*(self.0 - rhs.0) + (self.1 - rhs.1)*(self.1 - rhs.1)
     }
 
-    pub fn dist(&self, rhs: Coordinate) -> f64 {
+    pub fn dist(&self, rhs: Coordinate) -> f32 {
         self.dist2(rhs).sqrt()
     }
 }
