@@ -42,7 +42,7 @@
     background-image: url("objectsprites.png");
 }
 .floor:hover, .wall:hover, .object:hover {
-    -webkit-box-shadow:inset 0px 0px 0px 1px #f00;
-    -moz-box-shadow:inset 0px 0px 0px 1px #f00;
-    box-shadow:inset 0px 0px 0px 1px #f00;
+    -webkit-box-shadow:inset 0px 0px 0px 2px black;
+    -moz-box-shadow:inset 0px 0px 0px 2px black;
+    box-shadow:inset 0px 0px 0px 2px black;
 }

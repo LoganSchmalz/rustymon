@@ -286,6 +286,7 @@ function expandMap(dir) {
                 map.layers.push(l);
             }
             map.h += size;
+            HEIGHT += size;
             break;
         case 1: // east
             console.log("East + " + size);
@@ -303,6 +304,7 @@ function expandMap(dir) {
                 map.layers.push(l);
             }
             map.w += size;
+            WIDTH += size;  
             break;
         case 2: // south
             console.log("South + " + size);
@@ -320,6 +322,7 @@ function expandMap(dir) {
                 map.layers.push(l);
             }
             map.h += size;
+            HEIGHT += size;
             break;
         case 3: // west
         console.log("West + " + size);
@@ -337,6 +340,7 @@ function expandMap(dir) {
                 map.layers.push(l);
             }
             map.w += size;
+            WIDTH += size;  
             break;
         default:
     }
