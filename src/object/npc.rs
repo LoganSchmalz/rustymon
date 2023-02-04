@@ -1,14 +1,12 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use sdl2::rect::Rect;
 use serde::{Deserialize, Serialize};
 
 use crate::coordinate::{Coordinate, Direction};
+use crate::event::Command;
 use crate::humanoid::{Humanoid, Leg, WALKING_TIME_PER_TILE};
 use crate::menu::{textbox::Textbox, MenuManager};
 use crate::render::Renderer;
-use crate::{tilemap, bag};
+use crate::tilemap;
 use crate::updated::Updated;
 use crate::{coordinate, menu};
 
@@ -100,13 +98,12 @@ impl TObject for NPC {
         _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
         player_position: Coordinate,
-        _bag: Rc<RefCell<bag::Bag>>,
-    ) -> Updated {
+    ) -> Vec<Command> {
         self.set_facing(coordinate::compute_direction(self.pos, player_position));
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
             "Hi hungry, I'm dad! Nice try, little child --> you are bad!".to_string(),
         )));
-        Updated(false)
+        vec![]
     }
 }
 

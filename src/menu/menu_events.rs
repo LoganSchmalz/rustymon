@@ -1,6 +1,4 @@
-use super::{MenuItem, Menu};
-
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum MenuInput {
 	Up,
 	Down,

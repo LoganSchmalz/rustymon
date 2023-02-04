@@ -16,7 +16,7 @@ mod tilemap;
 use crate::{
     bag::Bag,
     engine_structures::{coordinate, *},
-    event::handle_gameplay_event,
+    event::EventManager,
     humanoid::Humanoid,
 };
 
@@ -27,7 +27,7 @@ extern crate enum_map;
 #[macro_use]
 extern crate num_derive;
 
-use std::{cell::RefCell, fs, path::Path, rc::Rc};
+use std::{fs, path::Path};
 use tilemap::TileMap;
 
 pub fn init_map_save(map_name: String) {
@@ -109,7 +109,9 @@ pub fn main() {
         serde_json::to_string(&obj_man.objects).expect("Error")
     );
 
-    let bag = Bag::new();
+    let mut bag = Bag::new();
+
+    let mut event_man = EventManager::new();
 
     'running: loop {
         let time_last = time_now;
@@ -120,21 +122,20 @@ pub fn main() {
 
         player.set_try_walking(None);
 
-        let events = input.handle_input(&mut event_pump);
+        let input_events = input.handle_input(&mut event_pump);
 
-        let (events, exit) = event::handle_input_event(events, &mut menu_man, &mut renderer);
+        let exit = event_man.handle_input_event(input_events, &mut menu_man, &mut renderer);
 
         if exit {
             break 'running;
         }
 
-        handle_gameplay_event(
-            events,
+        event_man.handle_gameplay_event(
             &mut menu_man,
             &mut player,
             &mut obj_man,
             &mut renderer,
-            bag.items.to_vec(),
+            &mut bag,
         );
 
         //println!("{:?}", delta_time);

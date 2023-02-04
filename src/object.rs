@@ -2,15 +2,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::coordinate::Coordinate;
 use crate::engine_structures::collision::Collision;
+use crate::event::Command;
 use crate::menu::{self, MenuManager};
 use crate::updated::Updated;
-use crate::{bag, render, tilemap};
+use crate::{render, tilemap};
 
-use std::cell::RefCell;
 use std::collections::HashSet;
-use std::rc::Rc;
-//use num_derive::FromPrimitive;
-//use num_traits::FromPrimitive;
 use std::{fs, path::Path};
 
 mod berry;
@@ -33,8 +30,7 @@ pub trait TObject {
         renderer: &mut render::Renderer,
         menu_man: &mut MenuManager,
         player_position: Coordinate,
-        bag: Rc<RefCell<bag::Bag>>,
-    ) -> Updated; //returns if obj should be removed from map
+    ) -> Vec<Command>; //returns if obj should be removed from map
     fn update(
         &mut self,
         _delta_time: &f64,
@@ -210,21 +206,13 @@ impl ObjectManager {
         player_position: Coordinate,
         renderer: &mut render::Renderer,
         menu_man: &mut menu::MenuManager,
-        bag: Rc<RefCell<bag::Bag>>,
-    ) -> bool {
+    ) -> Vec<Command> {
         match self.get_obj(pos) {
             Some(idx) => {
                 //todo: change this to use new collision checking
-                if self.objects[idx].interact(renderer, menu_man, player_position, bag)
-                    == Updated(true)
-                {
-                    self.collision_manager
-                        .remove(&self.objects[idx].get_prev_pos());
-                    self.objects.remove(idx);
-                }
-                true
+                self.objects[idx].interact(renderer, menu_man, player_position)
             }
-            _ => false
+            _ => vec![],
         }
     }
 
@@ -235,5 +223,15 @@ impl ObjectManager {
             }
         }
         None
+    }
+
+    pub fn remove_obj(&mut self, pos: Coordinate) {
+        match self.get_obj(pos) {
+            Some(idx) => {
+                self.objects.remove(idx);
+                self.collision_manager.remove(&pos);
+            }
+            None => (),
+        };
     }
 }

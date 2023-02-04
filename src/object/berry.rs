@@ -1,13 +1,11 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use serde::{Deserialize, Serialize};
 
+use crate::bag::Item;
 use crate::coordinate::Coordinate;
+use crate::event::Command;
+use crate::menu;
 use crate::menu::{textbox::Textbox, MenuManager};
 use crate::render::Renderer;
-use crate::{menu, bag};
-use crate::updated::Updated;
 
 use super::TObject;
 
@@ -27,7 +25,7 @@ impl TObject for Berry {
     fn get_pos(&self) -> Coordinate {
         self.pos
     }
-    
+
     fn set_pos(&mut self, pos: Coordinate) {
         self.pos = pos;
     }
@@ -37,13 +35,13 @@ impl TObject for Berry {
         _renderer: &mut Renderer,
         menu_man: &mut MenuManager,
         _player_position: Coordinate,
-        bag: Rc<RefCell<bag::Bag>>
-    ) -> Updated {
+    ) -> Vec<Command> {
         menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
             "Don't eat me!".to_string(),
         )));
-        bag.borrow_mut().add_one(bag::Item::Berry);
-        println!("{:?}", bag);
-        Updated(true)
+        vec![
+            Command::GiveItem(Item::Berry, 1),
+            Command::DeleteObject(self.pos),
+        ]
     }
 }

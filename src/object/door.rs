@@ -1,13 +1,9 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use serde::{Deserialize, Serialize};
 
-use crate::bag;
 use crate::coordinate::Coordinate;
+use crate::event::Command;
 use crate::menu::MenuManager;
 use crate::render::Renderer;
-use crate::updated::Updated;
 
 use super::TObject;
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,9 +32,8 @@ impl TObject for Door {
         renderer: &mut Renderer,
         _: &mut MenuManager,
         _player_position: Coordinate,
-        _bag: Rc<RefCell<bag::Bag>>,
-    ) -> Updated {
+    ) -> Vec<Command> {
         renderer.play_fade();
-        Updated(false)
+        vec![]
     }
 }

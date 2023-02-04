@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use sdl2::{render::Canvas, video::Window};
 
 pub mod bag_menu;
@@ -9,7 +6,7 @@ pub mod menu_events;
 pub mod pause_menu;
 pub mod textbox;
 
-use crate::bag::{self, ItemList};
+use crate::bag::ItemList;
 use crate::font_manager::FontManager;
 use crate::texture_manager::TextureManager;
 
