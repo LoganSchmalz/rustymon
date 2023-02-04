@@ -149,7 +149,9 @@ const objects = [
             "y": 0
         },
     ]
-const empty = {}
+const empty = {
+    "id": 0
+}
 
 let SELECTED_TILE = floors[1];
 let WIDTH = 15;
@@ -214,36 +216,53 @@ window.onload = function () {
 }
 
 function exportMap() {
-    filename = document.getElementById('filename').value
-    console.table(map.layers.floorArray)
-    let text = ''
+    let floorText = ''
+    let wallsText = ''
+    let collisionText = ''
 
     for (let i = 0; i < map.h; i++) {
         for (let j = 0; j < map.w; j++) {
-            text += j==map.w-1 ? map.layers[0][i][j] : map.layers[0][i][j] + ' '
+            floorText += j==map.w-1 ? map.layers[0][i][j].id : map.layers[0][i][j].id + ' '
+            wallsText += j==map.w-1 ? map.layers[1][i][j].id : map.layers[1][i][j].id + ' '
         }
-        text += '\n'
+        floorText += '\n'
+        wallsText  += '\n'
     }
 
     // download:
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-  
-    element.style.display = 'none';
-    document.body.appendChild(element);
-  
-    element.click();
-
-    document.body.removeChild(element);
+    var e = document.createElement('a');
+    e.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(floorText));
+    e.setAttribute('download', "floor.txt");
+    e.style.display = 'none';
+    document.body.appendChild(e);
+    e.click();
+    document.body.removeChild(e);
+    e.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(wallsText));
+    e.setAttribute('download', "walls.txt");
+    e.style.display = 'none';
+    document.body.appendChild(e);
+    e.click();
+    document.body.removeChild(e);
+    e.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(collisionText));
+    e.setAttribute('download', "collision.txt");
+    e.style.display = 'none';
+    document.body.appendChild(e);
+    e.click();
+    document.body.removeChild(e);
+    e.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(`${WIDTH}, ${HEIGHT}`));
+    e.setAttribute('download', "dim.txt");
+    e.style.display = 'none';
+    document.body.appendChild(e);
+    e.click();
+    document.body.removeChild(e);
 }
 
 function importMap() {}
 
 function selectSwatch(id) {
-    id = id.split('_');
-    SELECTED_TILE = id[0] == 'floor' ? floors[id[1]] : id[0] == 'wall' ? walls[id[1]] : objects[id[1]];
-    console.log(SELECTED_TILE)
+    i = id.split('_');
+    SELECTED_TILE = i[0] == 'floor' ? floors[i[1]] : i[0] == 'wall' ? walls[i[1]] : objects[i[1]];
+    document.getElementById(id).selected = true;
     console.log("Selected swatch: " + SELECTED_TILE.name)
 }
 
@@ -334,11 +353,13 @@ function updateMapArray(id) {
 
 function redrawTile(id, l) {
     i = id.split(',');
-    document.getElementById(`${[id[0],i[1],l]}`).style.backgroundPosition = `${map.layers[l][i[0]][i[1]].x * BRUSH_SCALE * -1}px ${map.layers[l][i[0]][i[1]].y * BRUSH_SCALE * -1}px`
+    console.log(i, l);
+    console.log(`${[i[0],i[1],l]}`)
+    document.getElementById(`${[i[0],i[1],l]}`).style.backgroundPosition = `${map.layers[l][i[0]][i[1]].x * BRUSH_SCALE * -1}px ${map.layers[l][i[0]][i[1]].y * BRUSH_SCALE * -1}px`
 }
 
 function redrawMap() {
-    const elements = [document.querySelector('.gridObject'), document.querySelector('.gridFloor'), document.querySelector('.gridWall')]
+    const elements = [document.querySelector('#gridObject'), document.querySelector('#gridFloor'), document.querySelector('#gridWall')]
     for (e of elements) {
         e.innerHTML = '';
         // adjust the width + height of grid to match the new map dimensions

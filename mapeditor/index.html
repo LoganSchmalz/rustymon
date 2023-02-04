@@ -28,7 +28,6 @@
     <label>Expand Size: </label>
     <input type="text" id="expandSize" value="1" placeholder="size">
     <br>
-    <input type="text" id="filename" name="name" value="floor.txt">
     <button onclick="exportMap()">Download</button>
     <br>
     <!-- <input type="file" id="file-selector"> change to accept multiple or just input a directory once we add layering <input type="file" id="file-selector" multiple accept=".txt"> -->
@@ -41,12 +40,13 @@
     <input type="checkbox" id="objectCheck" name="objects" value="objects" onclick="showLayer(this.id)" checked />
     <label for="objects">Objects</label>
     <hr>
-    <div class="grid">
-        <div class="gridFloor" id="gridFloor">
+    <div>
+        <div class="grid" id="gridOverlay"></div>
+        <div class="grid" id="gridFloor">
         </div>
-        <div class="gridWall" id="gridWall">
+        <div class="grid" id="gridWall">
         </div>
-        <div class="gridObject" id="gridObject">
+        <div class="grid" id="gridObject">
         </div>
     </div>
     <br>

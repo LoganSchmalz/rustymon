@@ -9,32 +9,15 @@
     -ms-interpolation-mode: nearest-neighbor;   /* IE8+    */ 
 }
 
-.gridFloor {
+.grid {
     width: calc(15 * 16px * var(--brush-scale));
     height: calc(10 * 16px * var(--brush-scale));
     margin: auto;
-    position: absolute;    
-    outline: 1px solid black;
-}
-
-.gridWall {
-    width: calc(15 * 16px * var(--brush-scale));
-    height: calc(10 * 16px * var(--brush-scale));
-    margin: auto;    
     position: absolute;
-    outline: 1px solid black;
-}
-
-.gridObject {
-    width: calc(15 * 16px * var(--brush-scale));
-    height: calc(10 * 16px * var(--brush-scale));
-    margin: auto;    
-    position: absolute;
-    outline: 1px solid black;
+    border: 1px black solid;   
 }
 
 .swatches {
-    border: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, calc(16px * var(--brush-scale)));
 }
@@ -58,7 +41,8 @@
 .object {
     background-image: url("objectsprites.png");
 }
-
 .floor:hover, .wall:hover, .object:hover {
-    opacity: 50%;
+    -webkit-box-shadow:inset 0px 0px 0px 1px #f00;
+    -moz-box-shadow:inset 0px 0px 0px 1px #f00;
+    box-shadow:inset 0px 0px 0px 1px #f00;
 }
