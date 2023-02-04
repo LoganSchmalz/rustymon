@@ -1,20 +1,19 @@
 use std::{cell::RefCell, process::ExitCode, rc::Rc};
 
 use crate::{
-    bag,
+    bag::{ItemList},
     engine_structures::coordinate::{Coordinate, Direction},
     humanoid::Humanoid,
     input::{self, Control, InputEvent},
     menu::{
         self,
-        menu_events::{MenuEvent, MenuInput},
+        menu_events::{MenuInput},
     },
     object, player, render,
 };
 
-pub enum GameplayEvent {
-    PlayerSprinting,
-    PlayerWalking,
+pub enum Command {
+    PlayerSprinting(bool),
     PlayerMove(Option<Direction>),
     PlayerInteract,
     Menu(MenuInput),
@@ -26,7 +25,7 @@ pub fn handle_input_event(
     events: Vec<InputEvent>,
     menu_man: &mut menu::MenuManager,
     renderer: &mut render::Renderer,
-) -> (Vec<GameplayEvent>, Exit) {
+) -> (Vec<Command>, Exit) {
     let mut result = (vec![], false);
 
     for event in events {
@@ -57,23 +56,22 @@ pub fn handle_input_event(
 }
 
 pub fn handle_gameplay_event(
-    events: Vec<GameplayEvent>,
+    events: Vec<Command>,
     menu_man: &mut menu::MenuManager,
     player: &mut player::Player,
     obj_man: &mut object::ObjectManager,
     renderer: &mut render::Renderer,
-    bag: Rc<RefCell<bag::Bag>>,
+    items: ItemList,
 ) {
-    use GameplayEvent::*;
+    use Command::*;
 
     for event in events {
         match event {
             Menu(menu_input) => {
-                menu_man.interact(menu_input, bag.clone());
+                menu_man.interact(menu_input, items);
                 break;
             }
-            PlayerSprinting => player.set_try_sprinting(true),
-            PlayerWalking => player.set_try_sprinting(false),
+            PlayerSprinting(sprinting) => player.set_try_sprinting(sprinting),
             PlayerMove(dir) => player.set_try_walking(dir),
             PlayerInteract => {
                 let Coordinate(x, y) = player.get_pos();
@@ -84,9 +82,9 @@ pub fn handle_gameplay_event(
                     Direction::Down => Coordinate(x, y + 1.0),
                 };
 
-                if obj_man.interact(temp_pos, player.get_pos(), renderer, menu_man, bag.clone()) {
-                    break;
-                }
+                //if obj_man.interact(temp_pos, player.get_pos(), renderer, menu_man, bag.clone()) {
+                //    break;
+                //}
             }
         }
     }
@@ -95,28 +93,28 @@ pub fn handle_gameplay_event(
 pub fn handle_control_pressed(
     control: Control,
     menu_man: &mut menu::MenuManager,
-) -> Option<GameplayEvent> {
+) -> Option<Command> {
     use input::Control::*;
 
     if menu_man.is_open() {
         match control {
-            Up => Some(GameplayEvent::Menu(MenuInput::Up)),
-            Down => Some(GameplayEvent::Menu(MenuInput::Down)),
-            Left => Some(GameplayEvent::Menu(MenuInput::Left)),
-            Right => Some(GameplayEvent::Menu(MenuInput::Right)),
-            Interact1 => Some(GameplayEvent::Menu(MenuInput::Accept)),
-            Interact2 => Some(GameplayEvent::Menu(MenuInput::Reject)),
-            Menu => Some(GameplayEvent::Menu(MenuInput::Start)),
+            Up => Some(Command::Menu(MenuInput::Up)),
+            Down => Some(Command::Menu(MenuInput::Down)),
+            Left => Some(Command::Menu(MenuInput::Left)),
+            Right => Some(Command::Menu(MenuInput::Right)),
+            Interact1 => Some(Command::Menu(MenuInput::Accept)),
+            Interact2 => Some(Command::Menu(MenuInput::Reject)),
+            Menu => Some(Command::Menu(MenuInput::Start)),
         }
     } else {
         match control {
-            Up => Some(GameplayEvent::PlayerMove(Some(Direction::Up))),
-            Down => Some(GameplayEvent::PlayerMove(Some(Direction::Down))),
-            Left => Some(GameplayEvent::PlayerMove(Some(Direction::Left))),
-            Right => Some(GameplayEvent::PlayerMove(Some(Direction::Right))),
-            Interact1 => Some(GameplayEvent::PlayerInteract),
-            Interact2 => Some(GameplayEvent::PlayerSprinting),
-            Menu => Some(GameplayEvent::Menu(MenuInput::Start)),
+            Up => Some(Command::PlayerMove(Some(Direction::Up))),
+            Down => Some(Command::PlayerMove(Some(Direction::Down))),
+            Left => Some(Command::PlayerMove(Some(Direction::Left))),
+            Right => Some(Command::PlayerMove(Some(Direction::Right))),
+            Interact1 => Some(Command::PlayerInteract),
+            Interact2 => Some(Command::PlayerSprinting(true)),
+            Menu => Some(Command::Menu(MenuInput::Start)),
         }
     }
 }
@@ -124,33 +122,33 @@ pub fn handle_control_pressed(
 pub fn handle_control_held(
     control: Control,
     menu_man: &mut menu::MenuManager,
-) -> Option<GameplayEvent> {
+) -> Option<Command> {
     use input::Control::*;
 
     if menu_man.is_open() {
         None
     } else {
         match control {
-            Up => Some(GameplayEvent::PlayerMove(Some(Direction::Up))),
-            Down => Some(GameplayEvent::PlayerMove(Some(Direction::Down))),
-            Left => Some(GameplayEvent::PlayerMove(Some(Direction::Left))),
-            Right => Some(GameplayEvent::PlayerMove(Some(Direction::Right))),
+            Up => Some(Command::PlayerMove(Some(Direction::Up))),
+            Down => Some(Command::PlayerMove(Some(Direction::Down))),
+            Left => Some(Command::PlayerMove(Some(Direction::Left))),
+            Right => Some(Command::PlayerMove(Some(Direction::Right))),
             Interact1 => None,
-            Interact2 => Some(GameplayEvent::PlayerSprinting),
+            Interact2 => None,
             Menu => None,
         }
     }
 }
 
-pub fn handle_control_released(control: Control) -> Option<GameplayEvent> {
+pub fn handle_control_released(control: Control) -> Option<Command> {
     use input::Control::*;
     match control {
-        Up => Some(GameplayEvent::PlayerMove(None)),
-        Down => Some(GameplayEvent::PlayerMove(None)),
-        Left => Some(GameplayEvent::PlayerMove(None)),
-        Right => Some(GameplayEvent::PlayerMove(None)),
+        Up => Some(Command::PlayerMove(None)),
+        Down => Some(Command::PlayerMove(None)),
+        Left => Some(Command::PlayerMove(None)),
+        Right => Some(Command::PlayerMove(None)),
         Interact1 => None,
-        Interact2 => Some(GameplayEvent::PlayerWalking),
+        Interact2 => Some(Command::PlayerSprinting(false)),
         Menu => None,
     }
 }

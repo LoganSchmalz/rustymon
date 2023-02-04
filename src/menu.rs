@@ -9,7 +9,7 @@ pub mod menu_events;
 pub mod pause_menu;
 pub mod textbox;
 
-use crate::bag;
+use crate::bag::{self, ItemList};
 use crate::font_manager::FontManager;
 use crate::texture_manager::TextureManager;
 
@@ -68,7 +68,7 @@ impl<'a> MenuManager {
         !self.menus.is_empty()
     }
 
-    pub fn interact(&mut self, action: MenuInput, bag: Rc<RefCell<bag::Bag>>) {
+    pub fn interact(&mut self, action: MenuInput, items: ItemList) {
         if self.is_open() {
             let curr_menu = self
                 .menus
@@ -77,7 +77,7 @@ impl<'a> MenuManager {
             match curr_menu.update(action) {
                 Some(MenuEvent::OpenStrays) => {}
                 Some(MenuEvent::OpenSave) => {}
-                Some(MenuEvent::OpenBag) => self.open_menu(Menu::BagMenu(BagMenu::new(bag))),
+                Some(MenuEvent::OpenBag) => self.open_menu(Menu::BagMenu(BagMenu::new(items))),
                 Some(MenuEvent::Close) => self.close_menu(),
                 _ => {}
             }

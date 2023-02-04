@@ -5,6 +5,8 @@ pub enum Item {
     Berry,
 }
 
+pub type ItemList = Vec<(Item, u32)>;
+
 impl fmt::Display for Item {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -15,7 +17,7 @@ impl fmt::Display for Item {
 
 #[derive(Debug)]
 pub struct Bag {
-    pub items: Vec<(Item, u32)>,
+    pub items: ItemList,
 }
 
 impl Bag {

@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 
 use crate::{
-    bag::Bag,
+    bag::{Bag, ItemList},
     font_manager::FontManager,
     render::{PIXELS_X, PIXELS_Y},
     texture_manager::TextureManager,
@@ -15,13 +15,13 @@ use super::{
 };
 
 pub struct BagMenu {
-    bag: Rc<RefCell<Bag>>,
+    items: ItemList,
     selected: usize,
 }
 
 impl BagMenu {
-    pub fn new(bag: Rc<RefCell<Bag>>) -> BagMenu {
-        BagMenu { bag, selected: 0 }
+    pub fn new(items: ItemList) -> BagMenu {
+        BagMenu { items, selected: 0 }
     }
 }
 
@@ -42,7 +42,7 @@ impl MenuItem for BagMenu {
 
         let mut text_quad = Rect::new(140, 10, 0, 0);
 
-        for (idx, (item, amount)) in self.bag.borrow().items.iter().enumerate() {
+        for (idx, (item, amount)) in self.items.iter().enumerate() {
             let item_str = item.to_string();
 
             let item_surface = font_man.fonts.press_start_2p.render(&item_str);
@@ -88,7 +88,7 @@ impl MenuItem for BagMenu {
     fn update(&mut self, action: MenuInput) -> Option<MenuEvent> {
         match action {
             MenuInput::Down => {
-                self.selected = if self.selected < self.bag.borrow().items.len() - 1 {
+                self.selected = if self.selected < self.items.len() - 1 {
                     self.selected + 1
                 } else {
                     0
@@ -98,7 +98,7 @@ impl MenuItem for BagMenu {
                 self.selected = if self.selected > 0 {
                     self.selected - 1
                 } else {
-                    self.bag.borrow().items.len() - 1
+                    self.items.len() - 1
                 }
             }
             MenuInput::Accept => {}

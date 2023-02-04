@@ -109,7 +109,7 @@ pub fn main() {
         serde_json::to_string(&obj_man.objects).expect("Error")
     );
 
-    let bag = Rc::new(RefCell::new(Bag::new()));
+    let bag = Bag::new();
 
     'running: loop {
         let time_last = time_now;
@@ -134,7 +134,7 @@ pub fn main() {
             &mut player,
             &mut obj_man,
             &mut renderer,
-            bag.clone(),
+            bag.items.to_vec(),
         );
 
         //println!("{:?}", delta_time);
