@@ -9,24 +9,28 @@
     -ms-interpolation-mode: nearest-neighbor;   /* IE8+    */ 
 }
 
-.grid {
+.gridFloor {
     width: calc(15 * 16px * var(--brush-scale));
     height: calc(10 * 16px * var(--brush-scale));
     margin: auto;
+    position: absolute;    
+    outline: 1px solid black;
 }
 
-.tile {
-    background-image: url("tilesprites.png");
-    background-position: top left calc(-16px * var(--brush-scale));
-    background-size: calc(512px * var(--brush-scale)) calc(512px * var(--brush-scale));
-    background-repeat: no-repeat;
-    outline: 1px solid red;
-    width: calc(16px * var(--brush-scale));
-    height: calc(16px * var(--brush-scale));
+.gridWall {
+    width: calc(15 * 16px * var(--brush-scale));
+    height: calc(10 * 16px * var(--brush-scale));
+    margin: auto;    
+    position: absolute;
     outline: 1px solid black;
-    width: calc(16px * var(--brush-scale));
-    height: calc(16px * var(--brush-scale));
-    float: left;
+}
+
+.gridObject {
+    width: calc(15 * 16px * var(--brush-scale));
+    height: calc(10 * 16px * var(--brush-scale));
+    margin: auto;    
+    position: absolute;
+    outline: 1px solid black;
 }
 
 .swatches {
@@ -35,16 +39,26 @@
     grid-template-columns: repeat(auto-fill, calc(16px * var(--brush-scale)));
 }
 
-.swatch {
-    background-image: url("tilesprites.png");
-    background-position: top left calc(calc(-16px * var(--nth-swatch))* var(--brush-scale));
+.floor, .wall, .object {
     background-size: calc(512px * var(--brush-scale)) calc(512px * var(--brush-scale));
     background-repeat: no-repeat;
-    outline: 1px solid red;
     width: calc(16px * var(--brush-scale));
     height: calc(16px * var(--brush-scale));
+    float: left;
 }
 
-.swatch:hover,.tile:hover {
-    opacity: 80%;
+.floor {
+    background-image: url("tilesprites.png");
+}
+
+.wall {
+    background-image: url("tilesprites.png");
+}
+
+.object {
+    background-image: url("objectsprites.png");
+}
+
+.floor:hover, .wall:hover, .object:hover {
+    opacity: 50%;
 }
