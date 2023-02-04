@@ -8,7 +8,7 @@ use crate::{
 };
 
 pub enum Command {
-    PlayerSprinting(bool),
+    PlayerSprint(bool),
     PlayerMove(Option<Direction>),
     PlayerInteract,
     Menu(MenuInput),
@@ -73,7 +73,7 @@ impl EventManager {
                     menu_man.interact(menu_input, bag.items.clone());
                     break;
                 }
-                PlayerSprinting(sprinting) => player.set_try_sprinting(sprinting),
+                PlayerSprint(sprinting) => player.set_try_sprinting(sprinting),
                 PlayerMove(dir) => player.set_try_walking(dir),
                 PlayerInteract => {
                     let Coordinate(x, y) = player.get_pos();
@@ -122,7 +122,7 @@ impl EventManager {
                 Left => Some(Command::PlayerMove(Some(Direction::Left))),
                 Right => Some(Command::PlayerMove(Some(Direction::Right))),
                 Interact1 => Some(Command::PlayerInteract),
-                Interact2 => Some(Command::PlayerSprinting(true)),
+                Interact2 => Some(Command::PlayerSprint(true)),
                 Menu => Some(Command::Menu(MenuInput::Start)),
             }
         };
@@ -143,7 +143,7 @@ impl EventManager {
                 Left => Some(Command::PlayerMove(Some(Direction::Left))),
                 Right => Some(Command::PlayerMove(Some(Direction::Right))),
                 Interact1 => None,
-                Interact2 => Some(Command::PlayerSprinting(true)),
+                Interact2 => Some(Command::PlayerSprint(true)),
                 Menu => None,
             }
         };
@@ -160,7 +160,7 @@ impl EventManager {
             Left => Some(Command::PlayerMove(None)),
             Right => Some(Command::PlayerMove(None)),
             Interact1 => None,
-            Interact2 => Some(Command::PlayerSprinting(false)),
+            Interact2 => Some(Command::PlayerSprint(false)),
             Menu => None,
         };
         if c.is_some() {
