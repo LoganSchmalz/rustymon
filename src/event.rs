@@ -19,16 +19,16 @@ pub enum Command {
 type Exit = bool;
 
 pub struct EventManager {
-    events: Vec<Command>,
+    commands: Vec<Command>,
 }
 
 impl EventManager {
     pub fn new() -> EventManager {
-        EventManager { events: vec![] }
+        EventManager { commands: vec![] }
     }
 
     pub fn push_event(&mut self, command: Command) {
-        self.events.push(command);
+        self.commands.push(command);
     }
 
     pub fn handle_input_event(
@@ -67,8 +67,8 @@ impl EventManager {
     ) {
         use Command::*;
 
-        while let Some(event) = self.events.pop() {
-            match event {
+        while let Some(command) = self.commands.pop() {
+            match command {
                 Menu(menu_input) => {
                     menu_man.interact(menu_input, bag.items.clone());
                     break;
@@ -84,7 +84,7 @@ impl EventManager {
                         Direction::Down => Coordinate(x, y + 1.0),
                     };
 
-                    self.events.append(&mut obj_man.interact(
+                    self.commands.append(&mut obj_man.interact(
                         temp_pos,
                         player.get_pos(),
                         renderer,
@@ -105,7 +105,7 @@ impl EventManager {
     pub fn handle_control_pressed(&mut self, control: Control, menu_man: &mut menu::MenuManager) {
         use input::Control::*;
 
-        let e = if menu_man.is_open() {
+        let c = if menu_man.is_open() {
             match control {
                 Up => Some(Command::Menu(MenuInput::Up)),
                 Down => Some(Command::Menu(MenuInput::Down)),
@@ -126,15 +126,15 @@ impl EventManager {
                 Menu => Some(Command::Menu(MenuInput::Start)),
             }
         };
-        if e.is_some() {
-            self.push_event(e.unwrap());
+        if c.is_some() {
+            self.push_event(c.unwrap());
         }
     }
 
     pub fn handle_control_held(&mut self, control: Control, menu_man: &mut menu::MenuManager) {
         use input::Control::*;
 
-        let e = if menu_man.is_open() {
+        let c = if menu_man.is_open() {
             None
         } else {
             match control {
@@ -147,14 +147,14 @@ impl EventManager {
                 Menu => None,
             }
         };
-        if e.is_some() {
-            self.push_event(e.unwrap());
+        if c.is_some() {
+            self.push_event(c.unwrap());
         }
     }
 
     pub fn handle_control_released(&mut self, control: Control) {
         use input::Control::*;
-        let e = match control {
+        let c = match control {
             Up => Some(Command::PlayerMove(None)),
             Down => Some(Command::PlayerMove(None)),
             Left => Some(Command::PlayerMove(None)),
@@ -163,8 +163,8 @@ impl EventManager {
             Interact2 => Some(Command::PlayerSprinting(false)),
             Menu => None,
         };
-        if e.is_some() {
-            self.push_event(e.unwrap());
+        if c.is_some() {
+            self.push_event(c.unwrap());
         }
     }
 }
