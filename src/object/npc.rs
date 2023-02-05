@@ -205,8 +205,7 @@ impl NPC {
         let anim_time = WALKING_TIME_PER_TILE;
 
         if self.moving_towards == None
-            || self.animation_time > (0.75 * anim_time)
-            || self.animation_time < (0.25 * anim_time)
+            || self.animation_time < (0.5 * anim_time)
         {
             match self.facing {
                 Direction::Up => Rect::new(16, 0, 16, 20),
