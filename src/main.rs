@@ -27,32 +27,8 @@ extern crate enum_map;
 #[macro_use]
 extern crate num_derive;
 
-use std::{fs, path::Path};
+use std::path::Path;
 use tilemap::TileMap;
-
-pub fn init_map_save(map_name: String) {
-    //TODO: DEAD CODE
-    fs::copy(
-        "maps/".to_owned() + &map_name + "/collision.txt",
-        "save/maps/".to_owned() + &map_name + "/collision.txt",
-    )
-    .expect("Missing collision file");
-    fs::copy(
-        "maps/".to_owned() + &map_name + "/dim.txt",
-        "save/maps/".to_owned() + &map_name + "/dim.txt",
-    )
-    .expect("Missing dim file");
-    fs::copy(
-        "maps/".to_owned() + &map_name + "/floor.txt",
-        "save/maps/".to_owned() + &map_name + "/floor.txt",
-    )
-    .expect("Missing floor file");
-    fs::copy(
-        "maps/".to_owned() + &map_name + "/objects.txt",
-        "save/maps/".to_owned() + &map_name + "/objects.txt",
-    )
-    .expect("Missing objects file");
-}
 
 pub fn main() {
     let sdl_context = sdl2::init().unwrap();
