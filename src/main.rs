@@ -52,12 +52,12 @@ pub fn main() {
         .build()
         .unwrap();
 
-    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut event_pump = sdl_context.event_pump().expect("Loading event pump failed");
 
     let mut input = input::Input::new();
+    let mut event_man = EventManager::new();
+    let mut bag = Bag::new();
     let mut player: player::Player = player::Player::new();
-
-    let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
 
     let texture_creator = canvas.texture_creator();
     let textures = texture_manager::Textures::load(&texture_creator);
@@ -70,12 +70,6 @@ pub fn main() {
     let mut renderer = render::Renderer::new(canvas);
     let mut menu_man = menu::MenuManager::new();
     let mut obj_man = object::ObjectManager::new();
-    //menu_man.borrow_mut().open_menu(Box::new(MainMenu));
-
-    //load original maps into current save
-    //TODO: CHANGE THIS SAVING FUNCTIONALITY WE'RE NOT EVEN USING IT ANYMORE
-    //init_map_save("map0".to_string());
-    //init_map_save("map1".to_string());
 
     let mut map = TileMap::load(Path::new("maps/map0/"), 0);
     obj_man.load_objects(Path::new("maps/map0"));
@@ -85,9 +79,7 @@ pub fn main() {
         serde_json::to_string(&obj_man.objects).expect("Error")
     );
 
-    let mut bag = Bag::new();
-
-    let mut event_man = EventManager::new();
+    let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
 
     'running: loop {
         let time_last = time_now;
@@ -96,12 +88,8 @@ pub fn main() {
             / sdl_context.timer().unwrap().performance_frequency())
             as f32;
 
-        player.set_try_walking(None);
-
         let input_events = input.handle_input(&mut event_pump);
-
         let exit = event_man.handle_input_event(input_events, &mut menu_man, &mut renderer);
-
         if exit {
             break 'running;
         }
@@ -114,7 +102,6 @@ pub fn main() {
             &mut bag,
         );
 
-        //println!("{:?}", delta_time);
         if !menu_man.paused {
             player.update(&delta_time, &map, &obj_man.collision_manager);
             obj_man.update_objects(&delta_time, &map);

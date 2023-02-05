@@ -23,7 +23,7 @@ impl PauseMenu {
             String::from("Bag"),
             String::from("Save"),
             String::from("Options"),
-            String::from("Exit"),
+            String::from("Close"),
         ];
         PauseMenu { items, selected: 0 }
     }
