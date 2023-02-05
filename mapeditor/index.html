@@ -11,7 +11,14 @@
 </head>
 
 <body>
-    <div class="swatches" id="swatches">
+    <p>Floor Tiles</p>
+    <div class="swatches" id="floorSwatches">
+    </div>
+    <p>Wall Tiles</p>
+    <div class="swatches" id="wallSwatches">
+    </div>
+    <p>Object Tiles</p>
+    <div class="swatches" id="objectSwatches">
     </div>
     <br>
     <button onclick="expandMap(0)">Add North Row</button>
@@ -20,13 +27,27 @@
     <button onclick="expandMap(3)">Add West Column</button>
     <label>Expand Size: </label>
     <input type="text" id="expandSize" value="1" placeholder="size">
-    
-    <input type="text" id="filename" name="name" value="floor.txt">
+    <br>
     <button onclick="exportMap()">Download</button>
-    <input type="file" id="file-selector"> <!--change to accept multiple or just input a directory once we add layering <input type="file" id="file-selector" multiple accept=".txt"> -->
-    <button onclick="importMap()">Import</button>
+    <br>
+    <!-- <input type="file" id="file-selector"> change to accept multiple or just input a directory once we add layering <input type="file" id="file-selector" multiple accept=".txt"> -->
+    <!-- <button onclick="importMap()">Import</button> -->
+    <br>
+    <input type="checkbox" id="floorCheck" name="floor" value="floor" onclick="showLayer(this.id)" checked />
+    <label for="floor">Floor</label>
+    <input type="checkbox" id="wallCheck" name="walls" value="walls" onclick="showLayer(this.id)" checked />
+    <label for="walls">Walls</label>
+    <input type="checkbox" id="objectCheck" name="objects" value="objects" onclick="showLayer(this.id)" checked />
+    <label for="objects">Objects</label>
     <hr>
-    <div class="grid" id="grid">
+    <div>
+        <div class="grid" id="gridOverlay"></div>
+        <div class="grid" id="gridFloor">
+        </div>
+        <div class="grid" id="gridWall">
+        </div>
+        <div class="grid" id="gridObject">
+        </div>
     </div>
     <br>
 </body>

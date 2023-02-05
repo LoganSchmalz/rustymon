@@ -13,38 +13,36 @@
     width: calc(15 * 16px * var(--brush-scale));
     height: calc(10 * 16px * var(--brush-scale));
     margin: auto;
+    position: absolute;
+    border: 1px black solid;   
 }
 
-.tile {
-    background-image: url("tilesprites.png");
-    background-position: top left calc(-16px * var(--brush-scale));
+.swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, calc(16px * var(--brush-scale)));
+}
+
+.floor, .wall, .object {
     background-size: calc(512px * var(--brush-scale)) calc(512px * var(--brush-scale));
     background-repeat: no-repeat;
-    outline: 1px solid red;
-    width: calc(16px * var(--brush-scale));
-    height: calc(16px * var(--brush-scale));
-    outline: 1px solid black;
     width: calc(16px * var(--brush-scale));
     height: calc(16px * var(--brush-scale));
     float: left;
 }
 
-.swatches {
-    border: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, calc(16px * var(--brush-scale)));
-}
-
-.swatch {
+.floor {
     background-image: url("tilesprites.png");
-    background-position: top left calc(calc(-16px * var(--nth-swatch))* var(--brush-scale));
-    background-size: calc(512px * var(--brush-scale)) calc(512px * var(--brush-scale));
-    background-repeat: no-repeat;
-    outline: 1px solid red;
-    width: calc(16px * var(--brush-scale));
-    height: calc(16px * var(--brush-scale));
 }
 
-.swatch:hover,.tile:hover {
-    opacity: 80%;
+.wall {
+    background-image: url("tilesprites.png");
+}
+
+.object {
+    background-image: url("objectsprites.png");
+}
+.floor:hover, .wall:hover, .object:hover {
+    -webkit-box-shadow:inset 0px 0px 0px 2px black;
+    -moz-box-shadow:inset 0px 0px 0px 2px black;
+    box-shadow:inset 0px 0px 0px 2px black;
 }
