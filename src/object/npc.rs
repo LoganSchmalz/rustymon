@@ -1,14 +1,13 @@
 use sdl2::rect::Rect;
 use serde::{Deserialize, Serialize};
 
+use crate::coordinate;
 use crate::coordinate::{Coordinate, Direction};
 use crate::event::Command;
 use crate::humanoid::{Humanoid, Leg, WALKING_TIME_PER_TILE};
-use crate::menu::{textbox::Textbox, MenuManager};
-use crate::render::Renderer;
+use crate::menu::menu_events::MenuCommand;
 use crate::tilemap;
 use crate::updated::Updated;
-use crate::{coordinate, menu};
 
 use super::{CollisionManager, TObject};
 
@@ -93,17 +92,11 @@ impl TObject for NPC {
         Updated(false)
     }
 
-    fn interact(
-        &mut self,
-        _renderer: &mut Renderer,
-        menu_man: &mut MenuManager,
-        player_position: Coordinate,
-    ) -> Vec<Command> {
+    fn interact(&mut self, player_position: Coordinate) -> Vec<Command> {
         self.set_facing(coordinate::compute_direction(self.pos, player_position));
-        menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
+        vec![Command::OpenMenu(MenuCommand::OpenTextbox(
             "Hi hungry, I'm dad! Nice try, little child --> you are bad!".to_string(),
-        )));
-        vec![]
+        ))]
     }
 }
 
@@ -204,9 +197,7 @@ impl NPC {
     pub fn get_texture(&self) -> sdl2::rect::Rect {
         let anim_time = WALKING_TIME_PER_TILE;
 
-        if self.moving_towards == None
-            || self.animation_time < (0.5 * anim_time)
-        {
+        if self.moving_towards == None || self.animation_time < (0.5 * anim_time) {
             match self.facing {
                 Direction::Up => Rect::new(16, 0, 16, 20),
                 Direction::Right => Rect::new(48, 0, 16, 20),

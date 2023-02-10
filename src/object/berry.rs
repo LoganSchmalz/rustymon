@@ -3,9 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::bag::Item;
 use crate::coordinate::Coordinate;
 use crate::event::Command;
-use crate::menu;
-use crate::menu::{textbox::Textbox, MenuManager};
-use crate::render::Renderer;
+use crate::menu::menu_events::MenuCommand;
 
 use super::TObject;
 
@@ -30,16 +28,9 @@ impl TObject for Berry {
         self.pos = pos;
     }
 
-    fn interact(
-        &mut self,
-        _renderer: &mut Renderer,
-        menu_man: &mut MenuManager,
-        _player_position: Coordinate,
-    ) -> Vec<Command> {
-        menu_man.open_menu(menu::Menu::Textbox(Textbox::new(
-            "Don't eat me!".to_string(),
-        )));
+    fn interact(&mut self, _player_position: Coordinate) -> Vec<Command> {
         vec![
+            Command::OpenMenu(MenuCommand::OpenTextbox("Don't eat me!".to_string())),
             Command::GiveItem(Item::Berry, 1),
             Command::DeleteObject(self.pos),
         ]

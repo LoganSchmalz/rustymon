@@ -3,9 +3,9 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use std::{fs, path::Path};
 
-use crate::engine_structures::{coordinate::Coordinate, collision::Collision};
+use crate::engine_structures::{collision::Collision, coordinate::Coordinate};
 
-#[derive(FromPrimitive, ToPrimitive, Debug, Enum, Clone)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Enum, Clone, Copy)]
 pub enum Tile {
     NONE,   //0
     GRASS1, //1
@@ -41,12 +41,15 @@ pub struct TileMap {
     pub floor: Vec<Tile>,
     pub walls: Vec<Tile>,
     pub collision: Vec<CollisionTile>,
-    pub map_id: i32,
+    pub id: i32,
 }
 
 impl TileMap {
-    pub fn load(mapfolder: &Path, id: i32) -> TileMap {
-        let map_id = id;
+    pub fn load(id: i32) -> TileMap {
+        let str = String::from("maps/map") + &id.to_string() + "/";
+        let mapfolder = Path::new(str.as_str());
+        println!("{}", mapfolder.to_str().unwrap());
+
         let dim: Vec<usize> = fs::read_to_string(mapfolder.join("dim.txt"))
             .expect(&format!("{}dim.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
@@ -127,7 +130,7 @@ impl TileMap {
             floor,
             walls,
             collision,
-            map_id,
+            id,
         }
     }
 

@@ -2,19 +2,17 @@ use serde::{Deserialize, Serialize};
 
 use crate::coordinate::Coordinate;
 use crate::event::Command;
-use crate::menu::MenuManager;
-use crate::render::Renderer;
 
 use super::TObject;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Door {
     pos: Coordinate,
-    _goes_to: (usize, Coordinate),
+    goes_to: (usize, Coordinate),
 }
 
 impl Door {
-    pub fn new(pos: Coordinate, _goes_to: (usize, Coordinate)) -> Door {
-        Door { pos, _goes_to }
+    pub fn new(pos: Coordinate, goes_to: (usize, Coordinate)) -> Door {
+        Door { pos, goes_to }
     }
 }
 
@@ -27,13 +25,10 @@ impl TObject for Door {
         self.pos = pos;
     }
 
-    fn interact(
-        &mut self,
-        renderer: &mut Renderer,
-        _: &mut MenuManager,
-        _player_position: Coordinate,
-    ) -> Vec<Command> {
-        renderer.play_fade();
-        vec![]
+    fn interact(&mut self, _player_position: Coordinate) -> Vec<Command> {
+        vec![
+            Command::DrawTransition,
+            Command::ChangeMap(self.goes_to.0, self.goes_to.1),
+        ]
     }
 }

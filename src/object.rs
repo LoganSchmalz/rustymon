@@ -3,9 +3,8 @@ use serde::{Deserialize, Serialize};
 use crate::coordinate::Coordinate;
 use crate::engine_structures::collision::Collision;
 use crate::event::Command;
-use crate::menu::{self, MenuManager};
+use crate::tilemap;
 use crate::updated::Updated;
-use crate::{render, tilemap};
 
 use std::collections::HashSet;
 use std::{fs, path::Path};
@@ -25,12 +24,7 @@ pub trait TObject {
     fn get_prev_pos(&self) -> Coordinate {
         self.get_pos()
     }
-    fn interact(
-        &mut self,
-        renderer: &mut render::Renderer,
-        menu_man: &mut MenuManager,
-        player_position: Coordinate,
-    ) -> Vec<Command>; //returns if obj should be removed from map
+    fn interact(&mut self, player_position: Coordinate) -> Vec<Command>; //returns if obj should be removed from map
     fn update(
         &mut self,
         _delta_time: &f32,
@@ -200,17 +194,11 @@ impl ObjectManager {
         }
     }
 
-    pub fn interact(
-        &mut self,
-        pos: Coordinate,
-        player_position: Coordinate,
-        renderer: &mut render::Renderer,
-        menu_man: &mut menu::MenuManager,
-    ) -> Vec<Command> {
+    pub fn interact(&mut self, pos: Coordinate, player_position: Coordinate) -> Vec<Command> {
         match self.get_obj(pos) {
             Some(idx) => {
                 //todo: change this to use new collision checking
-                self.objects[idx].interact(renderer, menu_man, player_position)
+                self.objects[idx].interact(player_position)
             }
             _ => vec![],
         }
