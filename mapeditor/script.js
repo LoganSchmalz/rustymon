@@ -168,6 +168,17 @@ let map = {
         this.layers.push(initArray(this.w, this.h, empty)); // 1: walls
         this.layers.push(initArray(this.w, this.h, empty)); // 2: objects
         return this;
+    },
+    fromFile: function(floors, walls, objects) {
+        WIDTH = floors[0].length;
+        HEIGHT = floors.length;
+        this.w = WIDTH;
+        this.h = HEIGHT;
+        this.dim = [this.w, this.h]
+        this.layers.push(floors); // 0: floor
+        this.layers.push(walls); // 1: walls
+        this.layers.push(objects); // 2: objects
+        return this;
     }
 }.init()
 
@@ -257,7 +268,47 @@ function exportMap() {
     document.body.removeChild(e);
 }
 
-function importMap() {}
+function importMap() {
+    var floor = document.getElementById("file-selector").files[0]
+    var f = parseFloorFile(floor);
+
+    console.log(f.length)
+
+    map.w = f[0].length;
+    map.h = f.length;
+    map.layers[0] = f;
+    map.layers[1] = f;
+    map.layers[2] = f;
+    
+    redrawMap();
+}
+
+function parseFloorFile(f) {
+    var a = [];
+    if(f) {
+        var reader = new FileReader();
+        reader.readAsText(f, "UTF-8");
+        reader.onload = function (evt) {
+            console.log(evt.target.result);
+            var lines = evt.target.result.split(/[\r\n]+/g);
+            lines.forEach(function(line) {
+                if(String(line).length > 0) {
+                    a.push(String(line).split(/[\b\s\b]+/g));
+                }
+            });
+            console.log(a);
+        }
+        reader.onerror = function (evt) {
+            console.error("Failed to load file: ");
+        }
+    }
+
+    return a;
+}
+
+function parseWallFile() {
+
+}
 
 function selectSwatch(id) {
     i = id.split('_');
