@@ -9,6 +9,7 @@ pub enum MenuInput {
     Start,
 }
 
+#[derive(Clone)]
 pub enum MenuCommand {
     OpenStrays,
     OpenBag,

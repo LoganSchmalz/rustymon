@@ -10,9 +10,9 @@ use std::path::Path;
 
 use crate::{
     coordinate::Coordinate,
-    engine_structures::components::{Player, Position, Sprite},
+    engine_structures::{components::{HumanWalkAnimation, Player, Position, Sprite}, humanoid_properties},
     font_manager::FontManager,
-    humanoid, menu, object,
+    menu,
     resource_manager::{self, TextureManager},
     tilemap::{self, Tile},
     TILE_SIZE,
@@ -148,7 +148,6 @@ impl Renderer {
         texture_manager: &mut TextureManager<WindowContext>,
         delta_time: &f32,
         map: &mut tilemap::TileMap,
-        obj_man: &mut object::ObjectManager,
     ) -> Result<bool, String> {
         if self.is_fading {
             let fade_texture = texture_manager.load("assets/transitions/gooWipe.png")?;
@@ -170,14 +169,14 @@ impl Renderer {
                     && !self.did_trans
                 {
                     match map.id {
-                        0 => {
+                        /*0 => {
                             *map = TileMap::load(1);
                             obj_man.load_objects(Path::new("maps/map1/"));
                         }
                         1 => {
                             *map = TileMap::load(0);
                             obj_man.load_objects(Path::new("maps/map0"));
-                        }
+                        }*/
                         _ => panic!("Trying to load map that doesn't exist"),
                     }
                     return Ok(true);
@@ -217,7 +216,7 @@ impl Renderer {
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
         font_man: &FontManager,
-        delta_time: &f32,
+        delta_time: f32,
         world: &World,
         map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
@@ -243,9 +242,9 @@ impl Renderer {
         let (_, (_player, Position(pos))) = q.iter().next().ok_or("No player found")?;
 
         let offset = (
-            (pos.0 * TILE_SIZE as f32).round() as i32 - (PIXELS_X / 2 - humanoid::WIDTH / 2) as i32,
+            (pos.0 * TILE_SIZE as f32).round() as i32 - (PIXELS_X / 2 - humanoid_properties::WIDTH / 2) as i32,
             (pos.1 * TILE_SIZE as f32).round() as i32
-                - (PIXELS_Y / 2 - humanoid::HEIGHT / 2) as i32,
+                - (PIXELS_Y / 2 - humanoid_properties::HEIGHT / 2) as i32,
         );
         let top_left = ((pos.0 - 8.0).floor() as i32, (pos.1 - 5.0).floor() as i32);
         let bottom_right = ((pos.0 + 8.0).ceil() as i32, (pos.1 + 5.0).ceil() as i32);
@@ -264,7 +263,7 @@ impl Renderer {
         world: &World,
         texture_manager: &mut resource_manager::TextureManager<WindowContext>,
     ) -> Result<(), String> {
-        let mut entity_query = world.query::<(&Position, &Sprite)>();
+        let mut entity_query = world.query::<(&Position, &Sprite, Option<&HumanWalkAnimation>)>();
 
         let mut list = entity_query
             .iter()
@@ -277,7 +276,7 @@ impl Renderer {
             c1.partial_cmp(c2).unwrap()
         });
 
-        for (_, (Position(Coordinate(x, y)), sprite)) in list {
+        for (_, (Position(Coordinate(x, y)), sprite, anim)) in list {
             let render_quad = Rect::new(
                 (*x * TILE_SIZE as f32).round() as i32 - self.camera.offset.0 + sprite.shift_x,
                 (*y * TILE_SIZE as f32).round() as i32 - self.camera.offset.1 + sprite.shift_y,
@@ -286,7 +285,14 @@ impl Renderer {
             );
 
             let texture = texture_manager.load(&sprite.texture)?;
-            self.canvas.copy(&texture, sprite.src, render_quad)?;
+            match anim {
+                Some(anim) => {
+                    self.canvas.copy(&texture, anim.get_src(), render_quad)?;
+                }
+                None => {
+                    self.canvas.copy(&texture, sprite.src, render_quad)?;
+                }
+            }
         }
 
         Ok(())

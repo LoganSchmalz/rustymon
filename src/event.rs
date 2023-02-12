@@ -1,3 +1,5 @@
+use hecs::Entity;
+
 use crate::{
     bag::{Bag, Item},
     engine_structures::{
@@ -5,7 +7,6 @@ use crate::{
         coordinate::{Coordinate, Direction},
     },
     font_manager::FontManager,
-    humanoid::Humanoid,
     input::{self, Input, KeyState},
     menu::{
         self,
@@ -14,10 +15,10 @@ use crate::{
         pause_menu::PauseMenu,
         textbox::Textbox,
     },
-    object, player,
     render::{self, PIXELS_X},
 };
 
+#[derive(Clone)]
 pub enum Command {
     PlayerSprint(bool),
     PlayerMove(MovingState),
@@ -25,7 +26,7 @@ pub enum Command {
     InputMenu(MenuInput),
     OpenMenu(MenuCommand),
     GiveItem(Item, u32),
-    DeleteObject(Coordinate),
+    DeleteObject(Entity),
     ChangeMap(usize, Coordinate),
     DrawTransition,
 }
@@ -52,8 +53,6 @@ impl EventManager {
     pub fn handle_gameplay_events(
         &mut self,
         menu_man: &mut menu::MenuManager,
-        player: &mut player::Player,
-        obj_man: &mut object::ObjectManager,
         renderer: &mut render::Renderer,
         font_manager: &FontManager,
         bag: &mut Bag,
@@ -65,36 +64,18 @@ impl EventManager {
                 InputMenu(action) => {
                     menu_man.interact(action, bag.items.clone());
                 }
-                PlayerSprint(sprinting) => {
-                    if !menu_man.is_open() {
-                        player.set_try_sprinting(sprinting)
-                    }
-                }
+                PlayerSprint(sprinting) => if !menu_man.is_open() {},
                 PlayerMove(dir) => {
                     if !menu_man.is_open() {
                         //player.set_try_walking(dir)
                     } else {
-                        player.set_try_walking(None);
                     }
                 }
-                PlayerInteract => {
-                    let Coordinate(x, y) = player.get_pos();
-                    let temp_pos = match player.get_facing() {
-                        Direction::Left => Coordinate(x - 1.0, y),
-                        Direction::Right => Coordinate(x + 1.0, y),
-                        Direction::Up => Coordinate(x, y - 1.0),
-                        Direction::Down => Coordinate(x, y + 1.0),
-                    };
-
-                    self.push_events(&mut obj_man.interact(temp_pos, player.get_pos()));
-                    break; //this definitely is not a good permanent way to do this but it works for now
-                }
+                PlayerInteract => {}
                 GiveItem(item, amount) => {
                     bag.add_item(item, amount);
                 }
-                DeleteObject(pos) => {
-                    obj_man.remove_obj(pos);
-                }
+                DeleteObject(_) => {}
                 ChangeMap(id, pos) => (),
                 DrawTransition => {
                     renderer.play_fade();
@@ -120,20 +101,21 @@ impl EventManager {
 
     pub fn handle_input_menus(&mut self, input: &mut Input) {
         use input::Control::*;
+        use input::KeyState::*;
 
-        let input = if input.pressed_controls[Menu] == KeyState::Pressed {
+        let input = if input.pressed_controls[Menu] == Pressed {
             Some(Command::InputMenu(MenuInput::Start))
-        } else if input.pressed_controls[Interact1] == KeyState::Pressed {
+        } else if input.pressed_controls[Interact1] == Pressed {
             Some(Command::InputMenu(MenuInput::Accept))
-        } else if input.pressed_controls[Interact2] == KeyState::Pressed {
+        } else if input.pressed_controls[Interact2] == Pressed {
             Some(Command::InputMenu(MenuInput::Reject))
-        } else if input.pressed_controls[Left] == KeyState::Pressed {
+        } else if input.pressed_controls[Left] == Pressed {
             Some(Command::InputMenu(MenuInput::Left))
-        } else if input.pressed_controls[Right] == KeyState::Pressed {
+        } else if input.pressed_controls[Right] == Pressed {
             Some(Command::InputMenu(MenuInput::Right))
-        } else if input.pressed_controls[Up] == KeyState::Pressed {
+        } else if input.pressed_controls[Up] == Pressed {
             Some(Command::InputMenu(MenuInput::Up))
-        } else if input.pressed_controls[Down] == KeyState::Pressed {
+        } else if input.pressed_controls[Down] == Pressed {
             Some(Command::InputMenu(MenuInput::Down))
         } else {
             None
@@ -146,33 +128,31 @@ impl EventManager {
 
     pub fn handle_input_gameplay(&mut self, input: &mut Input) {
         use input::Control::*;
+        use input::KeyState::*;
 
-        if input.pressed_controls[Menu] == KeyState::Pressed {
+        if input.pressed_controls[Menu] == Pressed {
             self.push_event(Command::InputMenu(MenuInput::Start));
         }
 
-        if input.pressed_controls[Interact1] == KeyState::Pressed {
+        if input.pressed_controls[Interact1] == Pressed {
             self.push_event(Command::PlayerInteract);
         }
 
         self.push_event(match input.pressed_controls[Interact2] {
-            KeyState::Pressed | KeyState::Held => Command::PlayerSprint(true),
-            KeyState::Released => Command::PlayerSprint(false),
+            Pressed | Held => Command::PlayerSprint(true),
+            Released => Command::PlayerSprint(false),
         });
 
-        if input.pressed_controls[Up] != KeyState::Released
-            && input.pressed_controls[Down] == KeyState::Released
-        {
+        if input.pressed_controls[Up] != Released && input.pressed_controls[Down] == Released {
             self.push_event(Command::PlayerMove(MovingState::Moving(Direction::Up)))
-        } else if input.pressed_controls[Down] != KeyState::Released
-            && input.pressed_controls[Up] == KeyState::Released
+        } else if input.pressed_controls[Down] != Released && input.pressed_controls[Up] == Released
         {
             self.push_event(Command::PlayerMove(MovingState::Moving(Direction::Down)))
-        } else if input.pressed_controls[Left] != KeyState::Released
-            && input.pressed_controls[Right] == KeyState::Released
+        } else if input.pressed_controls[Left] != Released
+            && input.pressed_controls[Right] == Released
         {
             self.push_event(Command::PlayerMove(MovingState::Moving(Direction::Left)))
-        } else if input.pressed_controls[Right] != KeyState::Released
+        } else if input.pressed_controls[Right] != Released
             && input.pressed_controls[Left] == KeyState::Released
         {
             self.push_event(Command::PlayerMove(MovingState::Moving(Direction::Right)))

@@ -1,5 +1,7 @@
 use sdl2::rect::Rect;
 
+use crate::event::Command;
+
 use super::coordinate::{Coordinate, Direction};
 
 pub struct Player;
@@ -12,10 +14,61 @@ pub struct IsSprinting(bool);
 
 pub struct Collision;
 
+pub struct Interactions(pub Vec<Command>);
+
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum MovingState {
     Idle,
+    CenterTile,
     Moving(Direction),
+}
+
+pub struct HumanWalkAnimation {
+    pub rotation: Direction,
+    pub time: (f32, f32),
+    pub left_leg: bool,
+}
+
+impl HumanWalkAnimation {
+    pub fn get_src(&self) -> Rect {
+        let mut x = 0;
+        let mut y = 0;
+        match self.rotation {
+            Direction::Up => x = 16,
+            Direction::Right => x = 48,
+            Direction::Down => x = 0,
+            Direction::Left => x = 32,
+        }
+        if self.time.0 <= 0.5 * self.time.1 {
+            match self.left_leg {
+                true => y = 40,
+                false => y = 20,
+            }
+        }
+
+        Rect::new(x, y, 16, 20)
+    }
+
+    pub fn play_animation(&mut self, time: f32, rotation: Direction) {
+        self.left_leg = !self.left_leg;
+        self.time.0 = 0.0;
+        self.time.1 = time;
+        self.rotation = rotation;
+    }
+
+    pub fn is_playing(&self) -> bool {
+        self.time.0 < self.time.1
+    }
+
+    pub fn set_animation_time(&mut self, time: f32) {
+        self.time.1 = time;
+    }
+
+    pub fn update(&mut self, delta_time: f32) {
+        if self.time.0 < self.time.1 {
+            self.time.0 += delta_time;
+        }
+    }
 }
 
 pub struct MovingEntity {

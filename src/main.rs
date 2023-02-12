@@ -5,17 +5,14 @@ mod engine_structures;
 mod event;
 mod font_manager;
 mod gamestate;
-mod humanoid;
 mod input;
 mod menu;
-mod object;
-mod player;
 mod render;
 mod resource_manager;
 mod tilemap;
 
 use crate::{
-    engine_structures::{coordinate, *},
+    engine_structures::{*},
     gamestate::State,
     resource_manager::TextureManager,
 };
@@ -97,12 +94,12 @@ pub fn main() -> Result<(), String> {
         player.update(&delta_time, &map, &obj_man.collision_manager);
         obj_man.update_objects(&delta_time, &map);*/
 
-        state.update(&delta_time, &mut input, &mut map)?;
+        state.update(delta_time, &mut input, &mut map, &font_manager)?;
         state.render(
             &mut renderer,
             &mut texture_manager,
             &font_manager,
-            &delta_time,
+            delta_time,
             &mut map,
         )?;
     }
