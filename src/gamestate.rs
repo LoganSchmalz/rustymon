@@ -6,7 +6,7 @@ use sdl2::{rect::Rect, video::WindowContext};
 use crate::{
     bag::Bag,
     engine_structures::{
-        collision::{self, Collision},
+        collision,
         components::*,
         coordinate::{Coordinate, Direction},
     },
@@ -71,7 +71,7 @@ impl Default for State {
             Collision,
         ));
 
-        /*let _npc = world.spawn((
+        let _npc = world.spawn((
             Position(Coordinate(4f32, 4f32)),
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
@@ -84,7 +84,7 @@ impl Default for State {
                 shift_y: -8,
             },
             Collision,
-        ));*/
+        ));
 
         //let npc1 = world.spawn(())
 
@@ -188,7 +188,7 @@ impl State {
         let mut collision_query = self.world.query::<(&mut Position, &Collision)>();
 
         self.collisions = HashSet::new();
-        self.collisions.reserve(collision_query.iter().len());
+        //self.collisions.reserve(collision_query.iter().len());
 
         for (_, (Position(c), _)) in collision_query.iter() {
             self.collisions.insert(c.to_usize(self.map.size_x));
@@ -201,9 +201,9 @@ impl State {
                 .collisions
                 .contains(&position.to_usize(self.map.size_x))
             || position.0 < 0f32
-            || position.0 > self.map.size_x as f32
+            || position.0 >= self.map.size_x as f32
             || position.1 < 0f32
-            || position.0 > self.map.size_y as f32
+            || position.1 >= self.map.size_y as f32
     }
 
     pub fn update_player_moving_direction(
@@ -213,7 +213,7 @@ impl State {
         let (_, mut moving) = self
             .world
             .query_one_mut::<(&Player, &mut MovingEntity)>(self.player)
-            .expect("No player found");
+            .or(Err("No player found"))?;
 
         if moving.moving == MovingState::Idle {
             if let MovingState::Moving(dir) = moving_state {
@@ -232,7 +232,7 @@ impl State {
         let (_, mut moving) = self
             .world
             .query_one_mut::<(&Player, &mut MovingEntity)>(self.player)
-            .expect("No player found");
+            .or(Err("No player found"))?;
 
         if moving.moving == MovingState::Idle {
             moving.sprinting = sprinting;
@@ -245,7 +245,7 @@ impl State {
         let (_, &Position(Coordinate(x, y)), moving) = self
             .world
             .query_one_mut::<(&Player, &Position, &MovingEntity)>(self.player)
-            .expect("No player found");
+            .or(Err("No player found"))?;
 
         let temp_pos = match moving.rotation {
             Direction::Left => Coordinate(x - 1.0, y),
@@ -262,7 +262,7 @@ impl State {
             .next();
 
         match interact_entity {
-            Some(_) => (),
+            Some((id, _)) => (),
             None => (),
         }
 
