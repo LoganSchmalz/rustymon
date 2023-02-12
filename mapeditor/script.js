@@ -1,169 +1,15 @@
 const BRUSH_SCALE = 3;
-const floors = [
-        {
-            "name": "NONE",
-            "id": 0,
-            "x": 0,
-            "y": 0
-        },
-        {
-            "name": "GRASS1",
-            "id": 1,
-            "x": 32,
-            "y": 0
-        },
-        {
-            "name": "GRASS2",
-            "id": 2,
-            "x": 48,
-            "y": 0
-        },
-        {
-            "name": "WATER1",
-            "id": 3,
-            "x": 16,
-            "y": 64
-        },
-        {
-            "name": "WGTL",
-            "id": 4,
-            "x": 0,
-            "y": 48
-        },
-        {
-            "name": "WGT",
-            "id": 5,
-            "x": 16,
-            "y": 48
-        },
-        {
-            "name": "WGTR",
-            "id": 6,
-            "x": 32,
-            "y": 48
-        },
-        {
-            "name": "WGL",
-            "id": 7,
-            "x": 0,
-            "y": 64
-        },
-        {
-            "name": "WGR",
-            "id": 8,
-            "x": 32,
-            "y": 64
-        },
-        {
-            "name": "WGBL",
-            "id": 9,
-            "x": 0,
-            "y": 80
-        },
-        {
-            "name": "WGB",
-            "id": 10,
-            "x": 16,
-            "y": 80
-        },
-        {
-            "name": "WGBR",
-            "id": 11,
-            "x": 32,
-            "y": 80
-        },
-        {
-            "name": "GWTL",
-            "id": 12,
-            "x": 48,
-            "y": 48
-        },
-        {
-            "name": "GWTR",
-            "id": 13,
-            "x": 80,
-            "y": 48
-        },
-        {
-            "name": "GWBL",
-            "id": 14,
-            "x": 48,
-            "y": 80
-        },
-        {
-            "name": "GWBR",
-            "id": 15,
-            "x": 80,
-            "y": 80
-        },
-        {
-            "name": "FB1",
-            "id": 16,
-            "x": 112,
-            "y": 0
-        },
-    ]
-const walls = [
-        {
-            "name": "NONE",
-            "id": 0,
-            "x": 0,
-            "y": 0
-        },
-        {
-            "name": "WOODL",
-            "id": 1,
-            "x": 128,
-            "y": 0
-        },
-        {
-            "name": "WOODR",
-            "id": 2,
-            "x": 160,
-            "y": 0
-        },
-        {
-            "name": "WOOD",
-            "id": 3,
-            "x": 134,
-            "y": 0
-        },
-    ]
-const objects = [
-        {
-            "name": "NONE",
-            "id": 0,
-            "x": 0,
-            "y": 0
-        },
-        {
-            "name": "BERRY1",
-            "id": 1,
-            "x": 16,
-            "y": 0
-        },
-        {
-            "name": "BERRY2",
-            "id": 2,
-            "x": 32,
-            "y": 0
-        },
-    ]
-const empty = {
-    "id": 0
-}
 
 var SELECTED_TILE = floors[1];
 var WIDTH = 15;
 var HEIGHT = 10;
 
-// initialize map object
+// initialize map object:
 var map = {
     w: WIDTH,
     h: HEIGHT,
     layers: [],
     init: function() {
-        this.dim = [this.w, this.h];
         this.layers.push(initArray(this.w, this.h, floors[2])); // 0: floor
         this.layers.push(initArray(this.w, this.h, empty)); // 1: walls
         this.layers.push(initArray(this.w, this.h, empty)); // 2: objects
@@ -181,7 +27,6 @@ function initArray(w, h, fill) {
 
 function showLayer(layer) {
     c = document.getElementById(layer);
-    console.log(layer)
     switch (layer) {
         case "floorCheck":
             document.getElementById("gridFloor").style.display = c.checked ? "block" : "none";
@@ -196,6 +41,7 @@ function showLayer(layer) {
 }
 
 window.onload = function () {
+    // load the swatches grids once on load time
     for (f of floors) {
         document.getElementById("floorSwatches")
         .insertAdjacentHTML('beforeend', `<div class='floor' id="floor_${f.id}" onclick='selectSwatch(this.id)'></div>`)
@@ -212,14 +58,25 @@ window.onload = function () {
         document.getElementById(`object_${o.id}`).style.backgroundPosition = `${o.x * BRUSH_SCALE * -1}px ${o.y * BRUSH_SCALE * -1}px`
     }
     
+    // initial redraw of the map
     redrawMap();
 }
 
-function exportMap() {
-    var floorText = ''
-    var wallsText = ''
-    var collisionText = ''
+function selectSwatch(id) {
+    i = id.split('_');
+    SELECTED_TILE = i[0] == 'floor' ? floors[i[1]] : i[0] == 'wall' ? walls[i[1]] : objects[i[1]];
+    document.getElementById(id).selected = true;
+    console.log("Selected swatch: " + SELECTED_TILE.name)
+}
 
+function exportMap() {
+    var zip = new JSZip(); 
+
+    var floorText = ""
+    var wallsText = ""
+    var collisionText = ""
+
+    // convert object-based map to string format
     for (var i = 0; i < map.h; i++) {
         for (var j = 0; j < map.w; j++) {
             floorText += j==map.w-1 ? map.layers[0][i][j].id : map.layers[0][i][j].id + ' '
@@ -231,43 +88,35 @@ function exportMap() {
         collisionText  += '\n'
     }
 
-    // download:
-    var e = document.createElement('a');
-    e.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(floorText));
-    e.setAttribute('download', "floor.txt");
-    e.style.display = 'none';
-    document.body.appendChild(e);
-    e.click();
-    document.body.removeChild(e);
-    e.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(wallsText));
-    e.setAttribute('download', "walls.txt");
-    e.style.display = 'none';
-    document.body.appendChild(e);
-    e.click();
-    document.body.removeChild(e);
-    e.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(collisionText));
-    e.setAttribute('download', "collision.txt");
-    e.style.display = 'none';
-    document.body.appendChild(e);
-    e.click();
-    document.body.removeChild(e);
-    e.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(`${WIDTH}, ${HEIGHT}`));
-    e.setAttribute('download', "dim.txt");
-    e.style.display = 'none';
-    document.body.appendChild(e);
-    e.click();
-    document.body.removeChild(e);
+    var folder = zip.folder("map");  
+    folder.file("floor.txt", floorText)
+    folder.file("walls.txt", wallsText)
+    folder.file("collision.txt", collisionText)
+
+    // download zip blobs asynchronously:
+    folder.generateAsync({type: "blob"}).then(function(file) {
+        var e = document.createElement('a'),
+        url = URL.createObjectURL(file);
+        e.href = url;
+        e.download = "map.zip";
+        document.body.appendChild(e);
+        e.click();
+        setTimeout(function() {
+            document.body.removeChild(e);
+            window.URL.revokeObjectURL(url);  
+        }, 0);
+    })
 }
 
 async function importMap() {
-    // Check filesnames
     files = document.getElementById("file-selector").files
     var floor, wall, object;
 
+    // Check file names
     for(f in files) {
-        if(String(files[f].name).includes("floor")) {floor = files[f]}
-        if(String(files[f].name).includes("walls")) {wall = files[f]}
-        if(String(files[f].name).includes("collision")) {object = files[f]}
+        if(files[f].name == "floor.txt") {floor = files[f]}
+        if(files[f].name == "walls.txt") {wall = files[f]}
+        if(files[f].name == "collision.txt") {object = files[f]}
     }
 
     processFiles(floor, wall, object).then((res) => {
@@ -281,23 +130,6 @@ async function importMap() {
     })
 }
 
-function readFileAsync(file) {
-    return new Promise((resolve, reject) => {
-        var reader = new FileReader();
-            reader.onload = () => {
-            resolve(reader.result);
-        };
-
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
-    })
-}
-  
-function arrayBufferToString(arrayBuffer, decoderType = 'utf-8') {
-    var decoder = new TextDecoder(decoderType);
-    return decoder.decode(arrayBuffer);
-}
-  
 async function processFiles(f, w, o) {
     var layers = [];
     
@@ -329,11 +161,22 @@ async function processFiles(f, w, o) {
     }
 }
 
-function selectSwatch(id) {
-    i = id.split('_');
-    SELECTED_TILE = i[0] == 'floor' ? floors[i[1]] : i[0] == 'wall' ? walls[i[1]] : objects[i[1]];
-    document.getElementById(id).selected = true;
-    console.log("Selected swatch: " + SELECTED_TILE.name)
+// process files helper functions
+function readFileAsync(file) {
+    return new Promise((resolve, reject) => {
+        var reader = new FileReader();
+            reader.onload = () => {
+            resolve(reader.result);
+        };
+
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+    })
+}
+  
+function arrayBufferToString(arrayBuffer, decoderType = 'utf-8') {
+    var decoder = new TextDecoder(decoderType);
+    return decoder.decode(arrayBuffer);
 }
 
 function expandMap(dir) {
