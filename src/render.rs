@@ -193,7 +193,7 @@ impl Renderer {
         font_man: &FontManager,
         menu_man: &mut menu::MenuManager,
     ) -> Result<(), String> {
-        for menu_item in menu_man.menus.iter_mut() {
+        for menu_item in menu_man.menus.iter() {
             match menu_item {
                 menu::Menu::MainMenu(menu) => {
                     self.render_main_menu(menu, texture_manager, font_man)?

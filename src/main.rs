@@ -62,7 +62,6 @@ pub fn main() -> Result<(), String> {
     let fonts = font_manager::Fonts::load(&ttf_context)?;
     let font_manager = font_manager::FontManager::new(fonts);
     let mut renderer = render::Renderer::new(canvas);
-    let mut menu_man = menu::MenuManager::new();
 
     let mut map = TileMap::load(0);
 
@@ -105,7 +104,6 @@ pub fn main() -> Result<(), String> {
             &font_manager,
             &delta_time,
             &mut map,
-            &mut menu_man,
         )?;
     }
 

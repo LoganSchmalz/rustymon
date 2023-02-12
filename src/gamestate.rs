@@ -1,9 +1,12 @@
-use hecs::World;
+use std::{collections::HashSet, hash::Hash};
+
+use hecs::{Entity, World};
 use sdl2::{rect::Rect, video::WindowContext};
 
 use crate::{
     bag::Bag,
     engine_structures::{
+        collision::{self, Collision},
         components::*,
         coordinate::{Coordinate, Direction},
     },
@@ -12,10 +15,14 @@ use crate::{
     humanoid::{self, ROTATION_TIME},
     input::Input,
     menu::{
+        bag_menu::BagMenu,
         main_menu::{MainMenu, MainMenuButton},
+        menu_events::MenuCommand,
+        pause_menu::PauseMenu,
+        textbox::Textbox,
         MenuManager,
     },
-    render::Renderer,
+    render::{Renderer, PIXELS_X},
     resource_manager::TextureManager,
     tilemap::TileMap,
     TILE_SIZE,
@@ -34,12 +41,14 @@ pub struct State {
     pub bag: Bag,
     pub map: TileMap,
     pub menus: MenuManager,
+    pub player: Entity,
+    pub collisions: HashSet<usize>,
 }
 
 impl Default for State {
     fn default() -> Self {
         let mut world = World::new();
-        let _player = world.spawn((
+        let player = world.spawn((
             Player,
             Position(Coordinate(2f32, 1f32)),
             MovingEntity::new(Coordinate(2f32, 1f32)),
@@ -49,6 +58,7 @@ impl Default for State {
                 shift_x: 0,
                 shift_y: -8,
             },
+            Collision,
         ));
 
         let _door = world.spawn((
@@ -58,6 +68,7 @@ impl Default for State {
                 src: Rect::new(96, 0, 16, 16),
                 ..Default::default()
             },
+            Collision,
         ));
 
         /*let _npc = world.spawn((
@@ -72,6 +83,7 @@ impl Default for State {
                 shift_x: 0,
                 shift_y: -8,
             },
+            Collision,
         ));*/
 
         //let npc1 = world.spawn(())
@@ -86,20 +98,21 @@ impl Default for State {
             bag: Bag::new(),
             map: TileMap::load(0),
             menus: MenuManager::new(),
+            player,
+            collisions: HashSet::new(),
         }
     }
 }
 
 impl State {
     pub fn render(
-        &self,
+        &mut self,
         renderer: &mut Renderer,
         //_canvas: &Canvas<Window>,
         texture_manager: &mut TextureManager<WindowContext>,
         font_man: &FontManager,
         delta_time: &f32,
         map: &mut TileMap,
-        menu_man: &mut MenuManager,
     ) -> Result<(), String> {
         match &self.screen {
             Screen::MainMenu(menu) => renderer.render_main_menu(menu, texture_manager, font_man)?,
@@ -109,13 +122,18 @@ impl State {
                 delta_time,
                 &self.world,
                 map,
-                menu_man,
+                &mut self.menus,
             )?,
         };
         Ok(())
     }
 
-    pub fn update(&mut self, delta_time: &f32, input: &mut Input, _map: &mut TileMap) -> Result<(), String> {
+    pub fn update(
+        &mut self,
+        delta_time: &f32,
+        input: &mut Input,
+        _map: &mut TileMap,
+    ) -> Result<(), String> {
         match self.screen {
             Screen::Gameplay => {
                 if self.menus.is_open() {
@@ -129,14 +147,31 @@ impl State {
 
         while let Some(command) = self.events.commands.pop() {
             match command {
-                Command::PlayerSprint(_) => (),
-                Command::PlayerMove(moving_state) => {
-                    self.update_player_moving_direction(moving_state)?
+                Command::PlayerSprint(sprinting) => self.update_player_sprinting(sprinting)?,
+                Command::PlayerMove(ms) => self.update_player_moving_direction(ms)?,
+                Command::PlayerInteract => self.try_player_interaction()?,
+                Command::InputMenu(action) => self.menus.interact(action, self.bag.items.clone()),
+                Command::OpenMenu(menu_event) => {
+                    match menu_event {
+                        MenuCommand::OpenStrays => todo!(),
+                        MenuCommand::OpenBag => self
+                            .menus
+                            .open_menu(BagMenu::new(self.bag.items.clone()).into()),
+                        MenuCommand::OpenSave => todo!(),
+                        MenuCommand::Close => self.menus.close_menu(),
+                        MenuCommand::OpenTextbox(text_in) =>
+                        /*self
+                        .menus
+                        .open_menu(Textbox::new(text_in, font_manager, PIXELS_X).into())*/
+                        {
+                            ()
+                        }
+                        MenuCommand::OpenPauseMenu => {
+                            self.menus.open_menu(PauseMenu::new().into());
+                        }
+                    };
                 }
-                Command::PlayerInteract => todo!(),
-                Command::InputMenu(_) => todo!(),
-                Command::OpenMenu(_) => todo!(),
-                Command::GiveItem(_, _) => todo!(),
+                Command::GiveItem(item, amount) => self.bag.add_item(item, amount),
                 Command::DeleteObject(_) => todo!(),
                 Command::ChangeMap(_, _) => todo!(),
                 Command::DrawTransition => todo!(),
@@ -144,19 +179,41 @@ impl State {
         }
 
         self.update_moving_objects(delta_time);
+        self.update_collisions();
 
         Ok(())
+    }
+
+    pub fn update_collisions(&mut self) {
+        let mut collision_query = self.world.query::<(&mut Position, &Collision)>();
+
+        self.collisions = HashSet::new();
+        self.collisions.reserve(collision_query.iter().len());
+
+        for (_, (Position(c), _)) in collision_query.iter() {
+            self.collisions.insert(c.to_usize(self.map.size_x));
+        }
+    }
+
+    pub fn check_collision(&self, position: &Coordinate) -> bool {
+        self.map.check_collision(*position) == collision::Collision(true)
+            || self
+                .collisions
+                .contains(&position.to_usize(self.map.size_x))
+            || position.0 < 0f32
+            || position.0 > self.map.size_x as f32
+            || position.1 < 0f32
+            || position.0 > self.map.size_y as f32
     }
 
     pub fn update_player_moving_direction(
         &mut self,
         moving_state: MovingState,
     ) -> Result<(), String> {
-        let mut player_query = self
+        let (_, mut moving) = self
             .world
-            .query::<(&Player, &Position, &mut MovingEntity)>();
-        let (_, (_player, Position(Coordinate(x, y)), moving)) =
-            player_query.iter().next().ok_or("No player found")?;
+            .query_one_mut::<(&Player, &mut MovingEntity)>(self.player)
+            .expect("No player found");
 
         if moving.moving == MovingState::Idle {
             if let MovingState::Moving(dir) = moving_state {
@@ -167,6 +224,50 @@ impl State {
             }
         }
         moving.try_moving = moving_state;
+
+        Ok(())
+    }
+
+    pub fn update_player_sprinting(&mut self, sprinting: bool) -> Result<(), String> {
+        let (_, mut moving) = self
+            .world
+            .query_one_mut::<(&Player, &mut MovingEntity)>(self.player)
+            .expect("No player found");
+
+        if moving.moving == MovingState::Idle {
+            moving.sprinting = sprinting;
+        }
+
+        Ok(())
+    }
+
+    pub fn try_player_interaction(&mut self) -> Result<(), String> {
+        let (_, &Position(Coordinate(x, y)), moving) = self
+            .world
+            .query_one_mut::<(&Player, &Position, &MovingEntity)>(self.player)
+            .expect("No player found");
+
+        let temp_pos = match moving.rotation {
+            Direction::Left => Coordinate(x - 1.0, y),
+            Direction::Right => Coordinate(x + 1.0, y),
+            Direction::Up => Coordinate(x, y - 1.0),
+            Direction::Down => Coordinate(x, y + 1.0),
+        };
+
+        let mut interact_query = self.world.query::<(&Position,)>();
+
+        let interact_entity = interact_query
+            .iter()
+            .filter(|(_, (&Position(c),))| c == temp_pos)
+            .next();
+
+        match interact_entity {
+            Some(_) => (),
+            None => (),
+        }
+
+        //self.events
+        //    .push_events(&mut obj_man.interact(temp_pos, player.get_pos()));
 
         Ok(())
     }
@@ -195,7 +296,12 @@ impl State {
                     _ => Coordinate(x, y),
                 };
 
-                if (x, y) == (target_x, target_y) {
+                //hopefully this condition works on moving objects but unsure
+                if (x, y) == (target_x, target_y)
+                    || self.check_collision(&(target_x, target_y).into())
+                        && Coordinate(x, y) == Coordinate(x, y).round_to_tile()
+                {
+                    moving.moving = MovingState::Idle;
                     continue;
                 }
 
@@ -229,7 +335,7 @@ impl State {
                     || dx != 0.0 && (target_x - x).signum() != dx.signum()
                     || dy != 0.0 && (target_y - y).signum() != dy.signum()
                 {
-                    *pos = Position((Coordinate(target_x, target_y)));
+                    *pos = Position(Coordinate(target_x, target_y));
                     moving.moving = MovingState::Idle;
                 }
             }

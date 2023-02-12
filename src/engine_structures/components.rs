@@ -10,6 +10,8 @@ pub struct Position(pub Coordinate);
 
 pub struct IsSprinting(bool);
 
+pub struct Collision;
+
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum MovingState {
     Idle,

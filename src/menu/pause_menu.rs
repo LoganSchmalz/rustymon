@@ -41,8 +41,8 @@ impl MenuItem for PauseMenu {
             }
             MenuInput::Accept => match self.items[self.selected].as_str() {
                 "Bag" => return Some(MenuCommand::OpenBag),
-                "Exit" => {
-                    if self.items[self.selected] == "Exit" {
+                "Close" => {
+                    if self.items[self.selected] == "Close" {
                         return Some(MenuCommand::Close);
                     } else {
                     }
