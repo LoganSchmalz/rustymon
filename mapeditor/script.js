@@ -153,12 +153,12 @@ const empty = {
     "id": 0
 }
 
-let SELECTED_TILE = floors[1];
-let WIDTH = 15;
-let HEIGHT = 10;
+var SELECTED_TILE = floors[1];
+var WIDTH = 15;
+var HEIGHT = 10;
 
 // initialize map object
-let map = {
+var map = {
     w: WIDTH,
     h: HEIGHT,
     layers: [],
@@ -168,23 +168,12 @@ let map = {
         this.layers.push(initArray(this.w, this.h, empty)); // 1: walls
         this.layers.push(initArray(this.w, this.h, empty)); // 2: objects
         return this;
-    },
-    fromFile: function(floors, walls, objects) {
-        WIDTH = floors[0].length;
-        HEIGHT = floors.length;
-        this.w = WIDTH;
-        this.h = HEIGHT;
-        this.dim = [this.w, this.h]
-        this.layers.push(floors); // 0: floor
-        this.layers.push(walls); // 1: walls
-        this.layers.push(objects); // 2: objects
-        return this;
     }
 }.init()
 
 function initArray(w, h, fill) {
     f = new Array(h);
-    for (let i = 0; i < h; i++) {
+    for (var i = 0; i < h; i++) {
         f[i] = new Array(w).fill(fill);
     }
     return f;
@@ -227,17 +216,19 @@ window.onload = function () {
 }
 
 function exportMap() {
-    let floorText = ''
-    let wallsText = ''
-    let collisionText = ''
+    var floorText = ''
+    var wallsText = ''
+    var collisionText = ''
 
-    for (let i = 0; i < map.h; i++) {
-        for (let j = 0; j < map.w; j++) {
+    for (var i = 0; i < map.h; i++) {
+        for (var j = 0; j < map.w; j++) {
             floorText += j==map.w-1 ? map.layers[0][i][j].id : map.layers[0][i][j].id + ' '
             wallsText += j==map.w-1 ? map.layers[1][i][j].id : map.layers[1][i][j].id + ' '
+            collisionText += j==map.w-1 ? map.layers[2][i][j].id : map.layers[2][i][j].id + ' '
         }
         floorText += '\n'
         wallsText  += '\n'
+        collisionText  += '\n'
     }
 
     // download:
@@ -268,46 +259,74 @@ function exportMap() {
     document.body.removeChild(e);
 }
 
-function importMap() {
-    var floor = document.getElementById("file-selector").files[0]
-    var f = parseFloorFile(floor);
+async function importMap() {
+    // Check filesnames
+    files = document.getElementById("file-selector").files
+    var floor, wall, object;
 
-    console.log(f.length)
-
-    map.w = f[0].length;
-    map.h = f.length;
-    map.layers[0] = f;
-    map.layers[1] = f;
-    map.layers[2] = f;
-    
-    redrawMap();
-}
-
-function parseFloorFile(f) {
-    var a = [];
-    if(f) {
-        var reader = new FileReader();
-        reader.readAsText(f, "UTF-8");
-        reader.onload = function (evt) {
-            console.log(evt.target.result);
-            var lines = evt.target.result.split(/[\r\n]+/g);
-            lines.forEach(function(line) {
-                if(String(line).length > 0) {
-                    a.push(String(line).split(/[\b\s\b]+/g));
-                }
-            });
-            console.log(a);
-        }
-        reader.onerror = function (evt) {
-            console.error("Failed to load file: ");
-        }
+    for(f in files) {
+        if(String(files[f].name).includes("floor")) {floor = files[f]}
+        if(String(files[f].name).includes("walls")) {wall = files[f]}
+        if(String(files[f].name).includes("collision")) {object = files[f]}
     }
 
-    return a;
+    processFiles(floor, wall, object).then((res) => {
+        console.log(res);
+        WIDTH = res[0][0].length; 
+        HEIGHT = res[0].length;
+        map.w = WIDTH;
+        map.h = HEIGHT;
+        map.layers = res;
+        redrawMap();
+    })
 }
 
-function parseWallFile() {
+function readFileAsync(file) {
+    return new Promise((resolve, reject) => {
+        var reader = new FileReader();
+            reader.onload = () => {
+            resolve(reader.result);
+        };
 
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+    })
+}
+  
+function arrayBufferToString(arrayBuffer, decoderType = 'utf-8') {
+    var decoder = new TextDecoder(decoderType);
+    return decoder.decode(arrayBuffer);
+}
+  
+async function processFiles(f, w, o) {
+    var layers = [];
+    
+    try {
+        for(arg in arguments) {
+            var a = [];
+            await readFileAsync(arguments[arg]).then((res) => {
+                buf = arrayBufferToString(res);
+                var lines = buf.split(/[\r\n]+/g);
+                lines.forEach(function(l) {
+                    if(String(l).length > 0) {
+                        var line = String(l).split(/[\b\s\b]+/g)
+                        if(arg == 0) {
+                            a.push(line.map(x => floors[x]));
+                        } else if (arg == 1) {
+                            a.push(line.map(x => walls[x]));
+                        } else {
+                            a.push(line.map(x => objects[x]));
+                        }
+                    }
+                });
+                layers.push(a)
+            });
+        }
+        return layers;
+    
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 function selectSwatch(id) {
@@ -318,8 +337,8 @@ function selectSwatch(id) {
 }
 
 function expandMap(dir) {
-    let size = +document.getElementById("expandSize").value
-    let tmp;
+    var size = +document.getElementById("expandSize").value
+    var tmp;
     switch (dir) {
         case 0: // north
             console.log("North + " + size);
@@ -329,8 +348,8 @@ function expandMap(dir) {
                 // create new main array
                 l = initArray(map.w, map.h + size, empty)
                 // shift and copy old floor array
-                for (let i = size; i < map.h + size; i++) {
-                    for (let j = 0; j < map.w; j++) {
+                for (var i = size; i < map.h + size; i++) {
+                    for (var j = 0; j < map.w; j++) {
                         l[i][j] = tmp[i-size][j]
                     }
                 }
@@ -347,8 +366,8 @@ function expandMap(dir) {
                 // create new main array
                 l = initArray(map.w+size, map.h, empty)
                 // shift and copy old floor array
-                for (let i = 0; i < map.h; i++) {
-                    for (let j = 0; j < map.w; j++) {
+                for (var i = 0; i < map.h; i++) {
+                    for (var j = 0; j < map.w; j++) {
                         l[i][j] = tmp[i][j]
                     }
                 }
@@ -365,8 +384,8 @@ function expandMap(dir) {
                 // create new main array
                 l = initArray(map.w, map.h+size, empty)
                 // shift and copy old floor array
-                for (let i = 0; i < map.h; i++) {
-                    for (let j = 0; j < map.w; j++) {
+                for (var i = 0; i < map.h; i++) {
+                    for (var j = 0; j < map.w; j++) {
                         l[i][j] = tmp[i][j]
                     }
                 }
@@ -383,8 +402,8 @@ function expandMap(dir) {
                 // create new main array
                 l = initArray(map.w+size, map.h, empty)
                 // shift and copy old floor array
-                for (let i = 0; i < map.h; i++) {
-                    for (let j = size; j < map.w + size; j++) {
+                for (var i = 0; i < map.h; i++) {
+                    for (var j = size; j < map.w + size; j++) {
                         l[i][j] = tmp[i][j-size]
                     }
                 }
@@ -422,8 +441,8 @@ function redrawMap() {
         e.style.height = map.h*16*BRUSH_SCALE + 'px';
     }
 
-    for (let i = 0; i < map.h; ++i) {
-        for (let j = 0; j < map.w; ++j) {
+    for (var i = 0; i < map.h; ++i) {
+        for (var j = 0; j < map.w; ++j) {
             document.getElementById("gridFloor").insertAdjacentHTML('beforeend', `<div class="floor" id="${[i,j,0]}" onclick="updateMapArray(this.id)"></div>`)
             document.getElementById(`${[i,j,0]}`).style.backgroundPosition = `${map.layers[0][i][j].x * BRUSH_SCALE * -1}px ${map.layers[0][i][j].y * BRUSH_SCALE * -1}px`
             document.getElementById("gridWall").insertAdjacentHTML('beforeend', `<div class="wall" id="${[i,j,1]}" onclick="updateMapArray(this.id)"></div>`)
