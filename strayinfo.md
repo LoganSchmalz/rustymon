@@ -87,3 +87,44 @@ A very slow stray with one of the largest mouth to body ratios of the earth type
 - VORTEX
 - BASH
 
+# **Cespae**: Zen Type
+### Description
+Cespae are cervids with three sets of horns. Their primary horns on their head server a more offensive purpose than the more defensive sets on their neck and rear. They are very agile and spry, able to contort their torsos in many directions.
+
+### Base Stats
+- HP: 15
+- ATK: 20
+- DEF: 30
+- SPEED: 20
+
+### Starting Moves
+- RAM
+- BASH
+
+# **Omikae**: Astral Type
+### Description
+A nebulous being that's limbs are connected through wisps of gas to the torso. Various temperatures of gas swirl throughout omikae, resulting in different colors throughout the stray.
+
+### Base Stats
+- HP: 20
+- ATK: 15
+- DEF: 30
+- SPEED: 20
+
+### Starting Moves
+- WISP
+- BLITZ
+
+# **Carerus**: Astral Type
+### Description
+Carerae are feline strays with translucent skin, allowing their skeletal structure to be seen at all times. Some say this is to evoke fear of death in their predators, while it is also probably that their translucent skin can make them seem smaller and more approachable to some prey.
+
+### Base Stats
+- HP: 20
+- ATK: 30
+- DEF: 15
+- SPEED: 20
+
+### Starting Moves
+- SCRATCH
+- SLICE
