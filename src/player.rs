@@ -1,4 +1,4 @@
-use crate::coordinate::{Coordinate, Direction};
+ use crate::coordinate::{Coordinate, Direction};
 use crate::humanoid::Humanoid;
 use crate::humanoid::{Leg, WALKING_TIME_PER_TILE, RUNNING_TIME_PER_TILE};
 use crate::object::CollisionManager;
@@ -14,7 +14,7 @@ pub struct Player {
     animation_time: f32,
     facing: Direction,
     current_leg: Leg,
-    try_walking: Option<Direction>,
+    try_walking: Option<Direction>, 
     rotation_timer: f32,
 }
 
@@ -122,28 +122,28 @@ impl Player {
             || self.animation_time < (0.5 * anim_time)
         {
             match self.facing {
-                Direction::Up => Rect::new(16, 0, 16, 20),
-                Direction::Right => Rect::new(48, 0, 16, 20),
-                Direction::Down => Rect::new(0, 0, 16, 20),
-                Direction::Left => Rect::new(32, 0, 16, 20),
+                Direction::Up => Rect::new(16, 0 + 60*(self.try_sprinting as i32), 16, 20),
+                Direction::Right => Rect::new(48, 0 + 60*(self.try_sprinting as i32), 16, 20),
+                Direction::Down => Rect::new(0, 0 + 60*(self.try_sprinting as i32), 16, 20),
+                Direction::Left => Rect::new(32, 0 + 60*(self.try_sprinting as i32), 16, 20),
             }
         } else {
             match self.facing {
                 Direction::Up => match self.current_leg {
-                    Leg::Left => Rect::new(16, 40, 16, 20),
-                    Leg::Right => Rect::new(16, 20, 16, 20),
+                    Leg::Left => Rect::new(16, 40 + 60*(self.is_sprinting as i32), 16, 20),
+                    Leg::Right => Rect::new(16, 20 + 60*(self.is_sprinting as i32), 16, 20),
                 },
                 Direction::Right => match self.current_leg {
-                    Leg::Left => Rect::new(48, 40, 16, 20),
-                    Leg::Right => Rect::new(48, 20, 16, 20),
+                    Leg::Left => Rect::new(48, 40 + 60*(self.is_sprinting as i32), 16, 20),
+                    Leg::Right => Rect::new(48, 20 + 60*(self.is_sprinting as i32), 16, 20),
                 },
                 Direction::Down => match self.current_leg {
-                    Leg::Left => Rect::new(0, 40, 16, 20),
-                    Leg::Right => Rect::new(0, 20, 16, 20),
+                    Leg::Left => Rect::new(0, 40 + 60*(self.is_sprinting as i32), 16, 20),
+                    Leg::Right => Rect::new(0, 20 + 60*(self.is_sprinting as i32), 16, 20),
                 },
                 Direction::Left => match self.current_leg {
-                    Leg::Left => Rect::new(32, 40, 16, 20),
-                    Leg::Right => Rect::new(32, 20, 16, 20),
+                    Leg::Left => Rect::new(32, 40 + 60*(self.is_sprinting as i32), 16, 20),
+                    Leg::Right => Rect::new(32, 20 + 60*(self.is_sprinting as i32), 16, 20),
                 },
             }
         }
