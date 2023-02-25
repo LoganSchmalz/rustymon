@@ -44,7 +44,8 @@ Dark and Light Types' movesets are completely ineffective against one another, b
 
 # Statistic Mecahnics
 
-- Health Points (HP): Health-depletion is the core component to pokemon battles; if a creature's health drops to zero, they faint and must be revived. Health point totals can range from ~15 to greater than 100, and tends to scale with a creature's experience level.
+- Health Points (HP): 
+    - Increases with level increase
 
 - Attack: The attack statistic determines foundationally how much damage a certain move does.
 
@@ -54,25 +55,43 @@ Dark and Light Types' movesets are completely ineffective against one another, b
 
 - Accuracy: This statistic determines the accuracy of a certain move, ie, the chance that it will land a hit on the opposing creature. This statistic is not specific to a single creature, and is instead reset to 100% at the beginning of each battle. Moves themselves will also have an accuracy statistic that alters the chance of a move landing.
 
+- Stat modification that is more controllable than just 'leveling up'
+- Put stats on a set curve for level up?
+
 # Battle Mechanics
 
-Battles in Rustymon can occur between a minimum of two creatures, or can be paired battles (2 v 2). Battles are turn-based and the creature who attacks first is based on a variety of factors (in order of precidence):
-    
-1. A given creature's calculated speed statistics are the first indicator of who attacks first, unless players are switching out to different creatures which will always happen first. *See above Statistic Mechanics section for information about how the speed is calculated.*
+## Brainstorming
 
-2. Eventually, we will flesh-out specfic abilities which can give creatures additional priority in battle. That information will go here.
+- Earthbound-style turn based
+- Some of the types work with eachother (in team battles)
+- Consider a 'move-economy' where moves have an associated cost/points and you can only use a certain number per turn
+    - Only team battles?
+- Consider animation cost, not doing full animations for each stary/move, etc.
+---
+Party Size: 
+- up to 4
+- Consider different sprite sizes during battle, 4v4 + GUI might be a lot of information on the screen
 
-3. If the speed statistics are the same for all creatures, the game will break the tie at random.
+Health:
+- Battle ends when entire team has 'died'
 
-Critical hits occur based on the critical hit stage ratio during a battle. This ratio is calculated based on a stage variable that might increase based on move's critical hit ratio (CHR), the ability of certain creatures, the affect of certain settings, and the ability of certain item, and create friendliness.
+Turns:
+- Turns are based entirely on speed (every stray on the battlefield takes their turn from highest to lowest)
+- Should a single faster stray be able to take multiple turns before another slower stray? Some sort of 'limitation' that you can manually control a certain statistic like speed (a plateau of statistic?)
 
-The base critical hit ratio is 1:16.
+Multi-battles:
+- Any size team versus any size team
 
-Damage taken is calculated from on a base formula (framed after the calculation in later generations of Pokemon):
+Moves:
+- Each stray has a move set to select from each turn
+- Potential problems:
+    - Using the same move over and over again : better indication of move's affect over course of battle
 
-    D = floor(floor(floor((2 * Level / 5) + 2) * Power * Attack / Defense) / 50) + 2
+Explore ways to emphasize the 'muti-stray battle' aspect of Rustymon, ex: 
 
-Level is the level of the creature. Attack is the attack multiplier statistic. Power is the move's power statistic. Defense is the defense statistic of the opposing creature. 
+Type synergy:
+- Need to add which types are 'synergistic,' that is which types provide certain advantages, as well as what those advantages are.
+
 
 # Interaction Mechanics
 
