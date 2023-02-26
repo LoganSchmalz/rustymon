@@ -1,17 +1,20 @@
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum MenuInput {
-	Up,
-	Down,
-	Left,
-	Right,
-	Accept,
-	Reject,
-	Start,
+    Up,
+    Down,
+    Left,
+    Right,
+    Accept,
+    Reject,
+    Start,
 }
 
-pub enum MenuEvent {
+#[derive(Clone)]
+pub enum MenuCommand {
     OpenStrays,
-	OpenBag,
-	OpenSave,
+    OpenBag,
+    OpenSave,
     Close,
+    OpenTextbox(String),
+    OpenPauseMenu,
 }

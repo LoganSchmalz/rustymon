@@ -4,17 +4,16 @@ use sdl2::{
     keyboard::Keycode,
 };
 
-pub struct Input {
-    pressed_controls: EnumMap<Control, bool>,
-}
+use crate::render::Renderer;
 
-pub enum InputEvent {
-    ExitGame,
-    ToggleFullscreen,
-    ResizeWindow(i32, i32),
-    Pressed(Control),
-    Held(Control),
-    Released(Control),
+#[derive(PartialEq, Copy, Clone)]
+pub enum KeyState {
+    Released,
+    Pressed,
+    Held,
+}
+pub struct Input {
+    pub pressed_controls: EnumMap<Control, KeyState>,
 }
 
 #[derive(Eq, Hash, PartialEq, Clone, Copy, Enum)]
@@ -34,18 +33,18 @@ impl Input {
 
         Input {
             pressed_controls: enum_map! {
-                Up => false,
-                Down  => false,
-                Left  => false,
-                Right  => false,
-                Interact1  => false,
-                Interact2  => false,
-                Menu  => false,
+                Up => KeyState::Released,
+                Down  => KeyState::Released,
+                Left  => KeyState::Released,
+                Right  => KeyState::Released,
+                Interact1  => KeyState::Released,
+                Interact2  => KeyState::Released,
+                Menu  => KeyState::Released,
             },
         }
     }
 
-    pub fn get_control(&self, key: Keycode) -> Option<Control> {
+    fn get_control(&mut self, key: Keycode) -> Option<Control> {
         use Control::*;
 
         match key {
@@ -60,30 +59,35 @@ impl Input {
         }
     }
 
-    pub fn handle_input(&mut self, event_pump: &mut sdl2::EventPump) -> Vec<InputEvent> {
-        use InputEvent::*;
-
-        let mut input_events = vec![];
+    pub fn handle_events(
+        &mut self,
+        event_pump: &mut sdl2::EventPump,
+        renderer: &mut Renderer,
+    ) -> Result<bool, String> {
+        for (control, state) in self.pressed_controls {
+            if state == KeyState::Pressed {
+                self.pressed_controls[control] = KeyState::Held
+            }
+        }
 
         for event in event_pump.poll_iter() {
             match event {
                 Event::Window {
                     win_event: WindowEvent::Resized(width, height),
                     ..
-                } => input_events.push(ResizeWindow(width, height)),
-                Event::Quit { .. } => input_events.push(ExitGame),
+                } => renderer.resize(width, height)?,
+                Event::Quit { .. } => return Ok(true),
                 Event::KeyDown {
                     keycode: Some(Keycode::F11),
                     ..
-                } => input_events.push(ToggleFullscreen),
+                } => renderer.toggle_fullscreen()?,
                 Event::KeyDown {
                     keycode: Some(key),
                     repeat: false,
                     ..
                 } => match self.get_control(key) {
                     Some(control) => {
-                        self.pressed_controls[control] = true;
-                        input_events.push(Pressed(control));
+                        self.pressed_controls[control] = KeyState::Pressed;
                     }
                     None => (),
                 },
@@ -91,20 +95,13 @@ impl Input {
                     keycode: Some(key), ..
                 } => match self.get_control(key) {
                     Some(control) => {
-                        self.pressed_controls[control] = false;
-                        input_events.push(Released(control));
+                        self.pressed_controls[control] = KeyState::Released;
                     }
                     None => (),
                 },
                 _ => {}
             }
         }
-
-        self.pressed_controls
-            .iter()
-            .filter(|(_, b)| **b == true)
-            .for_each(|(c, _)| input_events.push(Held(c)));
-
-        input_events
+        Ok(false)
     }
 }
