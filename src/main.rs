@@ -65,8 +65,6 @@ pub fn main() -> Result<(), String> {
     let mut time_now: u64 = sdl_context.timer().unwrap().performance_counter();
 
     let mut state = State {
-        allow_input: true,
-        screen: gamestate::Screen::Gameplay,
         ..Default::default()
     };
 

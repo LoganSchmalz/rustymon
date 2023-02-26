@@ -87,7 +87,7 @@ impl EventManager {
                             menu_man.open_menu(BagMenu::new(bag.items.clone()).into())
                         }
                         MenuCommand::OpenSave => todo!(),
-                        MenuCommand::Close => menu_man.close_menu(),
+                        MenuCommand::Close => { menu_man.close_menu(); }
                         MenuCommand::OpenTextbox(text_in) => {
                             menu_man.open_menu(Textbox::new(text_in, font_manager, PIXELS_X).into())
                         }

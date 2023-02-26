@@ -18,7 +18,7 @@ use crate::{
         menu_events::MenuCommand,
         pause_menu::PauseMenu,
         textbox::Textbox,
-        MenuManager,
+        MenuItem, MenuManager,
     },
     render::{Renderer, PIXELS_X},
     resource_manager::TextureManager,
@@ -27,14 +27,9 @@ use crate::{
 
 mod updates;
 
-pub enum Screen {
-    MainMenu(MainMenu),
-    Gameplay,
-}
-
 pub struct State {
-    pub screen: Screen,
     pub allow_input: bool,
+    pub paused: bool,
     pub world: World,
     pub events: EventManager,
     pub bag: Bag,
@@ -96,16 +91,17 @@ impl Default for State {
             Collision,
         ));
 
+        let mut menus = MenuManager::new();
+        menus.open_menu(MainMenu::new().into());
+
         Self {
-            screen: Screen::MainMenu(MainMenu {
-                curr_button: MainMenuButton::StartButton,
-            }),
             allow_input: true,
+            paused: true,
             world,
             events: EventManager::new(),
             bag: Bag::new(),
             map: TileMap::load(0),
-            menus: MenuManager::new(),
+            menus,
             player,
             collisions: HashMap::new(),
         }
@@ -122,17 +118,14 @@ impl State {
         delta_time: f32,
         map: &mut TileMap,
     ) -> Result<(), String> {
-        match &self.screen {
-            Screen::MainMenu(menu) => renderer.render_main_menu(menu, texture_manager, font_man)?,
-            Screen::Gameplay => renderer.render_world(
-                texture_manager,
-                font_man,
-                delta_time,
-                &self.world,
-                map,
-                &mut self.menus,
-            )?,
-        };
+        renderer.render(
+            texture_manager,
+            font_man,
+            delta_time,
+            &self.world,
+            map,
+            &mut self.menus,
+        )?;
         Ok(())
     }
 
@@ -143,15 +136,10 @@ impl State {
         _map: &mut TileMap,
         font_man: &FontManager,
     ) -> Result<(), String> {
-        match self.screen {
-            Screen::Gameplay => {
-                if self.menus.is_open() {
-                    self.events.handle_input_menus(input);
-                } else {
-                    self.events.handle_input_gameplay(input);
-                }
-            }
-            _ => (),
+        if self.menus.is_open() {
+            self.events.handle_input_menus(input);
+        } else {
+            self.events.handle_input_gameplay(input);
         }
 
         while let Some(command) = self.events.commands.pop() {
@@ -159,7 +147,7 @@ impl State {
                 Command::PlayerSprint(sprinting) => self.update_player_sprinting(sprinting)?,
                 Command::PlayerMove(ms) => self.update_player_moving_direction(ms)?,
                 Command::PlayerInteract => self.try_player_interaction()?,
-                Command::InputMenu(action) => self.menus.interact(action, self.bag.items.clone()),
+                Command::InputMenu(action) => self.paused = self.menus.interact(action, self.bag.items.clone()),
                 Command::OpenMenu(menu_event) => {
                     match menu_event {
                         MenuCommand::OpenStrays => todo!(),
@@ -167,7 +155,7 @@ impl State {
                             .menus
                             .open_menu(BagMenu::new(self.bag.items.clone()).into()),
                         MenuCommand::OpenSave => todo!(),
-                        MenuCommand::Close => self.menus.close_menu(),
+                        MenuCommand::Close => self.paused = self.menus.close_menu(),
                         MenuCommand::OpenTextbox(text_in) => self
                             .menus
                             .open_menu(Textbox::new(text_in, font_man, PIXELS_X).into()),
@@ -186,10 +174,11 @@ impl State {
             }
         }
 
-        self.update_moving_objects(delta_time);
-        self.update_collisions();
-        self.update_animations(delta_time);
-
+        if !self.paused {
+            self.update_moving_objects(delta_time);
+            self.update_collisions();
+            self.update_animations(delta_time);
+        }
         Ok(())
     }
 

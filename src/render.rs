@@ -6,7 +6,6 @@ use sdl2::{
     render::Canvas,
     video::{Window, WindowContext},
 };
-use std::path::Path;
 
 use crate::{
     coordinate::Coordinate,
@@ -17,7 +16,6 @@ use crate::{
     tilemap::{self, Tile},
     TILE_SIZE,
 };
-use tilemap::TileMap;
 
 mod render_menus;
 mod resize;
@@ -212,7 +210,7 @@ impl Renderer {
         Ok(())
     }
 
-    pub fn render_world(
+    pub fn render(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
         font_man: &FontManager,

@@ -84,7 +84,7 @@ impl Renderer {
         _font_man: &FontManager,
     ) -> Result<(), String> {
         let titlescreen = texture_manager.load("assets/UI/titlescreen.png")?;
-        let mut start_button = texture_manager.load("assets/UI/STARTbutton.png")?;
+        let start_button = texture_manager.load("assets/UI/STARTbutton.png")?;
         let load_button = texture_manager.load("assets/UI/SAVELOADbutton.png")?;
         let settings_button = texture_manager.load("assets/UI/SETTINGSbutton.png")?;
 
@@ -114,6 +114,8 @@ impl Renderer {
         self.canvas.copy(&start_button, None, start_quad)?;
         self.canvas.copy(&load_button, None, load_quad)?;
         self.canvas.copy(&settings_button, None, settings_quad)?;
+
+        self.canvas.present();
 
         Ok(())
     }
