@@ -1,3 +1,3 @@
-pub mod updated;
+pub mod components;
 pub mod coordinate;
-pub mod collision;
+pub mod humanoid_properties;
