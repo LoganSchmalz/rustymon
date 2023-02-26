@@ -4,14 +4,10 @@ use hecs::{Entity, World};
 use sdl2::{rect::Rect, video::WindowContext};
 
 use crate::{
-    humanoid_properties::{
-        ROTATION_TIME, RUNNING_TIME_PER_TILE, WALKING_TIME_PER_TILE,
-    },
     bag::Bag,
     engine_structures::{
-        collision,
         components::*,
-        coordinate::{compute_direction, Coordinate, Direction}, humanoid_properties,
+        coordinate::{Coordinate, Direction},
     },
     event::{Command, EventManager},
     font_manager::FontManager,
@@ -28,6 +24,8 @@ use crate::{
     resource_manager::TextureManager,
     tilemap::TileMap,
 };
+
+mod updates;
 
 pub enum Screen {
     MainMenu(MainMenu),
@@ -53,12 +51,7 @@ impl Default for State {
             Player,
             Position(Coordinate(2f32, 1f32)),
             MovingEntity::new(Coordinate(2f32, 1f32)),
-            Sprite {
-                texture: String::from("assets/char-sprites/augosprite.png"),
-                src: Rect::new(0, 0, 16, 20),
-                shift_x: 0,
-                shift_y: -8,
-            },
+            Sprite::character(String::from("assets/char-sprites/augosprite.png")),
             Collision,
             HumanWalkAnimation {
                 rotation: Direction::Down,
@@ -81,21 +74,27 @@ impl Default for State {
             Position(Coordinate(4f32, 4f32)),
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
+                try_moving: MovingState::Moving(Direction::Left),
+                rotation: Direction::Left,
                 ..Default::default()
             },
-            Sprite {
-                texture: String::from("assets/char-sprites/dadsprite.png"),
-                src: Rect::new(0, 0, 16, 20),
-                shift_x: 0,
-                shift_y: -8,
-            },
+            Sprite::character(String::from("assets/char-sprites/dadsprite.png")),
             Collision,
             Interactions(vec![Command::OpenMenu(MenuCommand::OpenTextbox(
                 "Hi hungry, I'm dad! Nice try, little child --> you are bad!".to_string(),
             ))]),
+            HumanWalkAnimation {
+                rotation: Direction::Left,
+                time: (1.0, 0.0),
+                left_leg: true,
+            },
         ));
 
-        //let npc1 = world.spawn(())
+        let _berry = world.spawn((
+            Position(Coordinate(10f32, 8f32)),
+            Sprite::berry(),
+            Collision,
+        ));
 
         Self {
             screen: Screen::MainMenu(MainMenu {
@@ -194,27 +193,8 @@ impl State {
         Ok(())
     }
 
-    pub fn update_animations(&mut self, delta_time: f32) {
-        let mut animation_query = self.world.query::<&mut HumanWalkAnimation>();
-
-        for (_, anim) in animation_query.iter() {
-            anim.update(delta_time);
-        }
-    }
-
-    pub fn update_collisions(&mut self) {
-        let mut collision_query = self.world.query::<(&mut Position, &Collision)>();
-
-        self.collisions = HashMap::new();
-        //self.collisions.reserve(collision_query.iter().len());
-
-        for (entity, (Position(c), _)) in collision_query.iter() {
-            self.collisions.insert(c.to_usize(self.map.size_x), entity);
-        }
-    }
-
     pub fn check_collision(&self, position: &Coordinate) -> bool {
-        self.map.check_collision(*position) == collision::Collision(true)
+        self.map.check_collision(*position)
             || self
                 .collisions
                 .contains_key(&position.to_usize(self.map.size_x))
@@ -222,67 +202,6 @@ impl State {
             || position.0 >= self.map.size_x as f32
             || position.1 < 0f32
             || position.1 >= self.map.size_y as f32
-    }
-
-    pub fn update_player_moving_direction(
-        &mut self,
-        moving_state: MovingState,
-    ) -> Result<(), String> {
-        let (_, mut moving, animation) = self
-            .world
-            .query_one_mut::<(&Player, &mut MovingEntity, &mut HumanWalkAnimation)>(self.player)
-            .or(Err("No player found"))?;
-
-        match moving_state {
-            MovingState::Moving(dir) => {
-                if moving.moving == MovingState::Idle && dir != moving.rotation {
-                    moving.rotation = dir;
-                    animation.play_animation(ROTATION_TIME, dir);
-                    moving.rotation_timer = 0.0;
-                } else if moving.moving == MovingState::CenterTile {
-                    moving.rotation = dir;
-                }
-            }
-            _ => (),
-        }
-
-        moving.try_moving = moving_state;
-
-        if moving.try_moving != MovingState::Idle
-            && !animation.is_playing()
-            && (moving.moving == MovingState::Idle || moving.moving == MovingState::CenterTile)
-        {
-            let rotation = if let MovingState::Moving(dir) = moving_state {
-                dir
-            } else {
-                Direction::Down
-            };
-            match moving.sprinting {
-                true => animation.play_animation(RUNNING_TIME_PER_TILE, rotation),
-                false => animation.play_animation(WALKING_TIME_PER_TILE, rotation),
-            }
-        }
-
-        Ok(())
-    }
-
-    pub fn update_player_sprinting(&mut self, sprinting: bool) -> Result<(), String> {
-        let (_, mut moving, animation) = self
-            .world
-            .query_one_mut::<(&Player, &mut MovingEntity, &mut HumanWalkAnimation)>(self.player)
-            .or(Err("No player found"))?;
-
-        if moving.moving == MovingState::Idle
-            || moving.moving == MovingState::CenterTile && moving.rotation_timer >= ROTATION_TIME
-        {
-            moving.sprinting = sprinting;
-            match sprinting {
-                true => animation.set_animation_time(RUNNING_TIME_PER_TILE),
-                false => animation.set_animation_time(WALKING_TIME_PER_TILE),
-            }
-        }
-
-        Ok(())
     }
 
     pub fn try_player_interaction(&mut self) -> Result<(), String> {
@@ -320,74 +239,5 @@ impl State {
         }
 
         Ok(())
-    }
-
-    pub fn update_moving_objects(&self, delta_time: f32) {
-        let mut moving_query = self.world.query::<(&mut Position, &mut MovingEntity)>();
-        for (_, (pos, moving)) in moving_query.iter() {
-            if moving.rotation_timer < ROTATION_TIME {
-                moving.rotation_timer += delta_time;
-                continue;
-            }
-
-            if moving.moving == MovingState::CenterTile {
-                moving.moving = MovingState::Idle;
-            }
-
-            if moving.moving == MovingState::Idle && moving.try_moving == MovingState::Idle {
-                continue;
-            }
-
-            let &mut Position(Coordinate(x, y)) = pos;
-
-            if moving.moving == MovingState::Idle {
-                moving.moving = moving.try_moving;
-            }
-
-            let Coordinate(target_x, target_y) = match moving.moving {
-                MovingState::Moving(Direction::Left) => Coordinate((x - 1.0).ceil(), y),
-                MovingState::Moving(Direction::Right) => Coordinate((x + 1.0).floor(), y),
-                MovingState::Moving(Direction::Up) => Coordinate(x, (y - 1.0).ceil()),
-                MovingState::Moving(Direction::Down) => Coordinate(x, (y + 1.0).floor()),
-                _ => panic!("Should not happen"),
-            };
-
-            if self.check_collision(&(target_x, target_y).into())
-                && Coordinate(x, y) == Coordinate(x, y).round_to_tile()
-            {
-                moving.moving = MovingState::CenterTile;
-                continue;
-            }
-
-            let speed = if moving.sprinting {
-                humanoid_properties::RUN_SPEED
-            } else {
-                humanoid_properties::WALK_SPEED
-            };
-
-            let speed = speed * delta_time;
-
-            let (dx, dy) = match compute_direction(Coordinate(x, y), Coordinate(target_x, target_y))
-            {
-                Direction::Up => (0.0, -speed),
-                Direction::Down => (0.0, speed),
-                Direction::Left => (-speed, 0.0),
-                Direction::Right => (speed, 0.0),
-            };
-
-            //set new position
-            *pos = Position(Coordinate(x + dx, y + dy));
-
-            let &mut Position(Coordinate(x, y)) = pos;
-
-            //check if we have passed the tile we were trying to get to
-            if (x, y) == (target_x, target_y)
-                || dx != 0.0 && (target_x - x).signum() != dx.signum()
-                || dy != 0.0 && (target_y - y).signum() != dy.signum()
-            {
-                *pos = Position(Coordinate(target_x, target_y));
-                moving.moving = MovingState::CenterTile;
-            }
-        }
     }
 }

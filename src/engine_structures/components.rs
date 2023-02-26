@@ -31,20 +31,21 @@ pub struct HumanWalkAnimation {
 
 impl HumanWalkAnimation {
     pub fn get_src(&self) -> Rect {
-        let mut x = 0;
-        let mut y = 0;
-        match self.rotation {
-            Direction::Up => x = 16,
-            Direction::Right => x = 48,
-            Direction::Down => x = 0,
-            Direction::Left => x = 32,
-        }
-        if self.time.0 <= 0.5 * self.time.1 {
+        let x = match self.rotation {
+            Direction::Up => 16,
+            Direction::Right => 48,
+            Direction::Down => 0,
+            Direction::Left => 32,
+        };
+
+        let y = if self.time.0 <= 0.5 * self.time.1 {
             match self.left_leg {
-                true => y = 40,
-                false => y = 20,
+                true => 40,
+                false => 20,
             }
-        }
+        } else {
+            0
+        };
 
         Rect::new(x, y, 16, 20)
     }
@@ -106,6 +107,26 @@ pub struct Sprite {
     pub src: Rect,
     pub shift_x: i32,
     pub shift_y: i32,
+}
+
+impl Sprite {
+    pub fn character(str: String) -> Self {
+        Self {
+            texture: str,
+            src: Rect::new(0, 0, 16, 20),
+            shift_x: 0,
+            shift_y: -8,
+        }
+    }
+
+    pub fn berry() -> Self {
+        Self {
+            texture: String::from("assets/tiles/objectsprites.png"),
+            src: Rect::new(0, 0, 16, 20),
+            shift_x: 0,
+            shift_y: 0,
+        }
+    }
 }
 
 impl Default for Sprite {
