@@ -76,18 +76,30 @@ function exportMap() {
     var wallsText = ""
     var collisionText = ""
 
+    var c = false
+
     // convert object-based map to string format
     for (var i = 0; i < map.h; i++) {
         for (var j = 0; j < map.w; j++) {
+            // fill each layer string with tile IDs from layer array
             floorText += j==map.w-1 ? map.layers[0][i][j].id : map.layers[0][i][j].id + ' '
             wallsText += j==map.w-1 ? map.layers[1][i][j].id : map.layers[1][i][j].id + ' '
-            collisionText += j==map.w-1 ? map.layers[2][i][j].id : map.layers[2][i][j].id + ' '
+            
+            // check if a cell is collidable on any of the three layers
+            c = map.layers[0][i][j].hasCollision
+            || map.layers[1][i][j].hasCollision
+            || map.layers[2][i][j].hasCollision
+
+            // type conversion to integer from boolean
+            c = c === true ? 1 : 0
+            collisionText += j==map.w-1 ? c : c + ' '
         }
         floorText += '\n'
         wallsText  += '\n'
         collisionText  += '\n'
     }
 
+    // create folder and new files in zip
     var folder = zip.folder("map");  
     folder.file("floor.txt", floorText)
     folder.file("walls.txt", wallsText)
@@ -116,10 +128,10 @@ async function importMap() {
     for(f in files) {
         if(files[f].name == "floor.txt") {floor = files[f]}
         if(files[f].name == "walls.txt") {wall = files[f]}
-        if(files[f].name == "collision.txt") {object = files[f]}
+        // if(files[f].name == "collision.txt") {object = files[f]}
     }
 
-    processFiles(floor, wall, object).then((res) => {
+    processFiles(floor, wall).then((res) => {
         console.log(res);
         WIDTH = res[0][0].length; 
         HEIGHT = res[0].length;
@@ -130,7 +142,7 @@ async function importMap() {
     })
 }
 
-async function processFiles(f, w, o) {
+async function processFiles(f, w) {
     var layers = [];
     
     try {
@@ -146,14 +158,16 @@ async function processFiles(f, w, o) {
                             a.push(line.map(x => floors[x]));
                         } else if (arg == 1) {
                             a.push(line.map(x => walls[x]));
-                        } else {
-                            a.push(line.map(x => objects[x]));
                         }
                     }
                 });
                 layers.push(a)
             });
         }
+        // temporary fix for object/layer mismatch (creates new empty object layer)
+        // we need to create a new object structure
+        // It is no longer possible to import object layer
+        layers.push(initArray(WIDTH, HEIGHT, empty));
         return layers;
     
     } catch (err) {
