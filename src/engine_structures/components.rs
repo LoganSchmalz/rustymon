@@ -76,13 +76,11 @@ impl HumanWalkAnimation {
         self.time.0 < self.time.1
     }
 
-    pub fn set_animation_time(&mut self, time: f32) {
-        self.time.1 = time;
-    }
-
     pub fn update(&mut self, delta_time: f32) {
         if self.time.0 < self.time.1 {
             self.time.0 += delta_time;
+        } else {
+            self.sprinting = false;
         }
     }
 }
