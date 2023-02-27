@@ -11,11 +11,7 @@ mod render;
 mod resource_manager;
 mod tilemap;
 
-use crate::{
-    engine_structures::{*},
-    gamestate::State,
-    resource_manager::TextureManager,
-};
+use crate::{engine_structures::*, gamestate::State, resource_manager::TextureManager};
 
 extern crate sdl2;
 

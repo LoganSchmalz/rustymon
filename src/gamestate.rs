@@ -157,7 +157,9 @@ impl State {
                     self.paused = self.menus.interact(action, self.bag.items.clone())
                 }
                 Command::OpenMenu(menu_event) => {
-                    self.events.commands.push(Command::PlayerMove(MovingState::Idle));
+                    self.events
+                        .commands
+                        .push(Command::PlayerMove(MovingState::Idle));
                     match menu_event {
                         MenuCommand::OpenStrays => todo!(),
                         MenuCommand::OpenBag => self
@@ -226,17 +228,11 @@ impl State {
             .get_key_value(&temp_pos.to_usize(self.map.size_x));
 
         //if it matches, run the list of interactions it comes with
-        match interact_entity {
-            Some((_, &entity)) => {
-                let interactions = self.world.query_one_mut::<&Interactions>(entity);
-                match interactions {
-                    Ok(Interactions(list)) => {
-                        self.events.push_events(&mut list.clone());
-                    }
-                    _ => (),
-                }
+        if let Some((_, &entity)) = interact_entity {
+            let interactions = self.world.query_one_mut::<&Interactions>(entity);
+            if let Ok(Interactions(list)) = interactions {
+                self.events.push_events(&mut list.clone());
             }
-            None => (),
         }
 
         Ok(())

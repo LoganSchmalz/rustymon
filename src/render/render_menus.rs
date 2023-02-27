@@ -127,7 +127,7 @@ impl Renderer {
         font_man: &FontManager,
     ) -> Result<(), String> {
         // create new quad over the textbox texture (which is 41 px tall)
-        let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41 as u32);
+        let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41u32);
 
         let surface_top = font_man
             .fonts

@@ -22,7 +22,7 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
         FontManager { fonts }
     }
 
-    pub fn break_string(&self, str: &String, box_w: u32) -> Vec<String> {
+    pub fn break_string(&self, str: &str, box_w: u32) -> Vec<String> {
         /*
         takes in a string of any length and breaks it into sets of characters at specific length
         the pixel dimensions of a string should be calculable by a function provided by sdl2_ttf
@@ -38,7 +38,7 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
 
         let mut ret: Vec<String> = vec![];
         //let pad_y = 10 as u32;
-        let pad_x = 10 as u32;
+        let pad_x = 10u32;
 
         let line_w = box_w - pad_x * 2;
         println!("linew:{}", line_w);
@@ -82,7 +82,7 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
             }
         }
 
-        if curr_str != "".to_string() || next_word != "".to_string() {
+        if curr_str != *"" || next_word != *"" {
             curr_str += next_word.as_str();
             ret.push(curr_str);
         }
@@ -92,6 +92,6 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
             println!("v{}", i);
         }
 
-        return ret;
+        ret
     }
 }

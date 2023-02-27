@@ -9,11 +9,9 @@ use super::{
 
 pub struct Player;
 
-pub struct NPC;
+pub struct Npc;
 
 pub struct Position(pub Coordinate);
-
-pub struct IsSprinting(bool);
 
 pub struct Collision;
 

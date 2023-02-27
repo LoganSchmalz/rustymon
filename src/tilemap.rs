@@ -30,9 +30,9 @@ pub enum Tile {
 
 #[derive(FromPrimitive, ToPrimitive)]
 pub enum CollisionTile {
-    NONE,
-    WALL,
-    DOOR,
+    None,
+    Wall,
+    Door,
 }
 
 pub struct TileMap {
@@ -51,7 +51,7 @@ impl TileMap {
         println!("{}", mapfolder.to_str().unwrap());
 
         let dim: Vec<usize> = fs::read_to_string(mapfolder.join("dim.txt"))
-            .expect(&format!("{}dim.txt not found", mapfolder.to_str().unwrap()))
+            .unwrap_or_else(|_| panic!("{}dim.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
             .map(|x| x.parse::<usize>().expect("Not an integer!"))
             .collect();
@@ -66,10 +66,7 @@ impl TileMap {
         let size_y = dim.get(1).unwrap();
 
         let floor: Vec<Tile> = fs::read_to_string(mapfolder.join("floor.txt"))
-            .expect(&format!(
-                "{}floor.txt not found",
-                mapfolder.to_str().unwrap()
-            ))
+            .unwrap_or_else(|_| panic!("{}floor.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
             .map(|x| {
                 FromPrimitive::from_u32(x.parse::<u32>().expect("Not an integer!"))
@@ -77,7 +74,7 @@ impl TileMap {
             })
             .collect();
 
-        if floor.len() != (size_x * size_y) as usize {
+        if floor.len() != (size_x * size_y) {
             panic!(
                 "{}floor.txt does not contain {} values",
                 mapfolder.to_str().unwrap(),
@@ -86,10 +83,7 @@ impl TileMap {
         }
 
         let walls: Vec<Tile> = fs::read_to_string(mapfolder.join("walls.txt"))
-            .expect(&format!(
-                "{}walls.txt not found",
-                mapfolder.to_str().unwrap()
-            ))
+            .unwrap_or_else(|_| panic!("{}walls.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
             .map(|x| {
                 FromPrimitive::from_u32(x.parse::<u32>().expect("Not an integer!"))
@@ -97,7 +91,7 @@ impl TileMap {
             })
             .collect();
 
-        if floor.len() != (size_x * size_y) as usize {
+        if walls.len() != (size_x * size_y) {
             panic!(
                 "{}walls.txt does not contain {} values",
                 mapfolder.to_str().unwrap(),
@@ -106,17 +100,14 @@ impl TileMap {
         }
 
         let collision: Vec<CollisionTile> = fs::read_to_string(mapfolder.join("collision.txt"))
-            .expect(&format!(
-                "{}collision.txt not found",
-                mapfolder.to_str().unwrap()
-            ))
+            .unwrap_or_else(|_| panic!("{}collision.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
             .map(|x| {
                 FromPrimitive::from_u32(x.parse::<u32>().expect("Not an integer!"))
                     .expect("Invalid collision tile")
             })
             .collect();
-        if collision.len() != (size_x * size_y) as usize {
+        if collision.len() != (size_x * size_y) {
             panic!(
                 "{}collision.txt does not contain {} values",
                 mapfolder.to_str().unwrap(),
@@ -135,9 +126,9 @@ impl TileMap {
     }
 
     pub fn check_collision(&self, pos: Coordinate) -> bool {
-        match self.collision.get(pos.to_usize(self.size_x)) {
-            Some(CollisionTile::NONE) => false,
-            _ => true,
-        }
+        !matches!(
+            self.collision.get(pos.to_usize(self.size_x)),
+            Some(CollisionTile::None)
+        )
     }
 }

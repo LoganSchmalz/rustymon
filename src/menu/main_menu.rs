@@ -4,9 +4,9 @@ use super::{MenuInput, MenuItem};
 #[derive(PartialEq, Default)]
 pub enum MainMenuButton {
     #[default]
-    StartButton,
-    LoadButton,
-    SettingsButton,
+    Start,
+    Load,
+    Settings,
 }
 
 #[derive(Default)]
@@ -17,7 +17,7 @@ pub struct MainMenu {
 impl MainMenu {
     pub fn new() -> MainMenu {
         MainMenu {
-            curr_button: StartButton,
+            curr_button: Start,
         }
     }
 }
@@ -28,36 +28,36 @@ impl MenuItem for MainMenu {
     fn update(&mut self, action: MenuInput) -> Option<MenuCommand> {
         match action {
             MenuInput::Accept => {
-                if self.curr_button == StartButton {
+                if self.curr_button == Start {
                     return Some(MenuCommand::Close);
                 }
             }
             MenuInput::Left => {
                 self.curr_button = match self.curr_button {
-                    StartButton => LoadButton,
-                    LoadButton => StartButton,
-                    SettingsButton => LoadButton,
+                    Start => Load,
+                    Load => Start,
+                    Settings => Load,
                 }
             }
             MenuInput::Right => {
                 self.curr_button = match self.curr_button {
-                    StartButton => SettingsButton, //BUTTONS[2] == Button::SettingsButton
-                    LoadButton => SettingsButton,  //BUTTONS[2] == Button::SettingsButton
-                    SettingsButton => StartButton, //BUTTONS[0] == Button::StartButton
+                    Start => Settings, //BUTTONS[2] == Button::SettingsButton
+                    Load => Settings,  //BUTTONS[2] == Button::SettingsButton
+                    Settings => Start, //BUTTONS[0] == Button::StartButton
                 }
             }
             MenuInput::Up => {
                 self.curr_button = match self.curr_button {
-                    StartButton => SettingsButton,
-                    SettingsButton => StartButton,
-                    LoadButton => StartButton,
+                    Start => Settings,
+                    Settings => Start,
+                    Load => Start,
                 }
             }
             MenuInput::Down => {
                 self.curr_button = match self.curr_button {
-                    StartButton => LoadButton,
-                    SettingsButton => StartButton,
-                    LoadButton => SettingsButton,
+                    Start => Load,
+                    Settings => Start,
+                    Load => Settings,
                 }
             }
             _ => {}

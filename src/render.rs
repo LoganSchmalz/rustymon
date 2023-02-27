@@ -9,7 +9,10 @@ use sdl2::{
 
 use crate::{
     coordinate::Coordinate,
-    engine_structures::{components::{HumanWalkAnimation, Player, Position, Sprite}, humanoid_properties},
+    engine_structures::{
+        components::{HumanWalkAnimation, Player, Position, Sprite},
+        humanoid_properties,
+    },
     font_manager::FontManager,
     menu,
     resource_manager::{self, TextureManager},
@@ -32,20 +35,11 @@ pub enum DisplayScreen {
     _OverWorld,
 }
 
+#[derive(Default)]
 pub struct Camera {
     offset: (i32, i32),
     top_left: (i32, i32),
     bottom_right: (i32, i32),
-}
-
-impl Default for Camera {
-    fn default() -> Self {
-        Self {
-            offset: (0, 0),
-            top_left: (0, 0),
-            bottom_right: (0, 0),
-        }
-    }
 }
 
 pub struct Renderer {
@@ -116,25 +110,19 @@ impl Renderer {
 
         for i in top_left..bottom_right {
             let render_quad = Rect::new(
-                (i % map.size_x) as i32 * TILE_SIZE as i32 - self.camera.offset.0,
-                (i / map.size_x) as i32 * TILE_SIZE as i32 - self.camera.offset.1,
+                (i % map.size_x) as i32 * TILE_SIZE - self.camera.offset.0,
+                (i / map.size_x) as i32 * TILE_SIZE - self.camera.offset.1,
                 TILE_SIZE as u32,
                 TILE_SIZE as u32,
             );
 
-            match map.floor.get(i) {
-                Some(tile) => {
-                    let src = self.tile_rects[*tile];
-                    self.canvas.copy(&texture, src, render_quad)?
-                }
-                _ => {}
+            if let Some(tile) = map.floor.get(i) {
+                let src = self.tile_rects[*tile];
+                self.canvas.copy(&texture, src, render_quad)?
             };
-            match map.walls.get(i) {
-                Some(tile) => {
-                    let src = self.tile_rects[*tile];
-                    self.canvas.copy(&texture, src, render_quad)?
-                }
-                _ => {}
+            if let Some(tile) = map.walls.get(i) {
+                let src = self.tile_rects[*tile];
+                self.canvas.copy(&texture, src, render_quad)?
             };
         }
 
@@ -150,7 +138,7 @@ impl Renderer {
         if self.is_fading {
             let fade_texture = texture_manager.load("assets/transitions/gooWipe.png")?;
 
-            self.fade_anim_time = self.fade_anim_time - delta_time;
+            self.fade_anim_time -= delta_time;
             if self.fade_anim_time <= 0.0 {
                 self.is_fading = false;
             } else {
@@ -240,7 +228,8 @@ impl Renderer {
         let (_, (_player, Position(pos))) = q.iter().next().ok_or("No player found")?;
 
         let offset = (
-            (pos.0 * TILE_SIZE as f32).round() as i32 - (PIXELS_X / 2 - humanoid_properties::WIDTH / 2) as i32,
+            (pos.0 * TILE_SIZE as f32).round() as i32
+                - (PIXELS_X / 2 - humanoid_properties::WIDTH / 2) as i32,
             (pos.1 * TILE_SIZE as f32).round() as i32
                 - (PIXELS_Y / 2 - humanoid_properties::HEIGHT / 2) as i32,
         );
@@ -278,8 +267,8 @@ impl Renderer {
             let render_quad = Rect::new(
                 (*x * TILE_SIZE as f32).round() as i32 - self.camera.offset.0 + sprite.shift_x,
                 (*y * TILE_SIZE as f32).round() as i32 - self.camera.offset.1 + sprite.shift_y,
-                sprite.src.width() as u32,
-                sprite.src.height() as u32,
+                sprite.src.width(),
+                sprite.src.height(),
             );
 
             let texture = texture_manager.load(&sprite.texture)?;

@@ -24,12 +24,10 @@ pub fn compute_direction(pos_from: Coordinate, pos_to: Coordinate) -> Direction 
         } else {
             Direction::Left
         }
+    } else if dy.signum() >= 1.0 {
+        Direction::Down
     } else {
-        if dy.signum() >= 1.0 {
-            Direction::Down
-        } else {
-            Direction::Up
-        }
+        Direction::Up
     }
 }
 
@@ -39,7 +37,7 @@ impl Coordinate {
     }
 
     #[inline]
-    pub fn to_usize(&self, size_x: usize) -> usize {
+    pub fn to_usize(self, size_x: usize) -> usize {
         let Coordinate(x, y) = self.round_to_tile();
         x as usize + y as usize * size_x
     }

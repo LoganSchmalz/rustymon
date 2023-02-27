@@ -65,12 +65,7 @@ impl EventManager {
                     menu_man.interact(action, bag.items.clone());
                 }
                 PlayerSprint(sprinting) => if !menu_man.is_open() {},
-                PlayerMove(dir) => {
-                    if !menu_man.is_open() {
-                        //player.set_try_walking(dir)
-                    } else {
-                    }
-                }
+                PlayerMove(dir) => {}
                 PlayerInteract => {}
                 GiveItem(item, amount) => {
                     bag.add_item(item, amount);
@@ -87,7 +82,9 @@ impl EventManager {
                             menu_man.open_menu(BagMenu::new(bag.items.clone()).into())
                         }
                         MenuCommand::OpenSave => todo!(),
-                        MenuCommand::Close => { menu_man.close_menu(); }
+                        MenuCommand::Close => {
+                            menu_man.close_menu();
+                        }
                         MenuCommand::OpenTextbox(text_in) => {
                             menu_man.open_menu(Textbox::new(text_in, font_manager, PIXELS_X).into())
                         }
@@ -121,8 +118,8 @@ impl EventManager {
             None
         };
 
-        if input.is_some() {
-            self.push_event(input.unwrap());
+        if let Some(input) = input {
+            self.push_event(input);
         }
     }
 

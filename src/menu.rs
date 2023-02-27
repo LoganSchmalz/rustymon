@@ -28,7 +28,7 @@ pub struct MenuManager {
     pub menus: Vec<Menu>, // this is a stack
 }
 
-impl<'a> MenuManager {
+impl MenuManager {
     pub fn new() -> MenuManager {
         MenuManager {
             //menus: vec![Menu::MainMenu(MainMenu::new())],

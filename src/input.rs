@@ -85,20 +85,18 @@ impl Input {
                     keycode: Some(key),
                     repeat: false,
                     ..
-                } => match self.get_control(key) {
-                    Some(control) => {
+                } => {
+                    if let Some(control) = self.get_control(key){
                         self.pressed_controls[control] = KeyState::Pressed;
                     }
-                    None => (),
                 },
                 Event::KeyUp {
                     keycode: Some(key), ..
-                } => match self.get_control(key) {
-                    Some(control) => {
+                } => {
+                    if let Some(control) = self.get_control(key) {
                         self.pressed_controls[control] = KeyState::Released;
                     }
-                    None => (),
-                },
+                }
                 _ => {}
             }
         }
