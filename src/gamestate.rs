@@ -237,9 +237,14 @@ impl State {
 
             let item = self.world.query_one_mut::<&GroundItem>(entity);
             if let Ok(&GroundItem { item, amount }) = item {
-                self.events.push_event(Command::OpenMenu(MenuCommand::OpenTextbox("You picked up Berry".to_string())));
+                self.events
+                    .push_event(Command::OpenMenu(MenuCommand::OpenTextbox(
+                        format!("You picked up {} (x{}).", item, amount)
+                    )));
                 self.bag.add_item(item, amount);
-                self.world.despawn(entity).or(Err("Tried to remove nonexistent entity"))?;
+                self.world
+                    .despawn(entity)
+                    .or(Err("Tried to remove nonexistent entity"))?;
             }
         }
 
