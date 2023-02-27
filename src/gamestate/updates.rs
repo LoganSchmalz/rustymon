@@ -65,25 +65,14 @@ impl State {
             self.world
                 .query::<(&mut Position, &mut MovingEntity, &mut HumanWalkAnimation)>();
         for (_, (pos, moving, animation)) in moving_query.iter() {
-            //update sprinting state
-            match moving.moving {
-                Idle | CenterTile => moving.sprinting = moving.try_sprinting,
-                _ => (),
-            }
-
             //update rotation state if entity is idle
-            match (moving.moving, moving.try_moving) {
-                (_, Idle) => (),
-                (Idle, Moving(rotation)) => {
-                    if rotation != moving.rotation && moving.rotation_timer >= ROTATION_TIME {
-                        moving.rotation = rotation;
-                        moving.rotation_timer = 0.0;
-                        animation.play_animation(HumanAnimationType::Rotate, rotation)
-                    }
+            if let (Idle, Moving(rotation)) = (moving.moving, moving.try_moving) {
+                if rotation != moving.rotation && moving.rotation_timer >= ROTATION_TIME {
+                    moving.rotation = rotation;
+                    moving.rotation_timer = 0.0;
+                    animation.play_animation(HumanAnimationType::Rotate, rotation);
                 }
-                (_, _) => (),
             }
-
             //increment rotation time and don't allow movement if rotation is not finished
             if moving.rotation_timer < ROTATION_TIME {
                 moving.rotation_timer += delta_time;
@@ -98,6 +87,9 @@ impl State {
                 }
                 //if the entity is idle and wants to be moving, we update the moving state and play the new animation
                 (Idle, Moving(new_rotation)) | (CenterTile, Moving(new_rotation)) => {
+                    //update sprinting state
+                    moving.sprinting = moving.try_sprinting;
+
                     let &mut Position(Coordinate(x, y)) = pos;
 
                     let Coordinate(target_x, target_y) = match new_rotation {
