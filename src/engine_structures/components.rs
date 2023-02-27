@@ -112,7 +112,7 @@ impl Default for MovingEntity {
 }
 
 impl MovingEntity {
-    pub fn new(pos: Coordinate) -> Self {
+    pub fn new() -> Self {
         Self { ..Self::default() }
     }
 }

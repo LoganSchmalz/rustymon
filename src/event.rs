@@ -31,8 +31,6 @@ pub enum Command {
     DrawTransition,
 }
 
-type Exit = bool;
-
 pub struct EventManager {
     pub commands: Vec<Command>,
 }
@@ -50,6 +48,7 @@ impl EventManager {
         self.commands.append(commands);
     }
 
+    #[allow(dead_code)]
     pub fn handle_gameplay_events(
         &mut self,
         menu_man: &mut menu::MenuManager,
@@ -64,14 +63,14 @@ impl EventManager {
                 InputMenu(action) => {
                     menu_man.interact(action, bag.items.clone());
                 }
-                PlayerSprint(sprinting) => if !menu_man.is_open() {},
-                PlayerMove(dir) => {}
+                PlayerSprint(_sprinting) => if !menu_man.is_open() {},
+                PlayerMove(_dir) => {}
                 PlayerInteract => {}
                 GiveItem(item, amount) => {
                     bag.add_item(item, amount);
                 }
                 DeleteObject(_) => {}
-                ChangeMap(id, pos) => (),
+                ChangeMap(_id, _pos) => (),
                 DrawTransition => {
                     renderer.play_fade();
                 }

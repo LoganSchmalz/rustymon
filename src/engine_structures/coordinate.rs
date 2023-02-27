@@ -32,6 +32,7 @@ pub fn compute_direction(pos_from: Coordinate, pos_to: Coordinate) -> Direction 
 }
 
 impl Coordinate {
+    #[inline]
     pub fn round_to_tile(&self) -> Coordinate {
         Coordinate(self.0.round(), self.1.round())
     }
@@ -42,10 +43,14 @@ impl Coordinate {
         x as usize + y as usize * size_x
     }
 
+    #[inline]
+    #[allow(dead_code)]
     pub fn dist2(&self, rhs: Coordinate) -> f32 {
         (self.0 - rhs.0) * (self.0 - rhs.0) + (self.1 - rhs.1) * (self.1 - rhs.1)
     }
 
+    #[inline]
+    #[allow(dead_code)]
     pub fn dist(&self, rhs: Coordinate) -> f32 {
         self.dist2(rhs).sqrt()
     }

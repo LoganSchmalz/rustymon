@@ -9,6 +9,7 @@ pub enum MenuInput {
     Start,
 }
 
+#[allow(dead_code)]
 #[derive(Clone)]
 pub enum MenuCommand {
     OpenStrays,

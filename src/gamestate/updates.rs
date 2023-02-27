@@ -7,7 +7,7 @@ use crate::engine_structures::{
     },
     coordinate::{compute_direction, Coordinate, Direction},
     humanoid_properties::{
-        ROTATION_TIME, RUNNING_TIME_PER_TILE, RUN_SPEED, WALKING_TIME_PER_TILE, WALK_SPEED,
+        ROTATION_TIME, RUN_SPEED, WALK_SPEED,
     },
 };
 

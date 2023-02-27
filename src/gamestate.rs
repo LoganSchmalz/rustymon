@@ -13,12 +13,8 @@ use crate::{
     font_manager::FontManager,
     input::Input,
     menu::{
-        bag_menu::BagMenu,
-        main_menu::{MainMenu, MainMenuButton},
-        menu_events::MenuCommand,
-        pause_menu::PauseMenu,
-        textbox::Textbox,
-        MenuItem, MenuManager,
+        bag_menu::BagMenu, main_menu::MainMenu, menu_events::MenuCommand, pause_menu::PauseMenu,
+        textbox::Textbox, MenuManager,
     },
     render::{Renderer, PIXELS_X},
     resource_manager::TextureManager,
@@ -47,7 +43,7 @@ impl Default for State {
         let player = world.spawn((
             Player,
             Position(Coordinate(2f32, 1f32)),
-            MovingEntity::new(Coordinate(2f32, 1f32)),
+            MovingEntity::new(),
             Sprite::character(String::from("assets/char-sprites/augosprite.png")),
             Collision,
             HumanWalkAnimation {
