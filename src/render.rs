@@ -10,7 +10,7 @@ use sdl2::{
 use crate::{
     coordinate::Coordinate,
     engine_structures::{
-        components::{HumanWalkAnimation, Player, Position, Sprite},
+        components::{Player, Position, animation::HumanWalkAnimation, sprite::Sprite},
         humanoid_properties,
     },
     font_manager::FontManager,

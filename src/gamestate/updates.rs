@@ -1,14 +1,9 @@
 use std::collections::HashMap;
 
 use crate::engine_structures::{
-    components::{
-        Collision, HumanAnimationType, HumanWalkAnimation, MovingEntity, MovingState, Player,
-        Position,
-    },
+    components::{Collision, MovingEntity, MovingState, Player, Position, animation::{HumanWalkAnimation, HumanAnimationType}},
     coordinate::{compute_direction, Coordinate, Direction},
-    humanoid_properties::{
-        ROTATION_TIME, RUN_SPEED, WALK_SPEED,
-    },
+    humanoid_properties::{ROTATION_TIME, RUN_SPEED, WALK_SPEED},
 };
 
 use super::State;

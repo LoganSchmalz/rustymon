@@ -4,9 +4,9 @@ use hecs::{Entity, World};
 use sdl2::{rect::Rect, video::WindowContext};
 
 use crate::{
-    bag::Bag,
+    bag::{self, Bag},
     engine_structures::{
-        components::*,
+        components::{animation::HumanWalkAnimation, sprite::Sprite, *},
         coordinate::{Coordinate, Direction},
     },
     event::{Command, EventManager},
@@ -89,6 +89,10 @@ impl Default for State {
             Position(Coordinate(10f32, 8f32)),
             Sprite::berry(),
             Collision,
+            GroundItem {
+                item: bag::Item::Berry,
+                amount: 1,
+            },
         ));
 
         let mut menus = MenuManager::new();
@@ -228,6 +232,14 @@ impl State {
             let interactions = self.world.query_one_mut::<&Interactions>(entity);
             if let Ok(Interactions(list)) = interactions {
                 self.events.push_events(&mut list.clone());
+                return Ok(());
+            }
+
+            let item = self.world.query_one_mut::<&GroundItem>(entity);
+            if let Ok(&GroundItem { item, amount }) = item {
+                self.events.push_event(Command::OpenMenu(MenuCommand::OpenTextbox("You picked up Berry".to_string())));
+                self.bag.add_item(item, amount);
+                self.world.despawn(entity);
             }
         }
 
