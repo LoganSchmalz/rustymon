@@ -42,6 +42,8 @@ pub struct State {
 impl Default for State {
     fn default() -> Self {
         let mut world = World::new();
+
+        //here we create a bunch of example entities for the default world
         let player = world.spawn((
             Player,
             Position(Coordinate(2f32, 1f32)),
@@ -138,12 +140,14 @@ impl State {
         _map: &mut TileMap,
         font_man: &FontManager,
     ) -> Result<(), String> {
+        //determine correct input handler
         if self.menus.is_open() {
             self.events.handle_input_menus(input);
         } else {
             self.events.handle_input_gameplay(input);
         }
 
+        //process all commands
         while let Some(command) = self.events.commands.pop() {
             match command {
                 Command::PlayerSprint(sprinting) => self.update_player_sprinting(sprinting)?,
@@ -153,6 +157,7 @@ impl State {
                     self.paused = self.menus.interact(action, self.bag.items.clone())
                 }
                 Command::OpenMenu(menu_event) => {
+                    self.events.commands.push(Command::PlayerMove(MovingState::Idle));
                     match menu_event {
                         MenuCommand::OpenStrays => todo!(),
                         MenuCommand::OpenBag => self
@@ -178,6 +183,7 @@ impl State {
             }
         }
 
+        //do any physics/animation updates
         if !self.paused {
             self.update_moving_objects(delta_time);
             self.update_collisions();
@@ -214,10 +220,12 @@ impl State {
             Direction::Down => Coordinate(x, y + 1.0),
         };
 
+        //check for an entity based on player position in the collisions map
         let interact_entity = self
             .collisions
             .get_key_value(&temp_pos.to_usize(self.map.size_x));
 
+        //if it matches, run the list of interactions it comes with
         match interact_entity {
             Some((_, &entity)) => {
                 let interactions = self.world.query_one_mut::<&Interactions>(entity);

@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
 use crate::engine_structures::{
-    components::{Collision, HumanWalkAnimation, MovingEntity, MovingState, Player, Position, HumanAnimationType},
+    components::{
+        Collision, HumanAnimationType, HumanWalkAnimation, MovingEntity, MovingState, Player,
+        Position,
+    },
     coordinate::{compute_direction, Coordinate, Direction},
     humanoid_properties::{
         ROTATION_TIME, RUNNING_TIME_PER_TILE, RUN_SPEED, WALKING_TIME_PER_TILE, WALK_SPEED,
@@ -68,7 +71,7 @@ impl State {
                 _ => (),
             }
 
-            //update rotation state
+            //update rotation state if entity is idle
             match (moving.moving, moving.try_moving) {
                 (_, Idle) => (),
                 (Idle, Moving(rotation)) => {
@@ -76,11 +79,6 @@ impl State {
                         moving.rotation = rotation;
                         moving.rotation_timer = 0.0;
                         animation.play_animation(HumanAnimationType::Rotate, rotation)
-                    }
-                }
-                (CenterTile, Moving(rotation)) => {
-                    if !animation.is_playing() {
-                        moving.rotation = rotation;
                     }
                 }
                 (_, _) => (),
@@ -99,26 +97,27 @@ impl State {
                     continue;
                 }
                 //if the entity is idle and wants to be moving, we update the moving state and play the new animation
-                (Idle, new_state) | (CenterTile, new_state) => {
+                (Idle, Moving(new_rotation)) | (CenterTile, Moving(new_rotation)) => {
                     let &mut Position(Coordinate(x, y)) = pos;
 
-                    let Coordinate(target_x, target_y) = match new_state {
-                        MovingState::Moving(Direction::Left) => Coordinate((x - 1.0).ceil(), y),
-                        MovingState::Moving(Direction::Right) => Coordinate((x + 1.0).floor(), y),
-                        MovingState::Moving(Direction::Up) => Coordinate(x, (y - 1.0).ceil()),
-                        MovingState::Moving(Direction::Down) => Coordinate(x, (y + 1.0).floor()),
-                        MovingState::Idle | MovingState::CenterTile => {
-                            panic!("Should not happen")
-                        }
+                    let Coordinate(target_x, target_y) = match new_rotation {
+                        Direction::Left => Coordinate((x - 1.0).ceil(), y),
+                        Direction::Right => Coordinate((x + 1.0).floor(), y),
+                        Direction::Up => Coordinate(x, (y - 1.0).ceil()),
+                        Direction::Down => Coordinate(x, (y + 1.0).floor()),
                     };
 
-                    if !animation.is_playing() {
+                    //we can only play a new animation if the animation isn't playing already, or if we are changing rotations
+                    //note essentially these conditions could also be read
+                    //entity is idle OR entity is in center of tile (i.e. is trying to move to a wall so can rotate freely)
+                    if !animation.is_playing() || moving.rotation != new_rotation {
+                        moving.rotation = new_rotation;
+                        moving.moving = Moving(new_rotation);
                         let animation_type = match moving.sprinting {
                             true => HumanAnimationType::Run,
                             false => HumanAnimationType::Walk,
                         };
                         animation.play_animation(animation_type, moving.rotation);
-                        moving.moving = new_state;
                     }
 
                     if self.check_collision(&(target_x, target_y).into())
@@ -134,11 +133,11 @@ impl State {
             let &mut Position(Coordinate(x, y)) = pos;
 
             let Coordinate(target_x, target_y) = match moving.moving {
-                MovingState::Moving(Direction::Left) => Coordinate((x - 1.0).ceil(), y),
-                MovingState::Moving(Direction::Right) => Coordinate((x + 1.0).floor(), y),
-                MovingState::Moving(Direction::Up) => Coordinate(x, (y - 1.0).ceil()),
-                MovingState::Moving(Direction::Down) => Coordinate(x, (y + 1.0).floor()),
-                MovingState::Idle | MovingState::CenterTile => panic!("Should not happen"),
+                Moving(Direction::Left) => Coordinate((x - 1.0).ceil(), y),
+                Moving(Direction::Right) => Coordinate((x + 1.0).floor(), y),
+                Moving(Direction::Up) => Coordinate(x, (y - 1.0).ceil()),
+                Moving(Direction::Down) => Coordinate(x, (y + 1.0).floor()),
+                Idle | CenterTile => panic!("Should not happen"),
             };
 
             let speed = delta_time
@@ -166,7 +165,10 @@ impl State {
                 || dy != 0.0 && (target_y - y).signum() != dy.signum()
             {
                 *pos = Position(Coordinate(target_x, target_y));
-                moving.moving = MovingState::CenterTile;
+                moving.moving = match moving.try_moving {
+                    Idle => Idle,
+                    _ => CenterTile,
+                }
             }
         }
     }
