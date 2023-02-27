@@ -239,7 +239,7 @@ impl State {
             if let Ok(&GroundItem { item, amount }) = item {
                 self.events.push_event(Command::OpenMenu(MenuCommand::OpenTextbox("You picked up Berry".to_string())));
                 self.bag.add_item(item, amount);
-                self.world.despawn(entity);
+                self.world.despawn(entity).or(Err("Tried to remove nonexistent entity"))?;
             }
         }
 
