@@ -12,10 +12,7 @@ use crate::{
         coordinate::{Coordinate, Direction},
     },
     font_manager::FontManager,
-    menu::{
-        bag_menu::BagMenu, main_menu::MainMenu, menu_events::MenuCommand, pause_menu::PauseMenu,
-        textbox::Textbox, MenuManager,
-    },
+    menu::{main_menu::MainMenu, textbox::Textbox, MenuManager},
     render::{Renderer, PIXELS_X},
     resource_manager::TextureManager,
     tilemap::TileMap,

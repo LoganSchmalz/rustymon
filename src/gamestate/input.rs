@@ -1,4 +1,4 @@
-use enum_map::{enum_map, Enum, EnumMap};
+use enum_map::Enum;
 use sdl2::{
     event::{Event, WindowEvent},
     keyboard::Keycode,
@@ -7,8 +7,9 @@ use sdl2::{
 
 use crate::{
     engine_structures::{components::MovingState, coordinate::Direction},
+    font_manager::FontManager,
     menu::{menu_events::MenuInput, pause_menu::PauseMenu},
-    render::Renderer, font_manager::{self, FontManager},
+    render::Renderer,
 };
 
 use super::State;
@@ -90,50 +91,6 @@ impl State {
         Ok(false)
     }
 
-    pub fn handle_events(
-        &mut self,
-        event_pump: &mut sdl2::EventPump,
-        renderer: &mut Renderer,
-    ) -> Result<bool, String> {
-        for (control, state) in self.input {
-            if state == KeyState::Pressed {
-                self.input[control] = KeyState::Held
-            }
-        }
-
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Window {
-                    win_event: WindowEvent::Resized(width, height),
-                    ..
-                } => renderer.resize(width, height)?,
-                Event::Quit { .. } => return Ok(true),
-                Event::KeyDown {
-                    keycode: Some(Keycode::F11),
-                    ..
-                } => renderer.toggle_fullscreen()?,
-                Event::KeyDown {
-                    keycode: Some(key),
-                    repeat: false,
-                    ..
-                } => {
-                    if let Some(control) = self.get_control(key) {
-                        self.input[control] = KeyState::Pressed;
-                    }
-                }
-                Event::KeyUp {
-                    keycode: Some(key), ..
-                } => {
-                    if let Some(control) = self.get_control(key) {
-                        self.input[control] = KeyState::Released;
-                    }
-                }
-                _ => {}
-            }
-        }
-        Ok(false)
-    }
-
     pub fn handle_input_menus(&mut self, items: Vec<(crate::bag::Item, u32)>) -> bool {
         use Control::*;
         use KeyState::*;
@@ -153,8 +110,8 @@ impl State {
         } else if self.input[Down] == Pressed {
             self.menus.interact(MenuInput::Down, items)
         } else {
-			false
-		}
+            false
+        }
     }
 
     pub fn handle_input_gameplay(&mut self, font_man: &FontManager) -> Result<(), String> {
