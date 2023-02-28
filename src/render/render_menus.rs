@@ -106,7 +106,12 @@ impl Renderer {
             settings_button.set_color_mod(255, 255, 255);
         }*/
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
-        let start_quad = Rect::new(PIXELS_X as i32 / 2 - start_src.width() as i32 / 2, 100, start_src.width(), start_src.height());
+        let start_quad = Rect::new(
+            PIXELS_X as i32 / 2 - start_src.width() as i32 / 2,
+            100,
+            start_src.width(),
+            start_src.height(),
+        );
         let load_quad = Rect::new(102, 122, 16, 16);
         let settings_quad = Rect::new(121, 122, 16, 16);
 
