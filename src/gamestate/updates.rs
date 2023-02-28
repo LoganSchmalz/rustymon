@@ -28,7 +28,7 @@ impl State {
         }
     }
 
-    pub fn update_player_moving_direction(
+    pub fn update_player_moving(
         &mut self,
         moving_state: MovingState,
     ) -> Result<(), String> {

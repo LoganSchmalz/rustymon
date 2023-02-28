@@ -8,7 +8,7 @@ pub struct Textbox {
 }
 
 impl Textbox {
-    pub fn new(text_in: String, font_man: &FontManager, width_pixels: u32) -> Textbox {
+    pub fn new(text_in: &str, font_man: &FontManager, width_pixels: u32) -> Textbox {
         let mut text_v = font_man.break_string(&text_in, width_pixels);
         if (text_v.len() % 2) == 1 {
             text_v.push(" ".to_string());

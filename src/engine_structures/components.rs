@@ -1,14 +1,14 @@
 use sdl2::rect::Rect;
 
-use crate::{event::Command, bag::Item};
+use crate::bag::Item;
 
 use super::{
     coordinate::{Coordinate, Direction},
     humanoid_properties::{ROTATION_TIME, RUNNING_TIME_PER_TILE, WALKING_TIME_PER_TILE},
 };
 
-pub mod sprite;
 pub mod animation;
+pub mod sprite;
 
 pub struct Player;
 
@@ -17,13 +17,13 @@ pub struct GroundItem {
     pub amount: u32,
 }
 
-pub struct Npc;
+pub struct Npc {
+    pub says: String,
+}
 
 pub struct Position(pub Coordinate);
 
 pub struct Collision;
-
-pub struct Interactions(pub Vec<Command>);
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum MovingState {
@@ -60,5 +60,3 @@ impl MovingEntity {
         Self { ..Self::default() }
     }
 }
-
-

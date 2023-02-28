@@ -1,0 +1,188 @@
+use enum_map::{enum_map, Enum, EnumMap};
+use sdl2::{
+    event::{Event, WindowEvent},
+    keyboard::Keycode,
+    EventPump,
+};
+
+use crate::{
+    engine_structures::{components::MovingState, coordinate::Direction},
+    menu::{menu_events::MenuInput, pause_menu::PauseMenu},
+    render::Renderer, font_manager::{self, FontManager},
+};
+
+use super::State;
+
+#[derive(PartialEq, Copy, Clone)]
+pub enum KeyState {
+    Released,
+    Pressed,
+    Held,
+}
+#[derive(Eq, Hash, PartialEq, Clone, Copy, Enum)]
+pub enum Control {
+    Up,
+    Down,
+    Left,
+    Right,
+    Interact1,
+    Interact2,
+    Menu,
+}
+
+impl State {
+    fn get_control(&mut self, key: Keycode) -> Option<Control> {
+        use Control::*;
+
+        match key {
+            Keycode::Up => Some(Up),
+            Keycode::Left => Some(Left),
+            Keycode::Down => Some(Down),
+            Keycode::Right => Some(Right),
+            Keycode::Space => Some(Interact1),
+            Keycode::Z => Some(Interact2),
+            Keycode::Return => Some(Menu),
+            _ => None,
+        }
+    }
+
+    pub fn update_input(
+        &mut self,
+        event_pump: &mut EventPump,
+        renderer: &mut Renderer,
+    ) -> Result<bool, String> {
+        for (control, state) in self.input {
+            if state == KeyState::Pressed {
+                self.input[control] = KeyState::Held
+            }
+        }
+
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Window {
+                    win_event: WindowEvent::Resized(width, height),
+                    ..
+                } => renderer.resize(width, height)?,
+                Event::Quit { .. } => return Ok(true),
+                Event::KeyDown {
+                    keycode: Some(Keycode::F11),
+                    ..
+                } => renderer.toggle_fullscreen()?,
+                Event::KeyDown {
+                    keycode: Some(key),
+                    repeat: false,
+                    ..
+                } => {
+                    if let Some(control) = self.get_control(key) {
+                        self.input[control] = KeyState::Pressed;
+                    }
+                }
+                Event::KeyUp {
+                    keycode: Some(key), ..
+                } => {
+                    if let Some(control) = self.get_control(key) {
+                        self.input[control] = KeyState::Released;
+                    }
+                }
+                _ => {}
+            }
+        }
+        Ok(false)
+    }
+
+    pub fn handle_events(
+        &mut self,
+        event_pump: &mut sdl2::EventPump,
+        renderer: &mut Renderer,
+    ) -> Result<bool, String> {
+        for (control, state) in self.input {
+            if state == KeyState::Pressed {
+                self.input[control] = KeyState::Held
+            }
+        }
+
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Window {
+                    win_event: WindowEvent::Resized(width, height),
+                    ..
+                } => renderer.resize(width, height)?,
+                Event::Quit { .. } => return Ok(true),
+                Event::KeyDown {
+                    keycode: Some(Keycode::F11),
+                    ..
+                } => renderer.toggle_fullscreen()?,
+                Event::KeyDown {
+                    keycode: Some(key),
+                    repeat: false,
+                    ..
+                } => {
+                    if let Some(control) = self.get_control(key) {
+                        self.input[control] = KeyState::Pressed;
+                    }
+                }
+                Event::KeyUp {
+                    keycode: Some(key), ..
+                } => {
+                    if let Some(control) = self.get_control(key) {
+                        self.input[control] = KeyState::Released;
+                    }
+                }
+                _ => {}
+            }
+        }
+        Ok(false)
+    }
+
+    pub fn handle_input_menus(&mut self, items: Vec<(crate::bag::Item, u32)>) -> bool {
+        use Control::*;
+        use KeyState::*;
+
+        if self.input[Menu] == Pressed {
+            self.menus.interact(MenuInput::Start, items)
+        } else if self.input[Interact1] == Pressed {
+            self.menus.interact(MenuInput::Accept, items)
+        } else if self.input[Interact2] == Pressed {
+            self.menus.interact(MenuInput::Reject, items)
+        } else if self.input[Left] == Pressed {
+            self.menus.interact(MenuInput::Left, items)
+        } else if self.input[Right] == Pressed {
+            self.menus.interact(MenuInput::Right, items)
+        } else if self.input[Up] == Pressed {
+            self.menus.interact(MenuInput::Up, items)
+        } else if self.input[Down] == Pressed {
+            self.menus.interact(MenuInput::Down, items)
+        } else {
+			false
+		}
+    }
+
+    pub fn handle_input_gameplay(&mut self, font_man: &FontManager) -> Result<(), String> {
+        use Control::*;
+        use KeyState::*;
+
+        if self.input[Menu] == Pressed {
+            self.menus.open_menu(PauseMenu::new().into());
+        }
+
+        if self.input[Interact1] == Pressed {
+            self.try_player_interaction(font_man)?;
+        }
+
+        self.update_player_sprinting(matches!(self.input[Interact2], Pressed | Held))?;
+
+        if self.input[Up] != Released && self.input[Down] == Released {
+            self.update_player_moving(MovingState::Moving(Direction::Up))?;
+        } else if self.input[Down] != Released && self.input[Up] == Released {
+            self.update_player_moving(MovingState::Moving(Direction::Down))?;
+        } else if self.input[Left] != Released && self.input[Right] == Released {
+            self.update_player_moving(MovingState::Moving(Direction::Left))?;
+        } else if self.input[Right] != Released && self.input[Left] == KeyState::Released {
+            self.update_player_moving(MovingState::Moving(Direction::Right))?;
+        } else {
+            self.update_player_moving(MovingState::Idle)?;
+        }
+
+        Ok(())
+    }
+}
