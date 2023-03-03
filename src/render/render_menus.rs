@@ -1,6 +1,8 @@
+use hecs::World;
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 
 use crate::{
+    engine_structures::components::bag::Bag,
     font_manager::FontManager,
     menu::{
         bag_menu::BagMenu,
@@ -17,6 +19,7 @@ impl Renderer {
     pub(super) fn render_bag_menu(
         &mut self,
         menu: &BagMenu,
+        world: &World,
         texture_manager: &mut TextureManager<WindowContext>,
         font_man: &FontManager,
     ) -> Result<(), String> {
@@ -30,7 +33,15 @@ impl Renderer {
 
         let mut text_quad = Rect::new(140, 10, 0, 0);
 
-        for (idx, (item, amount)) in menu.items.iter().enumerate() {
+        let mut query = world.query_one::<&Bag>(menu.entity).unwrap();
+        let bag = query.get();
+        let empty = vec![];
+        let items = match bag {
+            Some(bag) => &bag.items,
+            _ => &empty,
+        };
+
+        for (idx, (item, amount)) in items.iter().enumerate() {
             let item_str = item.to_string();
 
             let item_surface = font_man.fonts.press_start_2p.render(&item_str);

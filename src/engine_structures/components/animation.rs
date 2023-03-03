@@ -1,6 +1,6 @@
 use sdl2::rect::Rect;
 
-use crate::engine_structures::{coordinate::Direction, humanoid_properties::{ROTATION_TIME, WALKING_TIME_PER_TILE, RUNNING_TIME_PER_TILE}};
+use crate::engine_structures::{vec2::Direction, humanoid_properties::{ROTATION_TIME, WALKING_TIME_PER_TILE, RUNNING_TIME_PER_TILE}};
 
 pub enum HumanAnimationType {
     Rotate,

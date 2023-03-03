@@ -15,7 +15,7 @@ impl fmt::Display for Item {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Bag {
     pub items: ItemList,
 }

@@ -1,6 +1,5 @@
 const TILE_SIZE: i32 = 16;
 
-mod bag;
 mod engine_structures;
 mod font_manager;
 mod gamestate;

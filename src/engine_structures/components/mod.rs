@@ -1,8 +1,9 @@
-use crate::bag::Item;
+use self::bag::Item;
 
-use super::coordinate::{Coordinate, Direction};
+use super::vec2::{Vec2, Direction};
 
 pub mod animation;
+pub mod bag;
 pub mod sprite;
 
 pub struct Player;
@@ -16,7 +17,7 @@ pub struct Npc {
     pub says: String,
 }
 
-pub struct Position(pub Coordinate);
+pub struct Position(pub Vec2);
 
 pub struct Collision;
 

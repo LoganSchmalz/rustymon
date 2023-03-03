@@ -3,7 +3,7 @@ use std::{cmp::Ordering, ops};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Coordinate(pub f32, pub f32);
+pub struct Vec2(pub f32, pub f32);
 
 #[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
 pub enum Direction {
@@ -13,7 +13,7 @@ pub enum Direction {
     Right,
 }
 
-pub fn compute_direction(pos_from: Coordinate, pos_to: Coordinate) -> Direction {
+pub fn compute_direction(pos_from: Vec2, pos_to: Vec2) -> Direction {
     //compute direction (non-normalized vector)
     let dx = pos_to.0 - pos_from.0;
     let dy = pos_to.1 - pos_from.1;
@@ -31,76 +31,76 @@ pub fn compute_direction(pos_from: Coordinate, pos_to: Coordinate) -> Direction 
     }
 }
 
-impl Coordinate {
+impl Vec2 {
     #[inline]
-    pub fn round_to_tile(&self) -> Coordinate {
-        Coordinate(self.0.round(), self.1.round())
+    pub fn round_to_tile(&self) -> Vec2 {
+        Vec2(self.0.round(), self.1.round())
     }
 
     #[inline]
     pub fn to_usize(self, size_x: usize) -> usize {
-        let Coordinate(x, y) = self.round_to_tile();
+        let Vec2(x, y) = self.round_to_tile();
         x as usize + y as usize * size_x
     }
 
     #[inline]
     #[allow(dead_code)]
-    pub fn dist2(&self, rhs: Coordinate) -> f32 {
+    pub fn dist2(&self, rhs: Vec2) -> f32 {
         (self.0 - rhs.0) * (self.0 - rhs.0) + (self.1 - rhs.1) * (self.1 - rhs.1)
     }
 
     #[inline]
     #[allow(dead_code)]
-    pub fn dist(&self, rhs: Coordinate) -> f32 {
+    pub fn dist(&self, rhs: Vec2) -> f32 {
         self.dist2(rhs).sqrt()
     }
 }
 
-impl ops::Add<Coordinate> for Coordinate {
-    type Output = Coordinate;
+impl ops::Add<Vec2> for Vec2 {
+    type Output = Vec2;
 
     #[inline]
-    fn add(self, rhs: Coordinate) -> Coordinate {
-        Coordinate(self.0 + rhs.0, self.1 + rhs.1)
+    fn add(self, rhs: Vec2) -> Vec2 {
+        Vec2(self.0 + rhs.0, self.1 + rhs.1)
     }
 }
 
-impl ops::Sub<Coordinate> for Coordinate {
-    type Output = Coordinate;
+impl ops::Sub<Vec2> for Vec2 {
+    type Output = Vec2;
 
     #[inline]
-    fn sub(self, rhs: Coordinate) -> Coordinate {
-        Coordinate(self.0 - rhs.0, self.1 - rhs.1)
+    fn sub(self, rhs: Vec2) -> Vec2 {
+        Vec2(self.0 - rhs.0, self.1 - rhs.1)
     }
 }
 
-impl From<(f32, f32)> for Coordinate {
+impl From<(f32, f32)> for Vec2 {
     fn from((x, y): (f32, f32)) -> Self {
-        Coordinate(x, y)
+        Vec2(x, y)
     }
 }
 
-impl From<(i32, i32)> for Coordinate {
+impl From<(i32, i32)> for Vec2 {
     fn from((x, y): (i32, i32)) -> Self {
-        Coordinate(x as f32, y as f32)
+        Vec2(x as f32, y as f32)
     }
 }
 
-impl From<(u32, u32)> for Coordinate {
+impl From<(u32, u32)> for Vec2 {
     fn from((x, y): (u32, u32)) -> Self {
-        Coordinate(x as f32, y as f32)
+        Vec2(x as f32, y as f32)
     }
 }
 
-impl PartialOrd for Coordinate {
+impl PartialOrd for Vec2 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        use Ordering::*;
+
         let (x, y) = (self.0.partial_cmp(&other.0), self.1.partial_cmp(&other.1));
         match (x, y) {
-            (_, Some(Ordering::Less)) => Some(Ordering::Less),
-            (_, Some(Ordering::Greater)) => Some(Ordering::Greater),
-            (Some(Ordering::Less), Some(_)) => Some(Ordering::Less),
-            (Some(Ordering::Greater), Some(_)) => Some(Ordering::Greater),
-            (_, _) => Some(Ordering::Equal),
+            (Some(Less), _) | (_, Some(Less)) => Some(Less),
+            (Some(Greater), _) | (_, Some(Greater)) => Some(Greater),
+            (_, _) => Some(Equal),
         }
     }
 }

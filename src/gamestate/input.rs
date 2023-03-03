@@ -1,4 +1,4 @@
-use enum_map::Enum;
+use enum_map::{Enum, EnumMap};
 use sdl2::{
     event::{Event, WindowEvent},
     keyboard::Keycode,
@@ -6,7 +6,10 @@ use sdl2::{
 };
 
 use crate::{
-    engine_structures::{components::MovingState, coordinate::Direction},
+    engine_structures::{
+        components::{bag::ItemList, MovingState},
+        vec2::Direction,
+    },
     font_manager::FontManager,
     menu::{menu_events::MenuInput, pause_menu::PauseMenu},
     render::Renderer,
@@ -14,8 +17,9 @@ use crate::{
 
 use super::State;
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Default)]
 pub enum KeyState {
+    #[default]
     Released,
     Pressed,
     Held,
@@ -91,30 +95,30 @@ impl State {
         Ok(false)
     }
 
-    pub fn handle_input_menus(&mut self, items: Vec<(crate::bag::Item, u32)>) -> bool {
+    pub fn handle_input_menus(&mut self, items: ItemList) -> bool {
         use Control::*;
         use KeyState::*;
 
         if self.input[Menu] == Pressed {
-            self.menus.interact(MenuInput::Start, items)
+            self.menus.interact(MenuInput::Start, &mut self.world)
         } else if self.input[Interact1] == Pressed {
-            self.menus.interact(MenuInput::Accept, items)
+            self.menus.interact(MenuInput::Accept, &mut self.world)
         } else if self.input[Interact2] == Pressed {
-            self.menus.interact(MenuInput::Reject, items)
+            self.menus.interact(MenuInput::Reject, &mut self.world)
         } else if self.input[Left] == Pressed {
-            self.menus.interact(MenuInput::Left, items)
+            self.menus.interact(MenuInput::Left, &mut self.world)
         } else if self.input[Right] == Pressed {
-            self.menus.interact(MenuInput::Right, items)
+            self.menus.interact(MenuInput::Right, &mut self.world)
         } else if self.input[Up] == Pressed {
-            self.menus.interact(MenuInput::Up, items)
+            self.menus.interact(MenuInput::Up, &mut self.world)
         } else if self.input[Down] == Pressed {
-            self.menus.interact(MenuInput::Down, items)
+            self.menus.interact(MenuInput::Down, &mut self.world)
         } else {
             false
         }
     }
 
-    pub fn handle_input_gameplay(&mut self, font_man: &FontManager) -> Result<(), String> {
+    pub fn handle_input_gameplay(&mut self, font_man: &FontManager) {
         use Control::*;
         use KeyState::*;
 
@@ -123,23 +127,21 @@ impl State {
         }
 
         if self.input[Interact1] == Pressed {
-            self.try_player_interaction(font_man)?;
+            self.try_player_interaction(font_man);
         }
 
-        self.update_player_sprinting(matches!(self.input[Interact2], Pressed | Held))?;
+        self.update_player_sprinting(matches!(self.input[Interact2], Pressed | Held));
 
         if self.input[Up] != Released && self.input[Down] == Released {
-            self.update_player_moving(MovingState::Moving(Direction::Up))?;
+            self.update_player_moving(MovingState::Moving(Direction::Up));
         } else if self.input[Down] != Released && self.input[Up] == Released {
-            self.update_player_moving(MovingState::Moving(Direction::Down))?;
+            self.update_player_moving(MovingState::Moving(Direction::Down));
         } else if self.input[Left] != Released && self.input[Right] == Released {
-            self.update_player_moving(MovingState::Moving(Direction::Left))?;
+            self.update_player_moving(MovingState::Moving(Direction::Left));
         } else if self.input[Right] != Released && self.input[Left] == KeyState::Released {
-            self.update_player_moving(MovingState::Moving(Direction::Right))?;
+            self.update_player_moving(MovingState::Moving(Direction::Right));
         } else {
-            self.update_player_moving(MovingState::Idle)?;
+            self.update_player_moving(MovingState::Idle);
         }
-
-        Ok(())
     }
 }

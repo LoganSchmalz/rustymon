@@ -1,6 +1,16 @@
+use hecs::World;
+
+use crate::{
+    close_menu,
+    engine_structures::components::{bag::Bag, Player},
+    gamestate::State,
+    open_menu,
+};
+
 use super::{
+    bag_menu::BagMenu,
     menu_events::{MenuCommand, MenuInput},
-    MenuItem,
+    MenuItem, MenuManager,
 };
 
 #[derive(Default)]
@@ -23,7 +33,11 @@ impl PauseMenu {
 }
 
 impl MenuItem for PauseMenu {
-    fn update(&mut self, action: MenuInput) -> Option<MenuCommand> {
+    fn update(
+        &mut self,
+        action: MenuInput,
+        world: &mut World,
+    ) -> Option<Box<dyn Fn(&mut MenuManager)>> {
         match action {
             MenuInput::Down => {
                 self.selected = if self.selected < self.items.len() - 1 {
@@ -40,16 +54,17 @@ impl MenuItem for PauseMenu {
                 }
             }
             MenuInput::Accept => match self.items[self.selected].as_str() {
-                "Bag" => return Some(MenuCommand::OpenBag),
-                "Close" => {
-                    if self.items[self.selected] == "Close" {
-                        return Some(MenuCommand::Close);
-                    } else {
+                "Bag" => {
+                    if let Some((entity, (_, _))) =
+                        world.query_mut::<(&Player, &Bag)>().into_iter().next()
+                    {
+                        return Some(open_menu!(BagMenu::new(entity)));
                     }
                 }
+                "Close" => return Some(close_menu!()),
                 _ => {}
             },
-            MenuInput::Reject => return Some(MenuCommand::Close),
+            MenuInput::Reject => return Some(close_menu!()),
             _ => {}
         }
         None

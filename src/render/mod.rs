@@ -8,14 +8,14 @@ use sdl2::{
 };
 
 use crate::{
-    coordinate::Coordinate,
+    vec2::Vec2,
     engine_structures::{
-        components::{Player, Position, animation::HumanWalkAnimation, sprite::Sprite},
+        components::{animation::HumanWalkAnimation, sprite::Sprite, Player, Position},
         humanoid_properties,
     },
     font_manager::FontManager,
     menu,
-    resource_manager::{self, TextureManager},
+    resource_manager::TextureManager,
     tilemap::{self, Tile},
     TILE_SIZE,
 };
@@ -95,7 +95,7 @@ impl Renderer {
 
     pub fn render_overworld_tiles(
         &mut self,
-        texture_manager: &mut resource_manager::TextureManager<WindowContext>,
+        texture_manager: &mut TextureManager<WindowContext>,
         map: &tilemap::TileMap,
     ) -> Result<(), String> {
         //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
@@ -105,8 +105,8 @@ impl Renderer {
 
         let texture = texture_manager.load("assets/tiles/tilesprites.png")?;
 
-        let top_left = Coordinate::from(self.camera.top_left).to_usize(map.size_x);
-        let bottom_right = Coordinate::from(self.camera.bottom_right).to_usize(map.size_x);
+        let top_left = Vec2::from(self.camera.top_left).to_usize(map.size_x);
+        let bottom_right = Vec2::from(self.camera.bottom_right).to_usize(map.size_x);
 
         for i in top_left..bottom_right {
             let render_quad = Rect::new(
@@ -174,9 +174,10 @@ impl Renderer {
 
     pub fn render_menus(
         &mut self,
+        world: &World,
         texture_manager: &mut TextureManager<WindowContext>,
         font_man: &FontManager,
-        menu_man: &mut menu::MenuManager,
+        menu_man: &menu::MenuManager,
     ) -> Result<(), String> {
         for menu_item in menu_man.menus.iter() {
             match menu_item {
@@ -190,7 +191,7 @@ impl Renderer {
                     self.render_pause_menu(menu, texture_manager, font_man)?
                 }
                 menu::Menu::BagMenu(menu) => {
-                    self.render_bag_menu(menu, texture_manager, font_man)?
+                    self.render_bag_menu(menu, world, texture_manager, font_man)?
                 }
             }
         }
@@ -213,7 +214,7 @@ impl Renderer {
         self.update_camera(world)?;
         self.render_overworld_tiles(texture_manager, map)?;
         self.render_entities(world, texture_manager)?;
-        self.render_menus(texture_manager, font_man, menu_man)?;
+        self.render_menus(world, texture_manager, font_man, menu_man)?;
         /*if self.is_fading {
             self.render_transition(texture_manager, delta_time, map, obj_man);
         }*/
@@ -248,22 +249,22 @@ impl Renderer {
     pub fn render_entities(
         &mut self,
         world: &World,
-        texture_manager: &mut resource_manager::TextureManager<WindowContext>,
+        texture_manager: &mut TextureManager<WindowContext>,
     ) -> Result<(), String> {
         let mut entity_query = world.query::<(&Position, &Sprite, Option<&HumanWalkAnimation>)>();
 
         let mut list = entity_query
             .iter()
             .filter(|(_, (Position(c), ..))| {
-                Coordinate::from(self.camera.top_left) <= *c
-                    && *c <= Coordinate::from(self.camera.bottom_right)
+                Vec2::from(self.camera.top_left) <= *c
+                    && *c <= Vec2::from(self.camera.bottom_right)
             })
             .collect::<Vec<_>>();
         list.sort_by(|(_, (Position(c1), ..)), (_, (Position(c2), ..))| {
             c1.partial_cmp(c2).unwrap()
         });
 
-        for (_, (Position(Coordinate(x, y)), sprite, anim)) in list {
+        for (_, (Position(Vec2(x, y)), sprite, anim)) in list {
             let render_quad = Rect::new(
                 (*x * TILE_SIZE as f32).round() as i32 - self.camera.offset.0 + sprite.shift_x,
                 (*y * TILE_SIZE as f32).round() as i32 - self.camera.offset.1 + sprite.shift_y,
