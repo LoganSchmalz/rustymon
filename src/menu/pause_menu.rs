@@ -2,8 +2,7 @@ use hecs::World;
 
 use crate::{
     close_menu,
-    engine_structures::components::{bag::Bag, Player},
-    gamestate::State,
+    components::{bag::Bag, Player},
     open_menu,
 };
 

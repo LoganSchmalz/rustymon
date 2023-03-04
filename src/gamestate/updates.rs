@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use crate::engine_structures::{
+use crate::{
     components::{
         animation::{HumanAnimationType, HumanWalkAnimation},
         Collision, MovingEntity, MovingState, Player, Position,
     },
-    vec2::{compute_direction, Vec2, Direction},
-    humanoid_properties::{ROTATION_TIME, RUN_SPEED, WALK_SPEED},
+    constants::{ROTATION_TIME, RUN_SPEED, WALK_SPEED},
+    vec2::{compute_direction, Direction, Vec2},
 };
 
 use super::State;
@@ -129,8 +129,7 @@ impl State {
                     false => WALK_SPEED,
                 };
 
-            let (dx, dy) = match compute_direction(Vec2(x, y), Vec2(target_x, target_y))
-            {
+            let (dx, dy) = match compute_direction(Vec2(x, y), Vec2(target_x, target_y)) {
                 Direction::Up => (0.0, -speed),
                 Direction::Down => (0.0, speed),
                 Direction::Left => (-speed, 0.0),

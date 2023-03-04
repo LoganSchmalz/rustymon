@@ -1,14 +1,16 @@
 const TILE_SIZE: i32 = 16;
 
-mod engine_structures;
+mod components;
+mod constants;
 mod font_manager;
 mod gamestate;
 mod menu;
 mod render;
 mod resource_manager;
 mod tilemap;
+mod vec2;
 
-use crate::{engine_structures::*, gamestate::State, resource_manager::TextureManager};
+use crate::{gamestate::State, resource_manager::TextureManager};
 
 extern crate sdl2;
 

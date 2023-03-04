@@ -1,10 +1,6 @@
 use hecs::{Entity, World};
 
-use crate::{
-    close_menu,
-    components::bag::ItemList,
-    engine_structures::components::{bag::Bag, Player},
-};
+use crate::{components::bag::Bag, close_menu};
 
 use super::{
     menu_events::{MenuCommand, MenuInput},

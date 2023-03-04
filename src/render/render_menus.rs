@@ -2,7 +2,7 @@ use hecs::World;
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 
 use crate::{
-    engine_structures::components::bag::Bag,
+    components::bag::Bag,
     font_manager::FontManager,
     menu::{
         bag_menu::BagMenu,

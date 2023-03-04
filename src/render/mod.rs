@@ -8,16 +8,13 @@ use sdl2::{
 };
 
 use crate::{
-    vec2::Vec2,
-    engine_structures::{
-        components::{animation::HumanWalkAnimation, sprite::Sprite, Player, Position},
-        humanoid_properties,
-    },
+    components::{animation::HumanWalkAnimation, sprite::Sprite, Player, Position},
     font_manager::FontManager,
     menu,
     resource_manager::TextureManager,
     tilemap::{self, Tile},
-    TILE_SIZE,
+    vec2::Vec2,
+    constants::TILE_SIZE,
 };
 
 mod render_menus;
@@ -225,14 +222,14 @@ impl Renderer {
     }
 
     pub fn update_camera(&mut self, world: &World) -> Result<(), String> {
-        let mut q = world.query::<(&Player, &Position)>();
-        let (_, (_player, Position(pos))) = q.iter().next().ok_or("No player found")?;
+        let mut q = world.query::<(&Player, &Position, &Sprite)>();
+        let (_, (_player, Position(pos), sprite)) = q.iter().next().ok_or("No player found")?;
 
         let offset = (
             (pos.0 * TILE_SIZE as f32).round() as i32
-                - (PIXELS_X / 2 - humanoid_properties::WIDTH / 2) as i32,
+                - (PIXELS_X / 2 - sprite.src.width() / 2) as i32,
             (pos.1 * TILE_SIZE as f32).round() as i32
-                - (PIXELS_Y / 2 - humanoid_properties::HEIGHT / 2) as i32,
+                - (PIXELS_Y / 2 - sprite.src.height() / 2) as i32,
         );
         let top_left = ((pos.0 - 8.0).floor() as i32, (pos.1 - 5.0).floor() as i32);
         let bottom_right = ((pos.0 + 8.0).ceil() as i32, (pos.1 + 5.0).ceil() as i32);
@@ -256,8 +253,7 @@ impl Renderer {
         let mut list = entity_query
             .iter()
             .filter(|(_, (Position(c), ..))| {
-                Vec2::from(self.camera.top_left) <= *c
-                    && *c <= Vec2::from(self.camera.bottom_right)
+                Vec2::from(self.camera.top_left) <= *c && *c <= Vec2::from(self.camera.bottom_right)
             })
             .collect::<Vec<_>>();
         list.sort_by(|(_, (Position(c1), ..)), (_, (Position(c2), ..))| {

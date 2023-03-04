@@ -6,10 +6,8 @@ use sdl2::{
 };
 
 use crate::{
-    engine_structures::{
-        components::{bag::ItemList, MovingState},
-        vec2::Direction,
-    },
+    components::{bag::ItemList, MovingState},
+    vec2::Direction,
     font_manager::FontManager,
     menu::{menu_events::MenuInput, pause_menu::PauseMenu},
     render::Renderer,
@@ -95,7 +93,7 @@ impl State {
         Ok(false)
     }
 
-    pub fn handle_input_menus(&mut self, items: ItemList) -> bool {
+    pub fn handle_input_menus(&mut self) -> bool {
         use Control::*;
         use KeyState::*;
 

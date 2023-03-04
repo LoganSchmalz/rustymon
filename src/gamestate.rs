@@ -6,10 +6,8 @@ use sdl2::{rect::Rect, video::WindowContext};
 use enum_map::{enum_map, EnumMap};
 
 use crate::{
-    engine_structures::{
-        components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, *},
-        vec2::{Vec2, Direction},
-    },
+    components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, *},
+    vec2::{Direction, Vec2},
     font_manager::FontManager,
     menu::{main_menu::MainMenu, textbox::Textbox, MenuManager},
     render::{Renderer, PIXELS_X},
@@ -141,12 +139,7 @@ impl State {
         //determine correct input handler
         if self.menus.is_open() {
             self.update_player_moving(MovingState::Idle);
-            let items = if let Ok(bag) = self.world.query_one_mut::<&mut Bag>(self.player) {
-                bag.items.clone()
-            } else {
-                vec![]
-            };
-            self.paused = self.handle_input_menus(items);
+            self.paused = self.handle_input_menus();
         } else {
             self.handle_input_gameplay(font_man);
         }
