@@ -1,34 +1,30 @@
 use std::collections::HashMap;
 
-use hecs::{Entity, World};
+use hecs::{CommandBuffer, Entity, World};
 use sdl2::{rect::Rect, video::WindowContext};
 
+use enum_map::EnumMap;
+
 use crate::{
-    bag::{self, Bag},
-    engine_structures::{
-        components::{animation::HumanWalkAnimation, sprite::Sprite, *},
-        coordinate::{Coordinate, Direction},
-    },
-    event::{Command, EventManager},
+    components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, *},
     font_manager::FontManager,
-    input::Input,
-    menu::{
-        bag_menu::BagMenu, main_menu::MainMenu, menu_events::MenuCommand, pause_menu::PauseMenu,
-        textbox::Textbox, MenuManager,
-    },
-    render::{Renderer, PIXELS_X},
+    menu::{main_menu::MainMenu, textbox::Textbox, MenuManager},
+    render::Renderer,
     resource_manager::TextureManager,
     tilemap::TileMap,
+    vec2::{Direction, Vec2},
 };
 
+use self::input::{Control, KeyState};
+
+mod input;
 mod updates;
 
 pub struct State {
-    pub allow_input: bool,
+    pub input: EnumMap<Control, KeyState>,
     pub paused: bool,
     pub world: World,
-    pub events: EventManager,
-    pub bag: Bag,
+    pub cmd: CommandBuffer,
     pub map: TileMap,
     pub menus: MenuManager,
     pub player: Entity,
@@ -38,11 +34,12 @@ pub struct State {
 impl Default for State {
     fn default() -> Self {
         let mut world = World::new();
+        let mut cmd = CommandBuffer::new();
 
         //here we create a bunch of example entities for the default world
         let player = world.spawn((
             Player,
-            Position(Coordinate(2f32, 1f32)),
+            Position(Vec2(2f32, 1f32)),
             MovingEntity::new(),
             Sprite::character(String::from("assets/char-sprites/augosprite.png")),
             Collision,
@@ -52,10 +49,11 @@ impl Default for State {
                 left_leg: true,
                 sprinting: false,
             },
+            Bag::new(),
         ));
 
         let _door = world.spawn((
-            Position(Coordinate(2f32, 0f32)),
+            Position(Vec2(2f32, 0f32)),
             Sprite {
                 texture: String::from("assets/tiles/tilesprites.png"),
                 src: Rect::new(96, 0, 16, 16),
@@ -65,7 +63,7 @@ impl Default for State {
         ));
 
         let _npc = world.spawn((
-            Position(Coordinate(4f32, 4f32)),
+            Position(Vec2(4f32, 4f32)),
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
                 try_moving: MovingState::Moving(Direction::Left),
@@ -74,9 +72,9 @@ impl Default for State {
             },
             Sprite::character(String::from("assets/char-sprites/dadsprite.png")),
             Collision,
-            Interactions(vec![Command::OpenMenu(MenuCommand::OpenTextbox(
-                "Hi hungry, I'm dad! Nice try, little child --> you are bad!".to_string(),
-            ))]),
+            Npc {
+                says: "Hi hungry, I'm dad! Nice try, little child --> you are bad!".to_string(),
+            },
             HumanWalkAnimation {
                 rotation: Direction::Left,
                 time: (1.0, 0.0),
@@ -86,7 +84,7 @@ impl Default for State {
         ));
 
         let _berry = world.spawn((
-            Position(Coordinate(10f32, 8f32)),
+            Position(Vec2(10f32, 8f32)),
             Sprite::berry(),
             Collision,
             GroundItem {
@@ -99,11 +97,10 @@ impl Default for State {
         menus.open_menu(MainMenu::new().into());
 
         Self {
-            allow_input: true,
+            input: EnumMap::default(),
             paused: true,
             world,
-            events: EventManager::new(),
-            bag: Bag::new(),
+            cmd,
             map: TileMap::load(0),
             menus,
             player,
@@ -136,53 +133,15 @@ impl State {
     pub fn update(
         &mut self,
         delta_time: f32,
-        input: &mut Input,
         _map: &mut TileMap,
-        font_man: &FontManager,
+        font_manager: &FontManager,
     ) -> Result<(), String> {
         //determine correct input handler
         if self.menus.is_open() {
-            self.events.handle_input_menus(input);
+            self.update_player_moving(MovingState::Idle);
+            self.paused = self.handle_input_menus(font_manager);
         } else {
-            self.events.handle_input_gameplay(input);
-        }
-
-        //process all commands
-        while let Some(command) = self.events.commands.pop() {
-            match command {
-                Command::PlayerSprint(sprinting) => self.update_player_sprinting(sprinting)?,
-                Command::PlayerMove(ms) => self.update_player_moving_direction(ms)?,
-                Command::PlayerInteract => self.try_player_interaction()?,
-                Command::InputMenu(action) => {
-                    self.paused = self.menus.interact(action, self.bag.items.clone())
-                }
-                Command::OpenMenu(menu_event) => {
-                    self.events
-                        .commands
-                        .push(Command::PlayerMove(MovingState::Idle));
-                    match menu_event {
-                        MenuCommand::OpenStrays => todo!(),
-                        MenuCommand::OpenBag => self
-                            .menus
-                            .open_menu(BagMenu::new(self.bag.items.clone()).into()),
-                        MenuCommand::OpenSave => todo!(),
-                        MenuCommand::Close => self.paused = self.menus.close_menu(),
-                        MenuCommand::OpenTextbox(text_in) => self
-                            .menus
-                            .open_menu(Textbox::new(text_in, font_man, PIXELS_X).into()),
-                        MenuCommand::OpenPauseMenu => {
-                            self.menus.open_menu(PauseMenu::new().into());
-                        }
-                    };
-                }
-                Command::GiveItem(item, amount) => self.bag.add_item(item, amount),
-                Command::DeleteObject(id) => self
-                    .world
-                    .despawn(id)
-                    .or(Err("Tried to delete nonexistent entity"))?,
-                Command::ChangeMap(_, _) => todo!(),
-                Command::DrawTransition => todo!(),
-            }
+            self.handle_input_gameplay(font_manager);
         }
 
         //do any physics/animation updates
@@ -194,7 +153,7 @@ impl State {
         Ok(())
     }
 
-    pub fn check_collision(&self, position: &Coordinate) -> bool {
+    pub fn check_collision(&self, position: &Vec2) -> bool {
         self.map.check_collision(*position)
             || self
                 .collisions
@@ -205,21 +164,21 @@ impl State {
             || position.1 >= self.map.size_y as f32
     }
 
-    pub fn try_player_interaction(&mut self) -> Result<(), String> {
-        let (_, &Position(Coordinate(x, y)), moving) = self
+    pub fn try_player_interaction(&mut self, font_man: &FontManager) {
+        let (_, &Position(Vec2(x, y)), moving) = self
             .world
             .query_one_mut::<(&Player, &Position, &MovingEntity)>(self.player)
-            .or(Err("No player found"))?;
+            .unwrap();
 
         if moving.moving != MovingState::CenterTile && moving.moving != MovingState::Idle {
-            return Ok(());
+            return;
         }
 
         let temp_pos = match moving.rotation {
-            Direction::Left => Coordinate(x - 1.0, y),
-            Direction::Right => Coordinate(x + 1.0, y),
-            Direction::Up => Coordinate(x, y - 1.0),
-            Direction::Down => Coordinate(x, y + 1.0),
+            Direction::Left => Vec2(x - 1.0, y),
+            Direction::Right => Vec2(x + 1.0, y),
+            Direction::Up => Vec2(x, y - 1.0),
+            Direction::Down => Vec2(x, y + 1.0),
         };
 
         //check for an entity based on player position in the collisions map
@@ -229,25 +188,28 @@ impl State {
 
         //if it matches, run the list of interactions it comes with
         if let Some((_, &entity)) = interact_entity {
-            let interactions = self.world.query_one_mut::<&Interactions>(entity);
-            if let Ok(Interactions(list)) = interactions {
-                self.events.push_events(&mut list.clone());
-                return Ok(());
+            let npc = self.world.query_one_mut::<&Npc>(entity);
+            if let Ok(Npc { says }) = npc {
+                self.menus.open_menu(Textbox::new(says, font_man).into());
+                return;
             }
 
-            let item = self.world.query_one_mut::<&GroundItem>(entity);
-            if let Ok(&GroundItem { item, amount }) = item {
-                self.events
-                    .push_event(Command::OpenMenu(MenuCommand::OpenTextbox(
-                        format!("You picked up {} (x{}).", item, amount)
-                    )));
-                self.bag.add_item(item, amount);
-                self.world
-                    .despawn(entity)
-                    .or(Err("Tried to remove nonexistent entity"))?;
+            if let Ok(&GroundItem { item, amount }) =
+                self.world.query_one_mut::<&GroundItem>(entity)
+            {
+                if let Ok(bag) = self.world.query_one_mut::<&mut Bag>(self.player) {
+                    if bag.add_item(item, amount) {
+                        self.menus.open_menu(
+                            Textbox::new(
+                                &format!("You picked up {} (x{}).", item, amount),
+                                font_man,
+                            )
+                            .into(),
+                        );
+                        self.world.despawn(entity).unwrap();
+                    }
+                };
             }
         }
-
-        Ok(())
     }
 }

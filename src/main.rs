@@ -1,17 +1,14 @@
-const TILE_SIZE: i32 = 16;
-
-mod bag;
-mod engine_structures;
-mod event;
+mod components;
+mod constants;
 mod font_manager;
 mod gamestate;
-mod input;
 mod menu;
 mod render;
 mod resource_manager;
 mod tilemap;
+mod vec2;
 
-use crate::{engine_structures::*, gamestate::State, resource_manager::TextureManager};
+use crate::{gamestate::State, resource_manager::TextureManager};
 
 extern crate sdl2;
 
@@ -46,8 +43,6 @@ pub fn main() -> Result<(), String> {
 
     let mut event_pump = sdl_context.event_pump().map_err(|e| e.to_string())?;
 
-    let mut input = input::Input::new();
-
     let texture_creator = canvas.texture_creator();
     let mut texture_manager = TextureManager::new(&texture_creator);
 
@@ -71,24 +66,10 @@ pub fn main() -> Result<(), String> {
             / sdl_context.timer().unwrap().performance_frequency())
             as f32;
 
-        if input.handle_events(&mut event_pump, &mut renderer)? {
+        if state.update_input(&mut event_pump, &mut renderer)? {
             break 'running;
-        };
-        //let exit = event_man.handle_input_event(input_events, &mut menu_man, &mut renderer);
-
-        /*event_man.handle_gameplay_event(
-            &mut menu_man,
-            &mut player,
-            &mut obj_man,
-            &mut renderer,
-            &font_manager,
-            &mut bag,
-        );
-
-        player.update(&delta_time, &map, &obj_man.collision_manager);
-        obj_man.update_objects(&delta_time, &map);*/
-
-        state.update(delta_time, &mut input, &mut map, &font_manager)?;
+        }
+        state.update(delta_time, &mut map, &font_manager)?;
         state.render(
             &mut renderer,
             &mut texture_manager,

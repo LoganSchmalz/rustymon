@@ -1,6 +1,8 @@
+use hecs::World;
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 
 use crate::{
+    components::bag::Bag,
     font_manager::FontManager,
     menu::{
         bag_menu::BagMenu,
@@ -17,6 +19,7 @@ impl Renderer {
     pub(super) fn render_bag_menu(
         &mut self,
         menu: &BagMenu,
+        world: &World,
         texture_manager: &mut TextureManager<WindowContext>,
         font_man: &FontManager,
     ) -> Result<(), String> {
@@ -30,7 +33,15 @@ impl Renderer {
 
         let mut text_quad = Rect::new(140, 10, 0, 0);
 
-        for (idx, (item, amount)) in menu.items.iter().enumerate() {
+        let mut query = world.query_one::<&Bag>(menu.entity).unwrap();
+        let bag = query.get();
+        let empty = vec![];
+        let items = match bag {
+            Some(bag) => &bag.items,
+            _ => &empty,
+        };
+
+        for (idx, (item, amount)) in items.iter().enumerate() {
             let item_str = item.to_string();
 
             let item_surface = font_man.fonts.press_start_2p.render(&item_str);
@@ -88,13 +99,13 @@ impl Renderer {
         let load_button = texture_manager.load("assets/UI/SAVELOADbutton.png")?;
         let settings_button = texture_manager.load("assets/UI/SETTINGSbutton.png")?;
 
-        /*if menu.curr_button == MainMenuButton::StartButton {
-            start_button.set_color_mod(223, 3, 67);
+        let start_src = if menu.curr_button == MainMenuButton::Start {
+            Rect::new(0, 24, 72, 24)
         } else {
-            start_button.set_color_mod(255, 255, 255);
-        }
+            Rect::new(0, 0, 72, 24)
+        };
 
-        if menu.curr_button == MainMenuButton::LoadButton {
+        /*if menu.curr_button == MainMenuButton::LoadButton {
             load_button.set_color_mod(223, 3, 67);
         } else {
             load_button.set_color_mod(255, 255, 255);
@@ -106,12 +117,17 @@ impl Renderer {
             settings_button.set_color_mod(255, 255, 255);
         }*/
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
-        let start_quad = Rect::new(82, 100, 75, 24);
+        let start_quad = Rect::new(
+            PIXELS_X as i32 / 2 - start_src.width() as i32 / 2,
+            100,
+            start_src.width(),
+            start_src.height(),
+        );
         let load_quad = Rect::new(102, 122, 16, 16);
         let settings_quad = Rect::new(121, 122, 16, 16);
 
         self.canvas.copy(&titlescreen, None, screen_quad)?;
-        self.canvas.copy(&start_button, None, start_quad)?;
+        self.canvas.copy(&start_button, start_src, start_quad)?;
         self.canvas.copy(&load_button, None, load_quad)?;
         self.canvas.copy(&settings_button, None, settings_quad)?;
 

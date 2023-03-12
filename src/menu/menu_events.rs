@@ -1,3 +1,5 @@
+use hecs::Entity;
+
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum MenuInput {
     Up,
@@ -13,7 +15,7 @@ pub enum MenuInput {
 #[derive(Clone)]
 pub enum MenuCommand {
     OpenStrays,
-    OpenBag,
+    OpenBag(Entity),
     OpenSave,
     Close,
     OpenTextbox(String),

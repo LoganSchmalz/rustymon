@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 
-use crate::engine_structures::{
-    components::{Collision, MovingEntity, MovingState, Player, Position, animation::{HumanWalkAnimation, HumanAnimationType}},
-    coordinate::{compute_direction, Coordinate, Direction},
-    humanoid_properties::{ROTATION_TIME, RUN_SPEED, WALK_SPEED},
+use crate::{
+    components::{
+        animation::{HumanAnimationType, HumanWalkAnimation},
+        Collision, MovingEntity, MovingState, Player, Position,
+    },
+    constants::{ROTATION_TIME, RUN_SPEED, WALK_SPEED},
+    vec2::{compute_direction, Direction, Vec2},
 };
 
 use super::State;
@@ -28,29 +31,22 @@ impl State {
         }
     }
 
-    pub fn update_player_moving_direction(
-        &mut self,
-        moving_state: MovingState,
-    ) -> Result<(), String> {
+    pub fn update_player_moving(&mut self, moving_state: MovingState) {
         let (_, mut moving) = self
             .world
             .query_one_mut::<(&Player, &mut MovingEntity)>(self.player)
-            .or(Err("No player found"))?;
+            .unwrap();
 
         moving.try_moving = moving_state;
-
-        Ok(())
     }
 
-    pub fn update_player_sprinting(&mut self, sprinting: bool) -> Result<(), String> {
+    pub fn update_player_sprinting(&mut self, sprinting: bool) {
         let (_, mut moving) = self
             .world
             .query_one_mut::<(&Player, &mut MovingEntity)>(self.player)
-            .or(Err("No player found"))?;
+            .unwrap();
 
         moving.try_sprinting = sprinting;
-
-        Ok(())
     }
 
     pub fn update_moving_objects(&self, delta_time: f32) {
@@ -85,13 +81,13 @@ impl State {
                     //update sprinting state
                     moving.sprinting = moving.try_sprinting;
 
-                    let &mut Position(Coordinate(x, y)) = pos;
+                    let &mut Position(Vec2(x, y)) = pos;
 
-                    let Coordinate(target_x, target_y) = match new_rotation {
-                        Direction::Left => Coordinate((x - 1.0).ceil(), y),
-                        Direction::Right => Coordinate((x + 1.0).floor(), y),
-                        Direction::Up => Coordinate(x, (y - 1.0).ceil()),
-                        Direction::Down => Coordinate(x, (y + 1.0).floor()),
+                    let Vec2(target_x, target_y) = match new_rotation {
+                        Direction::Left => Vec2((x - 1.0).ceil(), y),
+                        Direction::Right => Vec2((x + 1.0).floor(), y),
+                        Direction::Up => Vec2(x, (y - 1.0).ceil()),
+                        Direction::Down => Vec2(x, (y + 1.0).floor()),
                     };
 
                     //we can only play a new animation if the animation isn't playing already, or if we are changing rotations
@@ -117,13 +113,13 @@ impl State {
                 _ => (),
             }
 
-            let &mut Position(Coordinate(x, y)) = pos;
+            let &mut Position(Vec2(x, y)) = pos;
 
-            let Coordinate(target_x, target_y) = match moving.moving {
-                Moving(Direction::Left) => Coordinate((x - 1.0).ceil(), y),
-                Moving(Direction::Right) => Coordinate((x + 1.0).floor(), y),
-                Moving(Direction::Up) => Coordinate(x, (y - 1.0).ceil()),
-                Moving(Direction::Down) => Coordinate(x, (y + 1.0).floor()),
+            let Vec2(target_x, target_y) = match moving.moving {
+                Moving(Direction::Left) => Vec2((x - 1.0).ceil(), y),
+                Moving(Direction::Right) => Vec2((x + 1.0).floor(), y),
+                Moving(Direction::Up) => Vec2(x, (y - 1.0).ceil()),
+                Moving(Direction::Down) => Vec2(x, (y + 1.0).floor()),
                 Idle | CenterTile => panic!("Should not happen"),
             };
 
@@ -133,8 +129,7 @@ impl State {
                     false => WALK_SPEED,
                 };
 
-            let (dx, dy) = match compute_direction(Coordinate(x, y), Coordinate(target_x, target_y))
-            {
+            let (dx, dy) = match compute_direction(Vec2(x, y), Vec2(target_x, target_y)) {
                 Direction::Up => (0.0, -speed),
                 Direction::Down => (0.0, speed),
                 Direction::Left => (-speed, 0.0),
@@ -142,16 +137,16 @@ impl State {
             };
 
             //set new position
-            *pos = Position(Coordinate(x + dx, y + dy));
+            *pos = Position(Vec2(x + dx, y + dy));
 
-            let &mut Position(Coordinate(x, y)) = pos;
+            let &mut Position(Vec2(x, y)) = pos;
 
             //check if we have passed the tile we were trying to get to
             if (x, y) == (target_x, target_y)
                 || dx != 0.0 && (target_x - x).signum() != dx.signum()
                 || dy != 0.0 && (target_y - y).signum() != dy.signum()
             {
-                *pos = Position(Coordinate(target_x, target_y));
+                *pos = Position(Vec2(target_x, target_y));
                 moving.moving = match moving.try_moving {
                     Idle => Idle,
                     _ => CenterTile,

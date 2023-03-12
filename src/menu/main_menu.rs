@@ -16,16 +16,15 @@ pub struct MainMenu {
 
 impl MainMenu {
     pub fn new() -> MainMenu {
-        MainMenu {
-            curr_button: Start,
-        }
+        MainMenu { curr_button: Start }
     }
 }
 
+use hecs::World;
 use MainMenuButton::*;
 
 impl MenuItem for MainMenu {
-    fn update(&mut self, action: MenuInput) -> Option<MenuCommand> {
+    fn update(&mut self, action: MenuInput, _: &mut World) -> Option<MenuCommand> {
         match action {
             MenuInput::Accept => {
                 if self.curr_button == Start {

@@ -8,16 +8,13 @@ use sdl2::{
 };
 
 use crate::{
-    coordinate::Coordinate,
-    engine_structures::{
-        components::{Player, Position, animation::HumanWalkAnimation, sprite::Sprite},
-        humanoid_properties,
-    },
+    components::{animation::HumanWalkAnimation, sprite::Sprite, Player, Position},
     font_manager::FontManager,
     menu,
-    resource_manager::{self, TextureManager},
+    resource_manager::TextureManager,
     tilemap::{self, Tile},
-    TILE_SIZE,
+    vec2::Vec2,
+    constants::TILE_SIZE,
 };
 
 mod render_menus;
@@ -95,7 +92,7 @@ impl Renderer {
 
     pub fn render_overworld_tiles(
         &mut self,
-        texture_manager: &mut resource_manager::TextureManager<WindowContext>,
+        texture_manager: &mut TextureManager<WindowContext>,
         map: &tilemap::TileMap,
     ) -> Result<(), String> {
         //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
@@ -105,8 +102,8 @@ impl Renderer {
 
         let texture = texture_manager.load("assets/tiles/tilesprites.png")?;
 
-        let top_left = Coordinate::from(self.camera.top_left).to_usize(map.size_x);
-        let bottom_right = Coordinate::from(self.camera.bottom_right).to_usize(map.size_x);
+        let top_left = Vec2::from(self.camera.top_left).to_usize(map.size_x);
+        let bottom_right = Vec2::from(self.camera.bottom_right).to_usize(map.size_x);
 
         for i in top_left..bottom_right {
             let render_quad = Rect::new(
@@ -174,9 +171,10 @@ impl Renderer {
 
     pub fn render_menus(
         &mut self,
+        world: &World,
         texture_manager: &mut TextureManager<WindowContext>,
         font_man: &FontManager,
-        menu_man: &mut menu::MenuManager,
+        menu_man: &menu::MenuManager,
     ) -> Result<(), String> {
         for menu_item in menu_man.menus.iter() {
             match menu_item {
@@ -190,7 +188,7 @@ impl Renderer {
                     self.render_pause_menu(menu, texture_manager, font_man)?
                 }
                 menu::Menu::BagMenu(menu) => {
-                    self.render_bag_menu(menu, texture_manager, font_man)?
+                    self.render_bag_menu(menu, world, texture_manager, font_man)?
                 }
             }
         }
@@ -213,7 +211,7 @@ impl Renderer {
         self.update_camera(world)?;
         self.render_overworld_tiles(texture_manager, map)?;
         self.render_entities(world, texture_manager)?;
-        self.render_menus(texture_manager, font_man, menu_man)?;
+        self.render_menus(world, texture_manager, font_man, menu_man)?;
         /*if self.is_fading {
             self.render_transition(texture_manager, delta_time, map, obj_man);
         }*/
@@ -224,14 +222,14 @@ impl Renderer {
     }
 
     pub fn update_camera(&mut self, world: &World) -> Result<(), String> {
-        let mut q = world.query::<(&Player, &Position)>();
-        let (_, (_player, Position(pos))) = q.iter().next().ok_or("No player found")?;
+        let mut q = world.query::<(&Player, &Position, &Sprite)>();
+        let (_, (_player, Position(pos), sprite)) = q.iter().next().ok_or("No player found")?;
 
         let offset = (
             (pos.0 * TILE_SIZE as f32).round() as i32
-                - (PIXELS_X / 2 - humanoid_properties::WIDTH / 2) as i32,
+                - (PIXELS_X / 2 - sprite.src.width() / 2) as i32,
             (pos.1 * TILE_SIZE as f32).round() as i32
-                - (PIXELS_Y / 2 - humanoid_properties::HEIGHT / 2) as i32,
+                - (PIXELS_Y / 2 - sprite.src.height() / 2) as i32,
         );
         let top_left = ((pos.0 - 8.0).floor() as i32, (pos.1 - 5.0).floor() as i32);
         let bottom_right = ((pos.0 + 8.0).ceil() as i32, (pos.1 + 5.0).ceil() as i32);
@@ -248,22 +246,21 @@ impl Renderer {
     pub fn render_entities(
         &mut self,
         world: &World,
-        texture_manager: &mut resource_manager::TextureManager<WindowContext>,
+        texture_manager: &mut TextureManager<WindowContext>,
     ) -> Result<(), String> {
         let mut entity_query = world.query::<(&Position, &Sprite, Option<&HumanWalkAnimation>)>();
 
         let mut list = entity_query
             .iter()
             .filter(|(_, (Position(c), ..))| {
-                Coordinate::from(self.camera.top_left) <= *c
-                    && *c <= Coordinate::from(self.camera.bottom_right)
+                Vec2::from(self.camera.top_left) <= *c && *c <= Vec2::from(self.camera.bottom_right)
             })
             .collect::<Vec<_>>();
         list.sort_by(|(_, (Position(c1), ..)), (_, (Position(c2), ..))| {
             c1.partial_cmp(c2).unwrap()
         });
 
-        for (_, (Position(Coordinate(x, y)), sprite, anim)) in list {
+        for (_, (Position(Vec2(x, y)), sprite, anim)) in list {
             let render_quad = Rect::new(
                 (*x * TILE_SIZE as f32).round() as i32 - self.camera.offset.0 + sprite.shift_x,
                 (*y * TILE_SIZE as f32).round() as i32 - self.camera.offset.1 + sprite.shift_y,

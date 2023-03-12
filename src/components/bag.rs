@@ -15,7 +15,7 @@ impl fmt::Display for Item {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Bag {
     pub items: ItemList,
 }
@@ -25,7 +25,7 @@ impl Bag {
         Bag { items: vec![] }
     }
 
-    pub fn add_item(&mut self, item: Item, amount: u32) {
+    pub fn add_item(&mut self, item: Item, amount: u32) -> bool {
         let i = self.items.iter_mut().position(|i| i.0 == item);
         match i {
             Some(i) => {
@@ -33,5 +33,6 @@ impl Bag {
             }
             _ => self.items.push((item, 1)),
         }
+        true
     }
 }

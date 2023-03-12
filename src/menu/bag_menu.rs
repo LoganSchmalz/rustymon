@@ -1,27 +1,37 @@
-use crate::bag::ItemList;
+use hecs::{Entity, World};
+
+use crate::components::bag::Bag;
 
 use super::{
     menu_events::{MenuCommand, MenuInput},
     MenuItem,
 };
 
-#[derive(Default)]
 pub struct BagMenu {
-    pub items: ItemList,
     pub selected: usize,
+    pub entity: Entity,
 }
 
 impl BagMenu {
-    pub fn new(items: ItemList) -> BagMenu {
-        BagMenu { items, selected: 0 }
+    pub fn new(entity: Entity) -> BagMenu {
+        BagMenu {
+            selected: 0,
+            entity,
+        }
     }
 }
 
 impl MenuItem for BagMenu {
-    fn update(&mut self, action: MenuInput) -> Option<MenuCommand> {
+    fn update(&mut self, action: MenuInput, world: &mut World) -> Option<MenuCommand> {
+        let length = if let Ok(bag) = world.query_one_mut::<&Bag>(self.entity) {
+            bag.items.len()
+        } else {
+            0
+        };
+
         match action {
             MenuInput::Down => {
-                self.selected = if self.selected < self.items.len() - 1 {
+                self.selected = if self.selected < length - 1 {
                     self.selected + 1
                 } else {
                     0
@@ -31,11 +41,13 @@ impl MenuItem for BagMenu {
                 self.selected = if self.selected > 0 {
                     self.selected - 1
                 } else {
-                    self.items.len() - 1
+                    length - 1
                 }
             }
             MenuInput::Accept => {}
-            MenuInput::Reject => return Some(MenuCommand::Close),
+            MenuInput::Reject => {
+                return Some(MenuCommand::Close);
+            }
             _ => {}
         }
         None
