@@ -83,7 +83,7 @@ impl Renderer {
         texture_manager: &mut TextureManager<WindowContext>,
         _font_man: &FontManager,
     ) -> Result<(), String> {
-        let titlescreen = texture_manager.load("assets/UI/titlescreen.png")?;
+        let titlescreen = texture_manager.load("assets/backgrounds/titlescreen.png")?;
         let start_button = texture_manager.load("assets/UI/STARTbutton.png")?;
         let load_button = texture_manager.load("assets/UI/SAVELOADbutton.png")?;
         let settings_button = texture_manager.load("assets/UI/SETTINGSbutton.png")?;
