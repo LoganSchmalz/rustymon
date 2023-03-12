@@ -112,11 +112,158 @@ const floors = [
         "hasCollision": true
     },
     {
-        "name": "FB1",
+        "name": "SGTL",
         "id": 16,
+        "x": 96,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "SGTM",
+        "id": 17,
+        "x": 112,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "SGTR",
+        "id": 18,
+        "x": 128,
+        "y": 48,
+        "hasCollision": true
+    },
+    {
+        "name": "SGML",
+        "id": 19,
+        "x": 96,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "SGC",
+        "id": 20,
+        "x": 112,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "SGMR",
+        "id": 21,
+        "x": 128,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "SGBL",
+        "id": 22,
+        "x": 96,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "SGBM",
+        "id": 23,
+        "x": 112,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "SGBR",
+        "id": 24,
+        "x": 128,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "FB1",
+        "id": 25,
         "x": 112,
         "y": 0,
         "hasCollision": true
+    },
+    {
+        "name": "GRASSPATH_V",
+        "id": 26,
+        "x": 192,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_AB",
+        "id": 27,
+        "x": 112,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_NB",
+        "id": 28,
+        "x": 144,
+        "y": 48,
+        "hasCollision": true
+    },
+    {
+        "name": "GRASSPATH_LB",
+        "id": 29,
+        "x": 144,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_TB",
+        "id": 30,
+        "x": 160,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_BB",
+        "id": 31,
+        "x": 160,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_RB",
+        "id": 32,
+        "x": 176,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_LU",
+        "id": 33,
+        "x": 176,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_LD",
+        "id": 34,
+        "x": 192,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_UR",
+        "id": 35,
+        "x": 192,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_DL",
+        "id": 36,
+        "x": 144,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSPATH_H",
+        "id": 37,
+        "x": 192,
+        "y": 80,
+        "hasCollision": false
     },
 ]
 const walls = [
