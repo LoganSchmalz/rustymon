@@ -6,26 +6,71 @@ use std::{fs, path::Path};
 use crate::vec2::Vec2;
 
 #[derive(FromPrimitive, ToPrimitive, Debug, Enum, Clone, Copy)]
-pub enum Tile {
-    NONE,   //0
-    GRASS1, //1
-    GRASS2, //2
-    WATER1, //3
-    WGTL,   //4
-    WGT,    //5
-    WGTR,   //6
-    WGR,    //7
-    WGBR,   //8
-    WGB,    //9
-    WGBL,   //10
-    WGL,    //11
-    GWTL,   //12
-    GWTR,   //13
-    GWBR,   //14
-    GWBL,   //15
-    FB1,    //16
-    WOODL,  //17
-    WOODR,  //18
+pub enum FloorTile {
+    NONE,
+    GRASS1,
+    GRASS2,
+    WATER1,
+    WGTL,
+    WGT,
+    WGTR,
+    WGL,
+    WGR,
+    WGBL,
+    WGB,
+    WGBR,
+    GWTL,
+    GWTR,
+    GWBL,
+    GWBR,
+    SGTL,
+    SGTM,
+    SGTR,
+    SGML,
+    SGC,
+    SGMR,
+    SGBL,
+    SGBM,
+    SGBR,
+    FB1,
+    GRASSPATH_V,
+    GRASSPATH_AB,
+    GRASSPATH_NB,
+    GRASSPATH_LB,
+    GRASSPATH_TB,
+    GRASSPATH_BB,
+    GRASSPATH_RB,
+    GRASSPATH_LU,
+    GRASSPATH_LD,
+    GRASSPATH_UR,
+    GRASSPATH_DL,
+    GRASSPATH_H,
+}
+
+#[derive(FromPrimitive, ToPrimitive, Debug, Enum, Clone, Copy)]
+pub enum WallTile {
+    NONE,
+    WOODL,
+    WOODR,
+    WOOD,
+    WINDOW,
+    FENCE_L,
+    FENCE_M,
+    FENCE_R,
+    FENCE_S,
+    FENCE_HL,
+    FENCE_HR,
+    FENCE_TR,
+    FENCE_TL,
+    FENCE_DL,
+    FENCE_BL,
+    FENCE_DR,
+    FENCE_BR,
+    TGRASS_1,
+    TGRASS_2,
+    TGRASS_3,
+    TGRASS_4,
+    TGRASS_5,
 }
 
 #[derive(FromPrimitive, ToPrimitive)]
@@ -38,8 +83,8 @@ pub enum CollisionTile {
 pub struct TileMap {
     pub size_x: usize,
     pub size_y: usize,
-    pub floor: Vec<Tile>,
-    pub walls: Vec<Tile>,
+    pub floor: Vec<FloorTile>,
+    pub walls: Vec<WallTile>,
     pub collision: Vec<CollisionTile>,
     pub id: i32,
 }
@@ -65,7 +110,7 @@ impl TileMap {
         let size_x = dim.get(0).unwrap();
         let size_y = dim.get(1).unwrap();
 
-        let floor: Vec<Tile> = fs::read_to_string(mapfolder.join("floor.txt"))
+        let floor: Vec<FloorTile> = fs::read_to_string(mapfolder.join("floor.txt"))
             .unwrap_or_else(|_| panic!("{}floor.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
             .map(|x| {
@@ -82,7 +127,7 @@ impl TileMap {
             )
         }
 
-        let walls: Vec<Tile> = fs::read_to_string(mapfolder.join("walls.txt"))
+        let walls: Vec<WallTile> = fs::read_to_string(mapfolder.join("walls.txt"))
             .unwrap_or_else(|_| panic!("{}walls.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
             .map(|x| {
@@ -129,6 +174,26 @@ impl TileMap {
         !matches!(
             self.collision.get(pos.to_usize(self.size_x)),
             Some(CollisionTile::None)
-        )
+        ) || pos.0 < 0.0
+            || pos.1 < 0.0
+            || pos.0 >= self.size_x as f32
+            || pos.1 >= self.size_y as f32
+    }
+
+    pub fn check_encounter(&self, pos: Vec2) -> bool {
+        //if check position is encounter tile
+        if let Some(tile) = self.walls.get(pos.to_usize(self.size_x)) {
+            matches!(
+                tile,
+                WallTile::TGRASS_1
+                    | WallTile::TGRASS_2
+                    | WallTile::TGRASS_3
+                    | WallTile::TGRASS_4
+                    | WallTile::TGRASS_5
+            )
+        } else {
+            false
+        }
+        //true
     }
 }

@@ -6,7 +6,8 @@ use crate::{
         Collision, MovingEntity, MovingState, Player, Position,
     },
     constants::{ROTATION_TIME, RUN_SPEED, WALK_SPEED},
-    vec2::{compute_direction, Direction, Vec2},
+    gamestate::event::Event,
+    vec2::{self, compute_direction, Direction, Vec2},
 };
 
 use super::State;
@@ -49,13 +50,13 @@ impl State {
         moving.try_sprinting = sprinting;
     }
 
-    pub fn update_moving_objects(&self, delta_time: f32) {
+    pub fn update_moving_objects(&mut self, delta_time: f32) {
         use MovingState::*;
 
         let mut moving_query =
             self.world
                 .query::<(&mut Position, &mut MovingEntity, &mut HumanWalkAnimation)>();
-        for (_, (pos, moving, animation)) in moving_query.iter() {
+        for (id, (pos, moving, animation)) in moving_query.iter() {
             //update rotation state if entity is idle
             if let (Idle, Moving(rotation)) = (moving.moving, moving.try_moving) {
                 if rotation != moving.rotation && moving.rotation_timer >= ROTATION_TIME {
@@ -150,7 +151,12 @@ impl State {
                 moving.moving = match moving.try_moving {
                     Idle => Idle,
                     _ => CenterTile,
-                }
+                };
+
+                if id == self.player {
+                    self.events
+                        .push(Event::PlayerMoved(Vec2(target_x, target_y)))
+                };
             }
         }
     }

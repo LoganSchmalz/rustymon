@@ -1,23 +1,24 @@
 use enum_map::{enum_map, EnumMap};
 use hecs::World;
 use sdl2::{
-    pixels::Color,
     rect::Rect,
     render::Canvas,
     video::{Window, WindowContext},
 };
 
 use crate::{
-    components::{animation::HumanWalkAnimation, sprite::Sprite, Player, Position},
+    constants::TILE_SIZE,
     font_manager::FontManager,
     menu,
     resource_manager::TextureManager,
-    tilemap::{self, Tile},
-    vec2::Vec2,
-    constants::TILE_SIZE,
+    tilemap::{self, FloorTile, WallTile},
 };
 
-mod render_menus;
+use self::overworld::Camera;
+
+mod battle;
+mod menus;
+mod overworld;
 mod resize;
 
 pub const PIXELS_X: u32 = 240;
@@ -32,13 +33,6 @@ pub enum DisplayScreen {
     _OverWorld,
 }
 
-#[derive(Default)]
-pub struct Camera {
-    offset: (i32, i32),
-    top_left: (i32, i32),
-    bottom_right: (i32, i32),
-}
-
 pub struct Renderer {
     window_x: u32,
     window_y: u32,
@@ -49,31 +43,77 @@ pub struct Renderer {
     did_trans: bool,
     fade_anim_time: f32,
     camera: Camera,
-    tile_rects: EnumMap<Tile, Rect>,
+    floortile_rects: EnumMap<FloorTile, Rect>,
+    walltile_rects: EnumMap<WallTile, Rect>,
 }
 
 impl Renderer {
     pub fn new(canvas: Canvas<Window>) -> Renderer {
-        let tile_rects = enum_map! {
-            Tile::NONE => Rect::new(0,0,0,0),
-            Tile::GRASS1 => Rect::new(32, 0, 16, 16),
-            Tile::GRASS2 => Rect::new(48, 0, 16, 16),
-            Tile::WATER1 => Rect::new(16, 64, 16, 16),
-            Tile::WGTL => Rect::new(0, 48, 16, 16),
-            Tile::WGT => Rect::new(16, 48, 16, 16),
-            Tile::WGTR => Rect::new(32, 48, 16, 16),
-            Tile::WGL => Rect::new(0, 64, 16, 16),
-            Tile::WGR => Rect::new(32, 64, 16, 16),
-            Tile::WGBL => Rect::new(0, 80, 16, 16),
-            Tile::WGB => Rect::new(16, 80, 16, 16),
-            Tile::WGBR => Rect::new(32, 80, 16, 16),
-            Tile::GWTL => Rect::new(48, 48, 16, 16),
-            Tile::GWTR => Rect::new(80, 48, 16, 16),
-            Tile::GWBL => Rect::new(48, 80, 16, 16),
-            Tile::GWBR => Rect::new(80, 80, 16, 16),
-            Tile::FB1 => Rect::new(112, 0, 16, 16),
-            Tile::WOODL => Rect::new(128, 0, 16, 16),
-            Tile::WOODR => Rect::new(160, 0, 16, 16),
+        let size = TILE_SIZE as u32;
+        let floortile_rects = enum_map! {
+            FloorTile::NONE => Rect::new(0,0, size, size),
+            FloorTile::GRASS1 => Rect::new(32, 0, size, size),
+            FloorTile::GRASS2 => Rect::new(48, 0, size, size),
+            FloorTile::WATER1 => Rect::new(16, 64, size, size),
+            FloorTile::WGTL => Rect::new(0, 48, size, size),
+            FloorTile::WGT => Rect::new(16, 48, size, size),
+            FloorTile::WGTR => Rect::new(32, 48, size, size),
+            FloorTile::WGL => Rect::new(0, 64, size, size),
+            FloorTile::WGR => Rect::new(32, 64, size, size),
+            FloorTile::WGBL => Rect::new(0, 80, size, size),
+            FloorTile::WGB => Rect::new(16, 80, size, size),
+            FloorTile::WGBR => Rect::new(32, 80, size, size),
+            FloorTile::GWTL => Rect::new(48, 48, size, size),
+            FloorTile::GWTR => Rect::new(80, 48, size, size),
+            FloorTile::GWBL => Rect::new(48, 80, size, size),
+            FloorTile::GWBR => Rect::new(80, 80, size, size),
+            FloorTile::SGTL => Rect::new( 96,48, size, size),
+            FloorTile::SGTM => Rect::new( 112,48, size, size),
+            FloorTile::SGTR => Rect::new( 128,48, size, size),
+            FloorTile::SGML => Rect::new( 96,64, size, size),
+            FloorTile::SGC  => Rect::new( 112,64, size, size),
+            FloorTile::SGMR => Rect::new( 128,64, size, size),
+            FloorTile::SGBL => Rect::new( 96,80, size, size),
+            FloorTile::SGBM => Rect::new(112 ,80, size, size),
+            FloorTile::SGBR => Rect::new(128,80, size, size),
+            FloorTile::FB1 => Rect::new(112, 0, size, size),
+            FloorTile::GRASSPATH_V => Rect::new(192,80,size,size),
+            FloorTile::GRASSPATH_AB => Rect::new(112,48,size,size),
+            FloorTile::GRASSPATH_NB => Rect::new(144,48,size,size),
+            FloorTile::GRASSPATH_LB => Rect::new(144,64,size,size),
+            FloorTile::GRASSPATH_TB => Rect::new(160,48,size,size),
+            FloorTile::GRASSPATH_BB => Rect::new(160,80,size,size),
+            FloorTile::GRASSPATH_RB => Rect::new(176,64,size,size),
+            FloorTile::GRASSPATH_LU => Rect::new(176,48,size,size),
+            FloorTile::GRASSPATH_LD => Rect::new(192,48,size,size),
+            FloorTile::GRASSPATH_UR => Rect::new(192,64,size,size),
+            FloorTile::GRASSPATH_DL => Rect::new(144,80,size,size),
+            FloorTile::GRASSPATH_H  => Rect::new(192,80,size,size),
+        };
+
+        let walltile_rects = enum_map! {
+            WallTile::NONE => Rect::new(0,0, size, size),
+            WallTile::WOODL => Rect::new(128,0,size,size),
+            WallTile::WOODR => Rect::new(160,0,size,size),
+            WallTile::WOOD => Rect::new(134,0,size,size),
+            WallTile::WINDOW => Rect::new(176,0,size,size),
+            WallTile::FENCE_L => Rect::new(96,16,size,size),
+            WallTile::FENCE_M => Rect::new(112,16,size,size),
+            WallTile::FENCE_R => Rect::new(128,16,size,size),
+            WallTile::FENCE_S => Rect::new(144,16,size,size),
+            WallTile::FENCE_HL => Rect::new(160,16,size,size),
+            WallTile::FENCE_HR => Rect::new(176,16,size,size),
+            WallTile::FENCE_TR => Rect::new(192,16,size,size),
+            WallTile::FENCE_TL => Rect::new(208,16,size,size),
+            WallTile::FENCE_DL => Rect::new(224,16,size,size),
+            WallTile::FENCE_BL => Rect::new(240,16,size,size),
+            WallTile::FENCE_DR => Rect::new(256,16,size,size),
+            WallTile::FENCE_BR => Rect::new(272,16,size,size),
+            WallTile::TGRASS_1 => Rect::new(0,112,size,size),
+            WallTile::TGRASS_2 => Rect::new(16,112,size,size),
+            WallTile::TGRASS_3 => Rect::new(32,112,size,size),
+            WallTile::TGRASS_4 => Rect::new(48,112,size,size),
+            WallTile::TGRASS_5 => Rect::new(80,112,size,size),
         };
 
         Renderer {
@@ -86,44 +126,9 @@ impl Renderer {
             did_trans: false,
             fade_anim_time: FADE_TIME,
             camera: Camera::default(),
-            tile_rects,
+            floortile_rects,
+            walltile_rects,
         }
-    }
-
-    pub fn render_overworld_tiles(
-        &mut self,
-        texture_manager: &mut TextureManager<WindowContext>,
-        map: &tilemap::TileMap,
-    ) -> Result<(), String> {
-        //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
-        let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
-        self.canvas.set_draw_color(Color::RGB(0, 0, 0));
-        self.canvas.fill_rect(screen_quad)?;
-
-        let texture = texture_manager.load("assets/tiles/tilesprites.png")?;
-
-        let top_left = Vec2::from(self.camera.top_left).to_usize(map.size_x);
-        let bottom_right = Vec2::from(self.camera.bottom_right).to_usize(map.size_x);
-
-        for i in top_left..bottom_right {
-            let render_quad = Rect::new(
-                (i % map.size_x) as i32 * TILE_SIZE - self.camera.offset.0,
-                (i / map.size_x) as i32 * TILE_SIZE - self.camera.offset.1,
-                TILE_SIZE as u32,
-                TILE_SIZE as u32,
-            );
-
-            if let Some(tile) = map.floor.get(i) {
-                let src = self.tile_rects[*tile];
-                self.canvas.copy(&texture, src, render_quad)?
-            };
-            if let Some(tile) = map.walls.get(i) {
-                let src = self.tile_rects[*tile];
-                self.canvas.copy(&texture, src, render_quad)?
-            };
-        }
-
-        Ok(())
     }
 
     pub fn render_transition(
@@ -189,92 +194,6 @@ impl Renderer {
                 }
                 menu::Menu::BagMenu(menu) => {
                     self.render_bag_menu(menu, world, texture_manager, font_man)?
-                }
-            }
-        }
-
-        Ok(())
-    }
-
-    pub fn render(
-        &mut self,
-        texture_manager: &mut TextureManager<WindowContext>,
-        font_man: &FontManager,
-        delta_time: f32,
-        world: &World,
-        map: &mut tilemap::TileMap,
-        menu_man: &mut menu::MenuManager,
-    ) -> Result<(), String> {
-        self.canvas.set_draw_color(Color::RGB(255, 255, 255));
-        self.canvas.clear();
-
-        self.update_camera(world)?;
-        self.render_overworld_tiles(texture_manager, map)?;
-        self.render_entities(world, texture_manager)?;
-        self.render_menus(world, texture_manager, font_man, menu_man)?;
-        /*if self.is_fading {
-            self.render_transition(texture_manager, delta_time, map, obj_man);
-        }*/
-
-        self.canvas.present();
-
-        Ok(())
-    }
-
-    pub fn update_camera(&mut self, world: &World) -> Result<(), String> {
-        let mut q = world.query::<(&Player, &Position, &Sprite)>();
-        let (_, (_player, Position(pos), sprite)) = q.iter().next().ok_or("No player found")?;
-
-        let offset = (
-            (pos.0 * TILE_SIZE as f32).round() as i32
-                - (PIXELS_X / 2 - sprite.src.width() / 2) as i32,
-            (pos.1 * TILE_SIZE as f32).round() as i32
-                - (PIXELS_Y / 2 - sprite.src.height() / 2) as i32,
-        );
-        let top_left = ((pos.0 - 8.0).floor() as i32, (pos.1 - 5.0).floor() as i32);
-        let bottom_right = ((pos.0 + 8.0).ceil() as i32, (pos.1 + 5.0).ceil() as i32);
-
-        self.camera = Camera {
-            offset,
-            top_left,
-            bottom_right,
-        };
-
-        Ok(())
-    }
-
-    pub fn render_entities(
-        &mut self,
-        world: &World,
-        texture_manager: &mut TextureManager<WindowContext>,
-    ) -> Result<(), String> {
-        let mut entity_query = world.query::<(&Position, &Sprite, Option<&HumanWalkAnimation>)>();
-
-        let mut list = entity_query
-            .iter()
-            .filter(|(_, (Position(c), ..))| {
-                Vec2::from(self.camera.top_left) <= *c && *c <= Vec2::from(self.camera.bottom_right)
-            })
-            .collect::<Vec<_>>();
-        list.sort_by(|(_, (Position(c1), ..)), (_, (Position(c2), ..))| {
-            c1.partial_cmp(c2).unwrap()
-        });
-
-        for (_, (Position(Vec2(x, y)), sprite, anim)) in list {
-            let render_quad = Rect::new(
-                (*x * TILE_SIZE as f32).round() as i32 - self.camera.offset.0 + sprite.shift_x,
-                (*y * TILE_SIZE as f32).round() as i32 - self.camera.offset.1 + sprite.shift_y,
-                sprite.src.width(),
-                sprite.src.height(),
-            );
-
-            let texture = texture_manager.load(&sprite.texture)?;
-            match anim {
-                Some(anim) => {
-                    self.canvas.copy(&texture, anim.get_src(), render_quad)?;
-                }
-                None => {
-                    self.canvas.copy(&texture, sprite.src, render_quad)?;
                 }
             }
         }

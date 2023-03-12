@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 
 use hecs::{CommandBuffer, Entity, World};
+use rand::{distributions::Uniform, rngs::ThreadRng, Rng};
 use sdl2::{rect::Rect, video::WindowContext};
 
 use enum_map::EnumMap;
 
 use crate::{
     components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, *},
+    constants::RANDOM_ENCOUNTER_CHANCE,
     font_manager::FontManager,
     menu::{main_menu::MainMenu, textbox::Textbox, MenuManager},
     render::Renderer,
@@ -15,20 +17,44 @@ use crate::{
     vec2::{Direction, Vec2},
 };
 
-use self::input::{Control, KeyState};
+use self::{
+    event::Event,
+    input::{Control, KeyState},
+};
 
+mod event;
 mod input;
 mod updates;
 
+pub enum Screen {
+    MainMenu,
+    Overworld,
+    Battle(Battle),
+}
+
+#[derive(Default)]
+pub struct Battle {
+    pub player_strays: [Option<u32>; 4],
+    pub opponent_strays: [Option<u32>; 4],
+}
+
+const TEST_BATTLE: Battle = Battle {
+    player_strays: [Some(1), Some(2), None, Some(100)],
+    opponent_strays: [Some(1), None, Some(3), Some(100)],
+};
+
 pub struct State {
+    pub screen: Screen,
     pub input: EnumMap<Control, KeyState>,
     pub paused: bool,
     pub world: World,
     pub cmd: CommandBuffer,
+    pub events: Vec<Event>,
     pub map: TileMap,
     pub menus: MenuManager,
     pub player: Entity,
     pub collisions: HashMap<usize, Entity>,
+    pub rng: ThreadRng,
 }
 
 impl Default for State {
@@ -97,14 +123,18 @@ impl Default for State {
         menus.open_menu(MainMenu::new().into());
 
         Self {
+            screen: Screen::Overworld,
+            //screen: Screen::Battle(TEST_BATTLE),
             input: EnumMap::default(),
             paused: true,
             world,
             cmd,
+            events: vec![],
             map: TileMap::load(0),
             menus,
             player,
             collisions: HashMap::new(),
+            rng: rand::thread_rng(),
         }
     }
 }
@@ -115,18 +145,25 @@ impl State {
         renderer: &mut Renderer,
         //_canvas: &Canvas<Window>,
         texture_manager: &mut TextureManager<WindowContext>,
-        font_man: &FontManager,
+        font_manager: &FontManager,
         delta_time: f32,
         map: &mut TileMap,
     ) -> Result<(), String> {
-        renderer.render(
-            texture_manager,
-            font_man,
-            delta_time,
-            &self.world,
-            map,
-            &mut self.menus,
-        )?;
+        match &self.screen {
+            Screen::MainMenu => {}
+            Screen::Overworld => renderer.render_overworld(
+                texture_manager,
+                font_manager,
+                delta_time,
+                &self.world,
+                map,
+                &mut self.menus,
+            )?,
+            Screen::Battle(battle) => {
+                renderer.render_battle(texture_manager, font_manager, battle)?
+            }
+        }
+
         Ok(())
     }
 
@@ -149,8 +186,23 @@ impl State {
             self.update_moving_objects(delta_time);
             self.update_collisions();
             self.update_animations(delta_time);
+            self.process_events();
         }
         Ok(())
+    }
+
+    pub fn process_events(&mut self) {
+        while let Some(event) = self.events.pop() {
+            match event {
+                Event::PlayerMoved(pos) => {
+                    if self.map.check_encounter(pos)
+                        && self.rng.gen::<f32>() <= RANDOM_ENCOUNTER_CHANCE
+                    {
+                        self.screen = Screen::Battle(TEST_BATTLE);
+                    }
+                }
+            }
+        }
     }
 
     pub fn check_collision(&self, position: &Vec2) -> bool {
@@ -158,10 +210,6 @@ impl State {
             || self
                 .collisions
                 .contains_key(&position.to_usize(self.map.size_x))
-            || position.0 < 0f32
-            || position.0 >= self.map.size_x as f32
-            || position.1 < 0f32
-            || position.1 >= self.map.size_y as f32
     }
 
     pub fn try_player_interaction(&mut self, font_man: &FontManager) {

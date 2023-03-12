@@ -17,6 +17,7 @@ pub struct Npc {
     pub says: String,
 }
 
+#[derive(Debug)]
 pub struct Position(pub Vec2);
 
 pub struct Collision;
