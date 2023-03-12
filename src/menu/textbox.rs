@@ -4,7 +4,7 @@ use crate::font_manager::FontManager;
 use crate::render::PIXELS_X;
 
 use super::menu_events::{MenuCommand, MenuInput};
-use super::{MenuItem};
+use super::MenuItem;
 
 pub struct Textbox {
     pub text_v: Vec<String>,

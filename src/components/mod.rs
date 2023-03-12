@@ -1,6 +1,6 @@
 use self::bag::Item;
 
-use super::vec2::{Vec2, Direction};
+use super::vec2::{Direction, Vec2};
 
 pub mod animation;
 pub mod bag;
