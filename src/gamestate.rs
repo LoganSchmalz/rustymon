@@ -1,18 +1,18 @@
-use std::{collections::HashMap, process::Command};
+use std::collections::HashMap;
 
 use hecs::{CommandBuffer, Entity, World};
 use sdl2::{rect::Rect, video::WindowContext};
 
-use enum_map::{enum_map, EnumMap};
+use enum_map::EnumMap;
 
 use crate::{
     components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, *},
-    vec2::{Direction, Vec2},
     font_manager::FontManager,
     menu::{main_menu::MainMenu, textbox::Textbox, MenuManager},
-    render::{Renderer, PIXELS_X},
+    render::Renderer,
     resource_manager::TextureManager,
     tilemap::TileMap,
+    vec2::{Direction, Vec2},
 };
 
 use self::input::{Control, KeyState};
@@ -134,14 +134,14 @@ impl State {
         &mut self,
         delta_time: f32,
         _map: &mut TileMap,
-        font_man: &FontManager,
+        font_manager: &FontManager,
     ) -> Result<(), String> {
         //determine correct input handler
         if self.menus.is_open() {
             self.update_player_moving(MovingState::Idle);
-            self.paused = self.handle_input_menus();
+            self.paused = self.handle_input_menus(font_manager);
         } else {
-            self.handle_input_gameplay(font_man);
+            self.handle_input_gameplay(font_manager);
         }
 
         //do any physics/animation updates
@@ -190,8 +190,7 @@ impl State {
         if let Some((_, &entity)) = interact_entity {
             let npc = self.world.query_one_mut::<&Npc>(entity);
             if let Ok(Npc { says }) = npc {
-                self.menus
-                    .open_menu(Textbox::new(says, font_man, PIXELS_X).into());
+                self.menus.open_menu(Textbox::new(says, font_man).into());
                 return;
             }
 
@@ -204,7 +203,6 @@ impl State {
                             Textbox::new(
                                 &format!("You picked up {} (x{}).", item, amount),
                                 font_man,
-                                PIXELS_X,
                             )
                             .into(),
                         );

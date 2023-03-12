@@ -1,4 +1,4 @@
-use enum_map::{Enum, EnumMap};
+use enum_map::Enum;
 use sdl2::{
     event::{Event, WindowEvent},
     keyboard::Keycode,
@@ -6,11 +6,11 @@ use sdl2::{
 };
 
 use crate::{
-    components::{bag::ItemList, MovingState},
-    vec2::Direction,
+    components::MovingState,
     font_manager::FontManager,
     menu::{menu_events::MenuInput, pause_menu::PauseMenu},
     render::Renderer,
+    vec2::Direction,
 };
 
 use super::State;
@@ -93,24 +93,31 @@ impl State {
         Ok(false)
     }
 
-    pub fn handle_input_menus(&mut self) -> bool {
+    pub fn handle_input_menus(&mut self, font_manager: &FontManager) -> bool {
         use Control::*;
         use KeyState::*;
 
         if self.input[Menu] == Pressed {
-            self.menus.interact(MenuInput::Start, &mut self.world)
+            self.menus
+                .interact(MenuInput::Start, &mut self.world, font_manager)
         } else if self.input[Interact1] == Pressed {
-            self.menus.interact(MenuInput::Accept, &mut self.world)
+            self.menus
+                .interact(MenuInput::Accept, &mut self.world, font_manager)
         } else if self.input[Interact2] == Pressed {
-            self.menus.interact(MenuInput::Reject, &mut self.world)
+            self.menus
+                .interact(MenuInput::Reject, &mut self.world, font_manager)
         } else if self.input[Left] == Pressed {
-            self.menus.interact(MenuInput::Left, &mut self.world)
+            self.menus
+                .interact(MenuInput::Left, &mut self.world, font_manager)
         } else if self.input[Right] == Pressed {
-            self.menus.interact(MenuInput::Right, &mut self.world)
+            self.menus
+                .interact(MenuInput::Right, &mut self.world, font_manager)
         } else if self.input[Up] == Pressed {
-            self.menus.interact(MenuInput::Up, &mut self.world)
+            self.menus
+                .interact(MenuInput::Up, &mut self.world, font_manager)
         } else if self.input[Down] == Pressed {
-            self.menus.interact(MenuInput::Down, &mut self.world)
+            self.menus
+                .interact(MenuInput::Down, &mut self.world, font_manager)
         } else {
             false
         }

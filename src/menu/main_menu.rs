@@ -1,7 +1,5 @@
-use crate::close_menu;
-
 use super::menu_events::MenuCommand;
-use super::{MenuInput, MenuItem, MenuManager};
+use super::{MenuInput, MenuItem};
 
 #[derive(PartialEq, Default)]
 pub enum MainMenuButton {
@@ -26,11 +24,11 @@ use hecs::World;
 use MainMenuButton::*;
 
 impl MenuItem for MainMenu {
-    fn update(&mut self, action: MenuInput, _: &mut World) -> Option<Box<dyn Fn(&mut MenuManager)>> {
+    fn update(&mut self, action: MenuInput, _: &mut World) -> Option<MenuCommand> {
         match action {
             MenuInput::Accept => {
                 if self.curr_button == Start {
-                    return Some(close_menu!());
+                    return Some(MenuCommand::Close);
                 }
             }
             MenuInput::Left => {

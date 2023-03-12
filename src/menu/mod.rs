@@ -1,5 +1,4 @@
 pub mod bag_menu;
-pub mod macros;
 pub mod main_menu;
 pub mod menu_events;
 pub mod pause_menu;
@@ -7,18 +6,17 @@ pub mod textbox;
 
 use hecs::World;
 
-use crate::gamestate::State;
+use crate::font_manager::FontManager;
 
 use self::bag_menu::BagMenu;
 use self::main_menu::MainMenu;
-use self::menu_events::MenuInput;
+use self::menu_events::{MenuCommand, MenuInput};
 use self::pause_menu::PauseMenu;
 use self::textbox::Textbox;
 
 #[enum_delegate::register]
 pub trait MenuItem {
-    fn update(&mut self, action: MenuInput, world: &mut World)
-        -> Option<Box<dyn Fn(&mut MenuManager)>>;
+    fn update(&mut self, action: MenuInput, world: &mut World) -> Option<MenuCommand>;
 }
 
 #[enum_delegate::implement(MenuItem)]
@@ -54,23 +52,41 @@ impl MenuManager {
         !self.menus.is_empty()
     }
 
-    pub fn interact(&mut self, action: MenuInput, world: &mut World) -> bool {
+    fn process_command(
+        &mut self,
+        command: MenuCommand,
+        _world: &mut World,
+        font_manager: &FontManager,
+    ) -> bool {
+        match command {
+            MenuCommand::OpenStrays => {}
+            MenuCommand::OpenSave => {}
+            MenuCommand::OpenBag(entity) => self.open_menu(BagMenu::new(entity).into()),
+            MenuCommand::Close => {
+                return self.close_menu();
+            }
+            MenuCommand::OpenTextbox(str) => {
+                self.open_menu(Textbox::new(&str, font_manager).into())
+            }
+            MenuCommand::OpenPauseMenu => self.open_menu(PauseMenu::new().into()),
+        }
+        false
+    }
+
+    pub fn interact(
+        &mut self,
+        action: MenuInput,
+        world: &mut World,
+        font_manager: &FontManager,
+    ) -> bool {
         if self.is_open() {
             let curr_menu = self
                 .menus
                 .last_mut()
                 .expect("Tried to change menu with no menus open");
-            /*match curr_menu.update(action) {
-                Some(MenuCommand::OpenStrays) => {}
-                Some(MenuCommand::OpenSave) => {}
-                Some(MenuCommand::OpenBag) => self.open_menu(Menu::BagMenu(BagMenu::new(items))),
-                Some(MenuCommand::Close) => {
-                    return self.close_menu();
-                }
-                _ => {}
-            }*/
+
             if let Some(command) = curr_menu.update(action, world) {
-                command(self);
+                self.process_command(command, world, font_manager);
             }
         } else if action == MenuInput::Start {
             self.open_menu(Menu::PauseMenu(PauseMenu::new()));

@@ -1,10 +1,10 @@
 use hecs::{Entity, World};
 
-use crate::{components::bag::Bag, close_menu};
+use crate::components::bag::Bag;
 
 use super::{
     menu_events::{MenuCommand, MenuInput},
-    MenuItem, MenuManager,
+    MenuItem,
 };
 
 pub struct BagMenu {
@@ -22,11 +22,7 @@ impl BagMenu {
 }
 
 impl MenuItem for BagMenu {
-    fn update(
-        &mut self,
-        action: MenuInput,
-        world: &mut World,
-    ) -> Option<Box<dyn Fn(&mut MenuManager)>> {
+    fn update(&mut self, action: MenuInput, world: &mut World) -> Option<MenuCommand> {
         let length = if let Ok(bag) = world.query_one_mut::<&Bag>(self.entity) {
             bag.items.len()
         } else {
@@ -50,7 +46,7 @@ impl MenuItem for BagMenu {
             }
             MenuInput::Accept => {}
             MenuInput::Reject => {
-                return Some(close_menu!());
+                return Some(MenuCommand::Close);
             }
             _ => {}
         }

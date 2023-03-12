@@ -1,5 +1,3 @@
-const TILE_SIZE: i32 = 16;
-
 mod components;
 mod constants;
 mod font_manager;

@@ -1,18 +1,18 @@
 use hecs::World;
 
-use crate::close_menu;
 use crate::font_manager::FontManager;
+use crate::render::PIXELS_X;
 
 use super::menu_events::{MenuCommand, MenuInput};
-use super::{MenuItem, MenuManager};
+use super::{MenuItem};
 
 pub struct Textbox {
     pub text_v: Vec<String>,
 }
 
 impl Textbox {
-    pub fn new(text_in: &str, font_man: &FontManager, width_pixels: u32) -> Textbox {
-        let mut text_v = font_man.break_string(text_in, width_pixels);
+    pub fn new(text_in: &str, font_man: &FontManager) -> Textbox {
+        let mut text_v = font_man.break_string(text_in, PIXELS_X);
         if (text_v.len() % 2) == 1 {
             text_v.push(" ".to_string());
         }
@@ -22,11 +22,11 @@ impl Textbox {
 }
 
 impl MenuItem for Textbox {
-    fn update(&mut self, action: MenuInput, _: &mut World) -> Option<Box<dyn Fn(&mut MenuManager)>> {
+    fn update(&mut self, action: MenuInput, _: &mut World) -> Option<MenuCommand> {
         match action {
             MenuInput::Accept | MenuInput::Reject => {
                 if self.advance_text() {
-                    return Some(close_menu!());
+                    return Some(MenuCommand::Close);
                 }
             }
             _ => {}
