@@ -17,9 +17,9 @@ pub struct GroundItem {
 
 pub struct Npc {
     pub says: String,
+    pub path: Option<WalkingPath>,
 }
 
-#[derive(Debug)]
 pub struct WalkingPath {
     pub path: Vec<Direction>,
     pub index: usize,

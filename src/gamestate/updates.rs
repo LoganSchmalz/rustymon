@@ -3,11 +3,11 @@ use std::collections::HashMap;
 use crate::{
     components::{
         animation::{HumanAnimationType, HumanWalkAnimation},
-        Collision, MovingEntity, MovingState, Player, Position, WalkingPath,
+        Collision, MovingEntity, MovingState, Position, Npc,
     },
     constants::{ROTATION_TIME, RUN_SPEED, WALK_SPEED},
     gamestate::event::Event,
-    vec2::{self, compute_direction, Direction, Vec2},
+    vec2::{compute_direction, Direction, Vec2},
 };
 
 use super::State;
@@ -48,18 +48,18 @@ impl State {
     }
 
     pub fn update_player_moving(&mut self, moving_state: MovingState) {
-        let (_, mut moving) = self
+        let mut moving = self
             .world
-            .query_one_mut::<(&Player, &mut MovingEntity)>(self.player)
+            .query_one_mut::<&mut MovingEntity>(self.player)
             .unwrap();
 
         moving.try_moving = moving_state;
     }
 
     pub fn update_player_sprinting(&mut self, sprinting: bool) {
-        let (_, mut moving) = self
+        let mut moving = self
             .world
-            .query_one_mut::<(&Player, &mut MovingEntity)>(self.player)
+            .query_one_mut::<&mut MovingEntity>(self.player)
             .unwrap();
 
         moving.try_sprinting = sprinting;
@@ -72,9 +72,9 @@ impl State {
             &mut Position,
             &mut MovingEntity,
             &mut HumanWalkAnimation,
-            Option<&WalkingPath>,
+            Option<&Npc>,
         )>();
-        for (id, (pos, moving, animation, path)) in moving_query.iter() {
+        for (id, (pos, moving, animation, npc)) in moving_query.iter() {
             //update rotation state if entity is idle
             if let (Idle, Moving(rotation)) = (moving.moving, moving.try_moving) {
                 if rotation != moving.rotation && moving.rotation_timer >= ROTATION_TIME {
@@ -174,7 +174,7 @@ impl State {
                 if id == self.player {
                     self.events
                         .push(Event::PlayerMoved(Vec2(target_x, target_y)))
-                } else if let Some(path) = path {
+                } else if let Some(npc) = npc {
                     self.events.push(Event::NpcMoved(id));
                 }
             }
