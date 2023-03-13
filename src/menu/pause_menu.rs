@@ -2,7 +2,10 @@ use hecs::World;
 
 use crate::components::{bag::Bag, Player};
 
-use super::{menu_events::{MenuCommand, MenuInput}, MenuItem};
+use super::{
+    menu_events::{MenuCommand, MenuInput},
+    MenuItem,
+};
 
 #[derive(Default)]
 pub struct PauseMenu {

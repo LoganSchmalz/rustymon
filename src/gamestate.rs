@@ -100,6 +100,15 @@ impl Default for State {
             Collision,
             Npc {
                 says: "Hi hungry, I'm dad! Nice try, little child --> you are bad!".to_string(),
+                path: Some(WalkingPath {
+                    path: vec![
+                        Direction::Left,
+                        Direction::Up,
+                        Direction::Right,
+                        Direction::Down,
+                    ],
+                    index: 0,
+                }),
             },
             HumanWalkAnimation {
                 rotation: Direction::Left,
@@ -201,6 +210,17 @@ impl State {
                         self.screen = Screen::Battle(TEST_BATTLE);
                     }
                 }
+                Event::NpcMoved(entity) => {
+                    let (moving, npc) = self
+                        .world
+                        .query_one_mut::<(&mut MovingEntity, &mut Npc)>(entity)
+                        .unwrap();
+                    if let Some(path) = &mut npc.path {
+                        path.advance();
+                        moving.rotation = path.direction();
+                        moving.try_moving = MovingState::Moving(path.direction());
+                    }
+                }
             }
         }
     }
@@ -213,9 +233,9 @@ impl State {
     }
 
     pub fn try_player_interaction(&mut self, font_man: &FontManager) {
-        let (_, &Position(Vec2(x, y)), moving) = self
+        let (&Position(Vec2(x, y)), moving) = self
             .world
-            .query_one_mut::<(&Player, &Position, &MovingEntity)>(self.player)
+            .query_one_mut::<(&Position, &MovingEntity)>(self.player)
             .unwrap();
 
         if moving.moving != MovingState::CenterTile && moving.moving != MovingState::Idle {
@@ -237,7 +257,7 @@ impl State {
         //if it matches, run the list of interactions it comes with
         if let Some((_, &entity)) = interact_entity {
             let npc = self.world.query_one_mut::<&Npc>(entity);
-            if let Ok(Npc { says }) = npc {
+            if let Ok(Npc { says, .. }) = npc {
                 self.menus.open_menu(Textbox::new(says, font_man).into());
                 return;
             }

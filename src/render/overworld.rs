@@ -7,7 +7,7 @@ use crate::{
     font_manager::FontManager,
     menu,
     resource_manager::TextureManager,
-    tilemap::{self, WallTile, FloorTile},
+    tilemap::{self, FloorTile, WallTile},
     vec2::Vec2,
 };
 
