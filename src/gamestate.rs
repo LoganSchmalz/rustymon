@@ -65,7 +65,7 @@ impl Default for State {
         //here we create a bunch of example entities for the default world
         let player = world.spawn((
             Player,
-            Position(Vec2(2f32, 1f32)),
+            Position(Vec2(14f32, 15f32)),
             MovingEntity::new(),
             Sprite::character(String::from("assets/char-sprites/augosprite.png")),
             Collision,

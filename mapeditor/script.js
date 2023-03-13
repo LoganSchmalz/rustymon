@@ -1,8 +1,8 @@
 const BRUSH_SCALE = 3;
 
 var SELECTED_TILE = floors[1];
-var WIDTH = 15;
-var HEIGHT = 10;
+var WIDTH = 44;
+var HEIGHT = 34;
 
 // initialize map object:
 var map = {

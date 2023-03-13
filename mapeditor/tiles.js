@@ -2,7 +2,7 @@ const floors = [
     {
         "name": "NONE",
         "id": 0,
-        "x": 0,
+        "x": 16,
         "y": 0,
         "hasCollision": false
     },
@@ -415,11 +415,137 @@ const walls = [
         "hasCollision": false
     },
     {
-        "name": "TGRASS_5",
+        "name": "TREE_BOTTOM",
         "id": 21,
         "x": 80,
         "y": 112,
+        "hasCollision": true
+    },
+    {
+        "name": "TREE_TOP",
+        "id": 22,
+        "x": 96,
+        "y": 112,
         "hasCollision": false
+    },
+    {
+        "name": "TREES",
+        "id": 23,
+        "x": 112,
+        "y": 112,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_1",
+        "id": 24,
+        "x": 304,
+        "y": 0,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_2",
+        "id": 25,
+        "x": 320,
+        "y": 0,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_3",
+        "id": 26,
+        "x": 336,
+        "y": 0,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_4",
+        "id": 27,
+        "x": 352,
+        "y": 0,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_5",
+        "id": 28,
+        "x": 288,
+        "y": 16,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_6",
+        "id": 29,
+        "x": 304,
+        "y": 16,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_7",
+        "id": 30,
+        "x": 320,
+        "y": 16,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_8",
+        "id": 31,
+        "x": 336,
+        "y": 16,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_9",
+        "id": 32,
+        "x": 352,
+        "y": 16,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_10",
+        "id": 33,
+        "x": 368,
+        "y": 16,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_11",
+        "id": 34,
+        "x": 288,
+        "y": 32,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_12",
+        "id": 35,
+        "x": 304,
+        "y": 32,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_13",
+        "id": 36,
+        "x": 320,
+        "y": 32,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_14",
+        "id": 37,
+        "x": 336,
+        "y": 32,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_15",
+        "id": 38,
+        "x": 352,
+        "y": 32,
+        "hasCollision": true
+    },
+    {
+        "name": "ROOF_16",
+        "id": 39,
+        "x": 368,
+        "y": 32,
+        "hasCollision": true
     },
 ]
 const objects = [
@@ -441,6 +567,13 @@ const objects = [
         "name": "BERRY2",
         "id": 2,
         "x": 32,
+        "y": 0,
+        "hasCollision": true
+    },
+    {
+        "name": "DOOR",
+        "id": 3,
+        "x": 48,
         "y": 0,
         "hasCollision": true
     },

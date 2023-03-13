@@ -70,7 +70,26 @@ pub enum WallTile {
     TGRASS_2,
     TGRASS_3,
     TGRASS_4,
-    TGRASS_5,
+    TREE_BOTTOM,
+    TREE_TOP,
+    TREES,
+    ROOF_1,
+    ROOF_2,
+    ROOF_3,
+    ROOF_4,
+    ROOF_5,
+    ROOF_6,
+    ROOF_7,
+    ROOF_8,
+    ROOF_9,
+    ROOF_10,
+    ROOF_11,
+    ROOF_12,
+    ROOF_13,
+    ROOF_14,
+    ROOF_15,
+    ROOF_16,
+    DOOR,
 }
 
 #[derive(FromPrimitive, ToPrimitive)]
@@ -189,7 +208,6 @@ impl TileMap {
                     | WallTile::TGRASS_2
                     | WallTile::TGRASS_3
                     | WallTile::TGRASS_4
-                    | WallTile::TGRASS_5
             )
         } else {
             false
