@@ -206,9 +206,9 @@ impl State {
                     }
                 }
                 Event::NpcMoved(entity) => {
-                    let (moving, anim, path) = self
+                    let (moving, path) = self
                         .world
-                        .query_one_mut::<(&mut MovingEntity, &mut HumanWalkAnimation, Option<&mut WalkingPath>)>(entity)
+                        .query_one_mut::<(&mut MovingEntity, Option<&mut WalkingPath>)>(entity)
                         .unwrap();
                     if let Some(path) = path {
                         path.advance();
