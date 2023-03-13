@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     components::{
         animation::{HumanAnimationType, HumanWalkAnimation},
-        Collision, MovingEntity, MovingState, Player, Position,
+        Collision, MovingEntity, MovingState, Player, Position, WalkingPath,
     },
     constants::{ROTATION_TIME, RUN_SPEED, WALK_SPEED},
     gamestate::event::Event,
@@ -22,13 +22,28 @@ impl State {
     }
 
     pub fn update_collisions(&mut self) {
-        let mut collision_query = self.world.query::<(&mut Position, &Collision)>();
+        let mut collision_query = self
+            .world
+            .query::<(&mut Position, Option<&MovingEntity>)>()
+            .with::<&Collision>();
 
         self.collisions = HashMap::new();
         //self.collisions.reserve(collision_query.iter().len());
 
-        for (entity, (Position(c), _)) in collision_query.iter() {
+        for (entity, (Position(c), moving)) in collision_query.iter() {
             self.collisions.insert(c.to_usize(self.map.size_x), entity);
+            if let Some(moving) = moving {
+                let next_pos = match moving.moving {
+                    MovingState::Moving(Direction::Left) => Vec2((c.0 - 1.0).ceil(), c.1),
+                    MovingState::Moving(Direction::Right) => Vec2((c.0 + 1.0).floor(), c.1),
+                    MovingState::Moving(Direction::Up) => Vec2(c.0, (c.1 - 1.0).ceil()),
+                    MovingState::Moving(Direction::Down) => Vec2(c.0, (c.1 + 1.0).floor()),
+                    _ => continue,
+                };
+
+                self.collisions
+                    .insert(next_pos.to_usize(self.map.size_x), entity);
+            }
         }
     }
 
@@ -53,10 +68,13 @@ impl State {
     pub fn update_moving_objects(&mut self, delta_time: f32) {
         use MovingState::*;
 
-        let mut moving_query =
-            self.world
-                .query::<(&mut Position, &mut MovingEntity, &mut HumanWalkAnimation)>();
-        for (id, (pos, moving, animation)) in moving_query.iter() {
+        let mut moving_query = self.world.query::<(
+            &mut Position,
+            &mut MovingEntity,
+            &mut HumanWalkAnimation,
+            Option<&WalkingPath>,
+        )>();
+        for (id, (pos, moving, animation, path)) in moving_query.iter() {
             //update rotation state if entity is idle
             if let (Idle, Moving(rotation)) = (moving.moving, moving.try_moving) {
                 if rotation != moving.rotation && moving.rotation_timer >= ROTATION_TIME {
@@ -156,7 +174,9 @@ impl State {
                 if id == self.player {
                     self.events
                         .push(Event::PlayerMoved(Vec2(target_x, target_y)))
-                };
+                } else if let Some(path) = path {
+                    self.events.push(Event::NpcMoved(id));
+                }
             }
         }
     }

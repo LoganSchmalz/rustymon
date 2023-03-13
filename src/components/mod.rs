@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use self::bag::Item;
 
 use super::vec2::{Direction, Vec2};
@@ -15,6 +17,25 @@ pub struct GroundItem {
 
 pub struct Npc {
     pub says: String,
+}
+
+#[derive(Debug)]
+pub struct WalkingPath {
+    pub path: Vec<Direction>,
+    pub index: usize,
+}
+
+impl WalkingPath {
+    pub fn direction(&self) -> Direction {
+        self.path[self.index]
+    }
+
+    pub fn advance(&mut self) {
+        self.index += 1;
+        if self.index >= self.path.len() {
+            self.index = 0;
+        }
+    }
 }
 
 #[derive(Debug)]

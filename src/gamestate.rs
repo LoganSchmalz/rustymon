@@ -107,6 +107,10 @@ impl Default for State {
                 left_leg: true,
                 sprinting: false,
             },
+            WalkingPath {
+                path: vec![Direction::Left, Direction::Up, Direction::Right, Direction::Down],
+                index: 0,
+            },
         ));
 
         let _berry = world.spawn((
@@ -199,6 +203,17 @@ impl State {
                         && self.rng.gen::<f32>() <= RANDOM_ENCOUNTER_CHANCE
                     {
                         self.screen = Screen::Battle(TEST_BATTLE);
+                    }
+                }
+                Event::NpcMoved(entity) => {
+                    let (moving, anim, path) = self
+                        .world
+                        .query_one_mut::<(&mut MovingEntity, &mut HumanWalkAnimation, Option<&mut WalkingPath>)>(entity)
+                        .unwrap();
+                    if let Some(path) = path {
+                        path.advance();
+                        moving.rotation = path.direction();
+                        moving.try_moving = MovingState::Moving(path.direction());
                     }
                 }
             }
