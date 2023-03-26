@@ -20,12 +20,18 @@ impl Renderer {
             if let Some(stray_data) = stray {
                 let texture = texture_manager.load(&stray_data.texture)?;
                 let dst = Rect::new(
-                    130 + 20 * index as i32,
-                    10 + 10 * index as i32,
-                    texture.query().width,
+                    20 * index as i32,
+                    70 + 10 * index as i32,
+                    texture.query().width/2,
                     texture.query().height,
                 );
-                self.canvas.copy(&texture, None, dst)?;
+                let slice = Rect::new(
+                    (texture.query().width/2) as i32,
+                    0,
+                    texture.query().width/2,
+                    texture.query().height
+                );
+                self.canvas.copy(&texture, slice, dst)?;
             }
         }
 
@@ -35,10 +41,16 @@ impl Renderer {
                 let dst = Rect::new(
                     130 + 20 * index as i32,
                     10 + 10 * index as i32,
-                    texture.query().width,
+                    texture.query().width/2,
                     texture.query().height,
                 );
-                self.canvas.copy(&texture, None, dst)?;
+                let slice = Rect::new(
+                    0,
+                    0,
+                    texture.query().width/2,
+                    texture.query().height
+                );
+                self.canvas.copy(&texture, slice, dst)?;
             }
         }
 
@@ -83,7 +95,7 @@ impl Renderer {
                 let health_rect = Rect::new(
                     (PIXELS_X - healthbars.query().width) as i32 + 3,
                     (PIXELS_Y - healthbars.query().height) as i32 + 13 + 15 * index as i32,
-                    (stray_data.hp as f32 / 100.0 * 90.0).ceil() as u32,
+                    (stray_data.cur_hp as f32 / stray_data.hp as f32  * 90.0).ceil() as u32,
                     3,
                 );
                 self.canvas.set_draw_color(Color::RGB(0, 255, 0));
@@ -113,7 +125,7 @@ impl Renderer {
                 let health_rect = Rect::new(
                     0 as i32 + 3,
                     0 as i32 + 13 + 15 * index as i32,
-                    (stray_data.hp as f32 / 100.0 * 90.0).ceil() as u32,
+                    (stray_data.cur_hp as f32 / stray_data.hp as f32 * 90.0).ceil() as u32,
                     3,
                 );
                 self.canvas.set_draw_color(Color::RGB(0, 255, 0));
