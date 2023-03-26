@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, clone::Clone};
 
 use hecs::{CommandBuffer, Entity, World};
 use rand::{distributions::Uniform, rngs::ThreadRng, Rng};
@@ -7,7 +7,7 @@ use sdl2::{rect::Rect, video::WindowContext};
 use enum_map::EnumMap;
 
 use crate::{
-    components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, *},
+    components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, *, stray::*},
     constants::RANDOM_ENCOUNTER_CHANCE,
     font_manager::FontManager,
     menu::{main_menu::MainMenu, textbox::Textbox, MenuManager},
@@ -26,22 +26,20 @@ mod event;
 mod input;
 mod updates;
 
+#[derive(Clone)]
 pub enum Screen {
     MainMenu,
     Overworld,
     Battle(Battle),
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Battle {
-    pub player_strays: [Option<u32>; 4],
-    pub opponent_strays: [Option<u32>; 4],
+    pub player_strays: [Option<Stray>; 4],
+    pub opponent_strays: [Option<Stray>; 4],
 }
 
-const TEST_BATTLE: Battle = Battle {
-    player_strays: [Some(1), Some(2), None, Some(100)],
-    opponent_strays: [Some(1), None, Some(3), Some(100)],
-};
+
 
 pub struct State {
     pub screen: Screen,
@@ -89,7 +87,7 @@ impl Default for State {
         ));
 
         let _npc = world.spawn((
-            Position(Vec2(4f32, 4f32)),
+            Position(Vec2(16f32, 16f32)),
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
                 try_moving: MovingState::Moving(Direction::Left),
@@ -202,12 +200,26 @@ impl State {
 
     pub fn process_events(&mut self) {
         while let Some(event) = self.events.pop() {
+            let mut TEST_BATTLE: Battle = Battle {
+                player_strays: [
+                    Some(Stray::palliub()), 
+                    Some(Stray::cespae()), 
+                    None, 
+                    Some(Stray::catis())
+                ],
+                opponent_strays: [
+                    Some(Stray::carerus()), 
+                    None, 
+                    Some(Stray::rubridum()), 
+                    Some(Stray::omikae())
+                ],
+            };
             match event {
                 Event::PlayerMoved(pos) => {
                     if self.map.check_encounter(pos)
                         && self.rng.gen::<f32>() <= RANDOM_ENCOUNTER_CHANCE
                     {
-                        self.screen = Screen::Battle(TEST_BATTLE);
+                        self.screen = Screen::Battle(TEST_BATTLE).clone();
                     }
                 }
                 Event::NpcMoved(entity) => {

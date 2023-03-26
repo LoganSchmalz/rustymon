@@ -16,11 +16,22 @@ impl Renderer {
         let background = texture_manager.load("assets/backgrounds/battlebg.png")?;
         self.canvas.copy(&background, None, None)?;
 
-        for (index, stray) in battle.player_strays.iter().enumerate() {}
+        for (index, stray) in battle.player_strays.iter().enumerate() {
+            if let Some(stray_data) = stray {
+                let texture = texture_manager.load(&stray_data.texture)?;
+                let dst = Rect::new(
+                    130 + 20 * index as i32,
+                    10 + 10 * index as i32,
+                    texture.query().width,
+                    texture.query().height,
+                );
+                self.canvas.copy(&texture, None, dst)?;
+            }
+        }
 
         for (index, stray) in battle.opponent_strays.iter().enumerate() {
-            if let Some(stray) = stray {
-                let texture = texture_manager.load("assets/strays/palliub.png")?;
+            if let Some(stray_data) = stray {
+                let texture = texture_manager.load(&stray_data.texture)?;
                 let dst = Rect::new(
                     130 + 20 * index as i32,
                     10 + 10 * index as i32,
@@ -51,11 +62,11 @@ impl Renderer {
         let creator = self.canvas.texture_creator();
 
         for (index, stray) in battle.player_strays.iter().enumerate() {
-            if let Some(health) = stray {
+            if let Some(stray_data) = stray {
                 let name_surface = font_manager
                     .fonts
                     .press_start_2p
-                    .render("Stray")
+                    .render(&stray_data.species)
                     .blended(Color::RGB(40, 40, 40))
                     .map_err(|e| e.to_string())?;
                 let name = creator
@@ -72,7 +83,7 @@ impl Renderer {
                 let health_rect = Rect::new(
                     (PIXELS_X - healthbars.query().width) as i32 + 3,
                     (PIXELS_Y - healthbars.query().height) as i32 + 13 + 15 * index as i32,
-                    (*health as f32 / 100.0 * 90.0).ceil() as u32,
+                    (stray_data.hp as f32 / 100.0 * 90.0).ceil() as u32,
                     3,
                 );
                 self.canvas.set_draw_color(Color::RGB(0, 255, 0));
@@ -81,11 +92,11 @@ impl Renderer {
         }
 
         for (index, stray) in battle.opponent_strays.iter().enumerate() {
-            if let Some(health) = stray {
+            if let Some(stray_data) = stray {
                 let name_surface = font_manager
                     .fonts
                     .press_start_2p
-                    .render("Stray")
+                    .render(&stray_data.species)
                     .blended(Color::RGB(40, 40, 40))
                     .map_err(|e| e.to_string())?;
                 let name = creator
@@ -102,7 +113,7 @@ impl Renderer {
                 let health_rect = Rect::new(
                     0 as i32 + 3,
                     0 as i32 + 13 + 15 * index as i32,
-                    (*health as f32 / 100.0 * 90.0).ceil() as u32,
+                    (stray_data.hp as f32 / 100.0 * 90.0).ceil() as u32,
                     3,
                 );
                 self.canvas.set_draw_color(Color::RGB(0, 255, 0));

@@ -7,6 +7,7 @@ use super::vec2::{Direction, Vec2};
 pub mod animation;
 pub mod bag;
 pub mod sprite;
+pub mod stray;
 
 pub struct Player;
 
