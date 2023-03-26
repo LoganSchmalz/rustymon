@@ -9,6 +9,7 @@ use crate::{
         main_menu::{MainMenu, MainMenuButton},
         pause_menu::PauseMenu,
         textbox::Textbox,
+        moves_menu::MovesMenu,
     },
     resource_manager::TextureManager,
 };
@@ -226,6 +227,18 @@ impl Renderer {
 
             text_quad.set_y(text_quad.y + surface.height() as i32 + 4);
         }
+        Ok(())
+    }
+
+    pub (super) fn render_moves_menu( //function for rendering the moves menu
+        &mut self,
+        menu: &MovesMenu,
+        texture_manager: &mut TextureManager<WindowContext>,
+        font_man: &FontManager,
+    ) -> Result<(), String> {
+        let box_quad = Rect::new(0, (PIXELS_Y - 66) as i32, 66, PIXELS_Y); //box in bottom right corner
+        let moves_menu = texture_manager.load("assets/UI/moves_menu.png")?; //load moves menu image as a texture
+        self.canvas.copy(&moves_menu, None, box_quad)?;
         Ok(())
     }
 }

@@ -219,8 +219,12 @@ impl State {
                     if self.map.check_encounter(pos)
                         && self.rng.gen::<f32>() <= RANDOM_ENCOUNTER_CHANCE
                     {
+<<<<<<< HEAD
                         self.screen = Screen::Battle(TEST_BATTLE).clone();
+=======
+                        self.screen = Screen::Battle(TEST_BATTLE);
                         self.menus.open_menu(MovesMenu::new().into());
+>>>>>>> fc71f07 (added battle moves_menu)
                     }
                 }
                 Event::NpcMoved(entity) => {

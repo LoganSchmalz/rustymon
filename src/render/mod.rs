@@ -214,6 +214,9 @@ impl Renderer {
                 menu::Menu::BagMenu(menu) => {
                     self.render_bag_menu(menu, world, texture_manager, font_man)?
                 }
+                menu::Menu::MovesMenu(menu) => {
+                    self.render_moves_menu(menu, texture_manager, font_man)?
+                }
             }
         }
 

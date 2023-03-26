@@ -1,6 +1,7 @@
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
+use hecs::World;
 
-use crate::{font_manager::FontManager, gamestate::Battle, resource_manager::TextureManager};
+use crate::{font_manager::FontManager, gamestate::Battle, resource_manager::TextureManager, menu};
 
 use super::{Renderer, PIXELS_X, PIXELS_Y};
 
@@ -10,6 +11,8 @@ impl Renderer {
         texture_manager: &mut TextureManager<WindowContext>,
         font_manager: &FontManager,
         battle: &Battle,
+        menu_man: &mut menu::MenuManager,
+        world: &World,
     ) -> Result<(), String> {
         //self.canvas.set_draw_color(Color::RGB(255, 255, 255));
         //self.canvas.clear();
@@ -132,7 +135,7 @@ impl Renderer {
                 self.canvas.fill_rect(health_rect)?;
             }
         }
-
+        self.render_menus(world, texture_manager, font_manager, menu_man)?;
         self.canvas.present();
         Ok(())
     }
