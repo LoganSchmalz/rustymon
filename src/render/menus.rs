@@ -239,6 +239,7 @@ impl Renderer {
         let box_quad = Rect::new(0, (PIXELS_Y - 66) as i32, 132, 66); //box in bottom right corner
         let moves_menu = texture_manager.load("assets/UI/moves_menu.png")?; //load moves menu image as a texture
         self.canvas.copy(&moves_menu, None, box_quad)?;
+        
         Ok(())
     }
 }
