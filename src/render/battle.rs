@@ -3,7 +3,7 @@ use hecs::World;
 
 use crate::{font_manager::FontManager, gamestate::Battle, resource_manager::TextureManager, menu};
 
-use super::{Renderer, PIXELS_X, PIXELS_Y};
+use super::{Renderer, Transition, PIXELS_X, PIXELS_Y};
 
 impl Renderer {
     pub fn render_battle(
@@ -140,20 +140,21 @@ impl Renderer {
         }
         self.render_menus(world, texture_manager, font_manager, menu_man)?; //render menu (either moves menu or enemy selection)
         if self.is_fading {
-            self.render_transition(texture_manager, delta_time);
+            self.trans = Transition::Win;
+            self.render_transition(texture_manager, delta_time, Transition::Win);
         }
         self.canvas.present();
         Ok(())
     }
 
-    pub fn render_win(&mut self, texture_manager: &mut TextureManager<WindowContext>) -> Result<(), String> { //function to render win screen
+    pub fn render_win(&mut self, texture_manager: &mut TextureManager<WindowContext>, delta_time: f32) -> Result<(), String> { //function to render win screen
         let background = texture_manager.load("assets/backgrounds/winscreen.png")?;
         self.canvas.copy(&background, None, None)?;
         self.canvas.present();
         Ok(())
     }
 
-    pub fn render_loss(&mut self, texture_manager: &mut TextureManager<WindowContext>) -> Result<(), String> { //function to render loss screen
+    pub fn render_loss(&mut self, texture_manager: &mut TextureManager<WindowContext>, delta_time: f32) -> Result<(), String> { //function to render loss screen
         let background = texture_manager.load("assets/backgrounds/lossscreen.png")?;
         self.canvas.copy(&background, None, None)?;
         self.canvas.present();

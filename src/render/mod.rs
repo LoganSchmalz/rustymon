@@ -33,6 +33,13 @@ pub enum DisplayScreen {
     _OverWorld,
 }
 
+#[derive(Copy, Clone)]
+pub enum Transition {
+    Fade,
+    Win,
+    Loss,
+}
+
 pub struct Renderer {
     window_x: u32,
     window_y: u32,
@@ -45,6 +52,7 @@ pub struct Renderer {
     camera: Camera,
     floortile_rects: EnumMap<FloorTile, Rect>,
     walltile_rects: EnumMap<WallTile, Rect>,
+    trans: Transition,
 }
 
 impl Renderer {
@@ -147,6 +155,7 @@ impl Renderer {
             camera: Camera::default(),
             floortile_rects,
             walltile_rects,
+            trans: Transition::Fade,
         }
     }
 
@@ -154,42 +163,75 @@ impl Renderer {
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
         delta_time: f32,
+        trans: Transition,
     ) -> Result<bool, String> {
-        if self.is_fading {
-            let fade_texture = texture_manager.load("assets/transitions/gooWipe.png")?;
+        //println!("{}", trans);
+        match trans {
+            Transition::Fade => {
+                if self.is_fading {
+                    let fade_texture = texture_manager.load("assets/transitions/gooWipe.png")?;
 
-            self.fade_anim_time -= delta_time;
-            if self.fade_anim_time <= 0.0 {
-                self.is_fading = false;
-            } else {
-                //might be timing issues here (starts at -_delta_time instead of the actual beginning)
-                let curr_fade_frame: i32 = (FADE_FRAMES as f64
-                    * (1.0 - (self.fade_anim_time / FADE_TIME) as f64))
-                    .round() as i32;
-                let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //TODO: change height and width of screen_quad to not require math
-                let fade_slice = Rect::new(240 * curr_fade_frame, 0, 240, 160);
-                self.canvas.copy(&fade_texture, fade_slice, screen_quad)?;
-                if (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round()
-                    as i32
-                    > FADE_FRAMES / 2
-                    && !self.did_trans
-                {
-                    /*match map.id {
-                        0 => {
-                            *map = TileMap::load(1);
-                            obj_man.load_objects(Path::new("maps/map1/"));
+                    self.fade_anim_time -= delta_time;
+                    if self.fade_anim_time <= 0.0 {
+                        self.is_fading = false;
+                    } else {
+                        //might be timing issues here (starts at -_delta_time instead of the actual beginning)
+                        let curr_fade_frame: i32 = (FADE_FRAMES as f64
+                            * (1.0 - (self.fade_anim_time / FADE_TIME) as f64))
+                            .round() as i32;
+                        let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
+                        let fade_slice = Rect::new(240 * curr_fade_frame, 0, 240, 160);
+                        self.canvas.copy(&fade_texture, fade_slice, screen_quad)?;
+                        if (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round()
+                            as i32
+                            > FADE_FRAMES / 2
+                            && !self.did_trans
+                        {
+                            /*match map.id {
+                                0 => {
+                                    *map = TileMap::load(1);
+                                    obj_man.load_objects(Path::new("maps/map1/"));
+                                }
+                                1 => {
+                                    *map = TileMap::load(0);
+                                    obj_man.load_objects(Path::new("maps/map0"));
+                                }
+                                _ => panic!("Trying to load map that doesn't exist"),
+                            }*/
+                            return Ok(true);
                         }
-                        1 => {
-                            *map = TileMap::load(0);
-                            obj_man.load_objects(Path::new("maps/map0"));
-                        }
-                        _ => panic!("Trying to load map that doesn't exist"),
-                    }*/
-                    return Ok(true);
+                    }
                 }
-            }
+                Ok(false)
+            },
+            Transition::Win => { //render win screen for set amount of time
+                if self.is_fading {
+                    self.fade_anim_time -= delta_time;
+                    if self.fade_anim_time <= 0.0 {
+                        self.is_fading = false; //end transition
+                    } else {
+                        let texture = texture_manager.load("assets/backgrounds/winscreen.png")?; //load texture for win screen
+                        let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //rectangle containing entire screen
+                        self.canvas.copy(&texture, None, screen_quad)?; //render win screen texture over whole screen
+                    }
+                    return Ok(true); //return Ok(true) to indicate success
+                }
+                Ok(false) //return Ok(false) to indicate mishap in the code
+            },
+            Transition::Loss => {  //render loss screen for set amount of time
+                if self.is_fading {
+                    if self.fade_anim_time <= 0.0 {
+                        self.is_fading = false; //end transition
+                    } else {
+                        let texture = texture_manager.load("assets/backgrounds/lossscreen.png")?; //load texture for loss screen
+                        let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //rectangle containing entire screen
+                        self.canvas.copy(&texture, None, screen_quad)?; //render loss screen texture over whole screen
+                    }
+                    return Ok(true); //return Ok(true) to indicate success
+                }
+                Ok(false) //return Ok(false) to indicate mishap in the code
+            },
         }
-        Ok(false)
     }
 
     pub fn render_menus(

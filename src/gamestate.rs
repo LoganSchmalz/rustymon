@@ -12,6 +12,7 @@ use crate::{
     font_manager::FontManager,
     menu::{main_menu::MainMenu, moves_menu::MovesMenu, textbox::Textbox, MenuManager},
     render::Renderer,
+
     resource_manager::TextureManager,
     tilemap::TileMap,
     vec2::{Direction, Vec2},
@@ -175,7 +176,7 @@ impl State {
                     self.events.push(Event::TransitionFull);
                 }
             }
-            Screen::Battle(battle) => renderer.render_battle(
+            Screen::Battle(battle) => renderer.render_battle( //render battle screen dynamically
                 texture_manager,
                 font_manager,
                 delta_time,

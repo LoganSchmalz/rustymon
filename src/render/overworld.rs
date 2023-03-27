@@ -11,7 +11,7 @@ use crate::{
     vec2::Vec2,
 };
 
-use super::{Renderer, PIXELS_X, PIXELS_Y};
+use super::{Renderer, Transition, PIXELS_X, PIXELS_Y};
 
 #[derive(Default)]
 pub struct Camera {
@@ -38,7 +38,7 @@ impl Renderer {
         self.render_entities(world, texture_manager)?;
         self.render_menus(world, texture_manager, font_man, menu_man)?;
         let transition_done = if self.is_fading {
-            self.render_transition(texture_manager, delta_time)
+            self.render_transition(texture_manager, delta_time, self.trans)
         } else {
             Ok(false)
         };
@@ -114,7 +114,6 @@ impl Renderer {
         texture_manager: &mut TextureManager<WindowContext>,
         map: &tilemap::TileMap,
     ) -> Result<(), String> {
-        //TODO: remove next few lines, eventually we should just make the maps big enough to fill in the spaces that you can't walk into with actual tiles
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
         self.canvas.set_draw_color(Color::RGB(0, 0, 0));
         self.canvas.fill_rect(screen_quad)?;
