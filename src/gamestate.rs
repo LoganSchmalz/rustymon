@@ -10,7 +10,7 @@ use crate::{
     components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, *, stray::*},
     constants::RANDOM_ENCOUNTER_CHANCE,
     font_manager::FontManager,
-    menu::{main_menu::MainMenu, textbox::Textbox, MenuManager},
+    menu::{main_menu::MainMenu, textbox::Textbox, MenuManager, moves_menu::MovesMenu},
     render::Renderer,
     resource_manager::TextureManager,
     tilemap::TileMap,
@@ -167,7 +167,7 @@ impl State {
                 &mut self.menus,
             )?,
             Screen::Battle(battle) => {
-                renderer.render_battle(texture_manager, font_manager, battle)?
+                renderer.render_battle(texture_manager, font_manager, battle, &mut self.menus, &self.world)?
             }
         }
 
@@ -193,12 +193,12 @@ impl State {
             self.update_moving_objects(delta_time);
             self.update_collisions();
             self.update_animations(delta_time);
-            self.process_events();
+            self.process_events(font_manager);
         }
         Ok(())
     }
 
-    pub fn process_events(&mut self) {
+    pub fn process_events(&mut self, font_man: &FontManager) {
         while let Some(event) = self.events.pop() {
             let mut TEST_BATTLE: Battle = Battle {
                 player_strays: [
@@ -220,6 +220,7 @@ impl State {
                         && self.rng.gen::<f32>() <= RANDOM_ENCOUNTER_CHANCE
                     {
                         self.screen = Screen::Battle(TEST_BATTLE).clone();
+                        self.menus.open_menu(MovesMenu::new().into());
                     }
                 }
                 Event::NpcMoved(entity) => {
