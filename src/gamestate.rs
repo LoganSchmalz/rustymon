@@ -31,8 +31,6 @@ pub enum Screen {
     MainMenu,
     Overworld,
     Battle(Battle),
-    Win,
-    Loss,
 }
 
 #[derive(Default, Clone)]
@@ -185,15 +183,6 @@ impl State {
                 &mut self.menus,
                 &self.world,
             )?,
-            Screen::Battle(battle) => { //render battle screen dynamically
-                renderer.render_battle(texture_manager, font_manager, battle, &mut self.menus, &self.world)?
-            }
-            Screen::Win => { //render win screen
-                renderer.render_win(texture_manager)?
-            }
-            Screen::Loss => { //render loss screen
-                renderer.render_loss(texture_manager)?
-            }
         }
 
         self.transitioning = renderer.is_fading;
@@ -221,7 +210,6 @@ impl State {
             self.update_collisions();
             self.update_animations(delta_time);
             self.process_events(font_manager);
-            self.update_screen(delta_time); //
         }
         Ok(())
     }
@@ -233,22 +221,6 @@ impl State {
                     if self.map.check_encounter(pos)
                         && self.rng.gen::<f32>() <= RANDOM_ENCOUNTER_CHANCE
                     {
-                        let mut TEST_BATTLE: Battle = Battle {
-                            player_strays: [
-                                Some(Stray::palliub()), 
-                                Some(Stray::cespae()), 
-                                None, 
-                                Some(Stray::catis())
-                            ],
-                            opponent_strays: [
-                                Some(Stray::carerus()), 
-                                None, 
-                                Some(Stray::rubridum()), 
-                                Some(Stray::omikae())
-                            ],
-                        };
-                        self.screen = Screen::Battle(TEST_BATTLE).clone();
-                        self.menus.open_menu(MovesMenu::new().into());
                         self.next_screen = Screen::Battle(Battle {
                             player_strays: [
                                 Some(Stray::palliub()),
