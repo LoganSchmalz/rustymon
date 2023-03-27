@@ -1,4 +1,5 @@
 use hecs::World;
+use crate::components::stray::Move;
 
 use super::{
     menu_events::{MenuCommand, MenuInput},
@@ -6,15 +7,14 @@ use super::{
 };
 
 pub struct MovesMenu {
+    pub moves: [Option<Move>; 4],
     pub selected: usize,
 }
 
 impl MovesMenu {
     pub fn new() -> MovesMenu {
-        //let moves = vec![
-
-        //];
-        MovesMenu { selected: 0 } //selected will indicate the selected move as 0 (top left), 1 (top right), 2 (bottom right), or 3 (bottom left)
+        let moves = [Some(Move::wave()), Some(Move::peck()), None, None]; //currently hardcoding the moves, will change later
+        MovesMenu { moves, selected: 0 } //selected will indicate the selected move as 0 (top left), 1 (top right), 2 (bottom right), or 3 (bottom left)
     }
 }
 

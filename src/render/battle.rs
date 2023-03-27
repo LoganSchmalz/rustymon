@@ -137,7 +137,7 @@ impl Renderer {
                 self.canvas.fill_rect(health_rect)?;
             }
         }
-        self.render_menus(world, texture_manager, font_manager, menu_man)?;
+        self.render_menus(world, texture_manager, font_manager, menu_man)?; //render menu (either moves menu or enemy selection)
         self.canvas.present();
         Ok(())
     }
