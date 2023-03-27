@@ -45,7 +45,7 @@ impl Renderer {
         for (idx, (item, amount)) in items.iter().enumerate() {
             let item_str = item.to_string();
 
-            let item_surface = font_man.fonts.press_start_2p.render(&item_str);
+            let item_surface = font_man.fonts.munro.render(&item_str);
             let item_surface = if idx == menu.selected {
                 item_surface.blended(Color::RGB(0, 183, 235))
             } else {
@@ -54,7 +54,7 @@ impl Renderer {
             let item_surface = item_surface.map_err(|e| e.to_string())?;
 
             let amount_str = amount.to_string();
-            let amount_surface = font_man.fonts.press_start_2p.render(&amount_str);
+            let amount_surface = font_man.fonts.munro.render(&amount_str);
             let amount_surface = if idx == menu.selected {
                 amount_surface.blended(Color::RGB(0, 183, 235))
             } else {
@@ -83,7 +83,7 @@ impl Renderer {
             self.canvas.copy(&item_texture, None, text_quad)?;
             self.canvas.copy(&amount_texture, None, amount_quad)?;
 
-            text_quad.set_y(text_quad.y + item_surface.height() as i32 + 4);
+            text_quad.set_y(text_quad.y + item_surface.height() as i32);
         }
 
         Ok(())
@@ -148,28 +148,28 @@ impl Renderer {
 
         let surface_top = font_man
             .fonts
-            .press_start_2p
+            .munro
             .render(textbox.text_v[0].as_str())
             .blended(Color::RGB(40, 40, 40))
             .map_err(|e| e.to_string())?;
 
         let surface_bot = font_man
             .fonts
-            .press_start_2p
+            .munro
             .render(textbox.text_v[1].as_str())
             .blended(Color::RGB(40, 40, 40))
             .map_err(|e| e.to_string())?;
 
         let text_quad_top = Rect::new(
             10,
-            (PIXELS_Y - 41) as i32 + 10,
+            (PIXELS_Y - 41) as i32 + 7,
             surface_top.width(),
             surface_top.height(),
         );
 
         let text_quad_bot = Rect::new(
             10,
-            (PIXELS_Y - 41) as i32 + 10 + surface_top.height() as i32 + 4,
+            (PIXELS_Y - 41) as i32 + 10 + surface_top.height() as i32 - 3,
             surface_bot.width(),
             surface_bot.height(),
         );
@@ -207,7 +207,7 @@ impl Renderer {
         let mut text_quad = Rect::new(180, 10, 0, 0);
 
         for (idx, item) in menu.items.iter().enumerate() {
-            let surface = font_man.fonts.press_start_2p.render(item);
+            let surface = font_man.fonts.munro.render(item);
             let surface = if idx == menu.selected {
                 surface.blended(Color::RGB(0, 183, 235))
             } else {
@@ -244,7 +244,7 @@ impl Renderer {
 
         for (idx, mv) in menu.moves.iter().enumerate() { //mv = move
             if let Some(move_data) = mv {
-                let surface = font_man.fonts.press_start_2p.render(&move_data.name); //render the name of the move
+                let surface = font_man.fonts.munro.render(&move_data.name); //render the name of the move
                 
                 let surface = if idx == menu.selected {
                     surface.blended(Color::RGB(212, 101, 99))

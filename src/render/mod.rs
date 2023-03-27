@@ -167,7 +167,6 @@ impl Renderer {
     ) -> Result<bool, String> {
         match trans {
             Transition::Fade => {
-                println!("Fade");
                 if self.is_fading {
                     let fade_texture = texture_manager.load("assets/transitions/gooWipe.png")?;
 
@@ -205,7 +204,6 @@ impl Renderer {
                 Ok(false)
             },
             Transition::Win => { //render win screen for set amount of time
-                println!("Win");
                 if self.is_fading {
                     self.fade_anim_time -= delta_time;
                     if self.fade_anim_time <= 0.0 {
@@ -220,7 +218,6 @@ impl Renderer {
                 Ok(false) //return Ok(false) to indicate mishap in the code
             },
             Transition::Loss => {  //render loss screen for set amount of time
-                println!("Loss");
                 if self.is_fading {
                     if self.fade_anim_time <= 0.0 {
                         self.is_fading = false; //end transition

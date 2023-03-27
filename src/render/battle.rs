@@ -81,7 +81,7 @@ impl Renderer {
             if let Some(stray_data) = stray {
                 let name_surface = font_manager
                     .fonts
-                    .press_start_2p
+                    .munro
                     .render(&stray_data.species)
                     .blended(Color::RGB(40, 40, 40))
                     .map_err(|e| e.to_string())?;
@@ -90,7 +90,7 @@ impl Renderer {
                     .map_err(|e| e.to_string())?;
                 let name_rect = Rect::new(
                     (PIXELS_X - healthbars.query().width) as i32 + 2,
-                    (PIXELS_Y - healthbars.query().height) as i32 + 4 + 15 * index as i32,
+                    (PIXELS_Y - healthbars.query().height) as i32 + 15 * index as i32,
                     name.query().width,
                     name.query().height,
                 );
@@ -112,7 +112,7 @@ impl Renderer {
             if let Some(stray_data) = stray {
                 let name_surface = font_manager
                     .fonts
-                    .press_start_2p
+                    .munro
                     .render(&stray_data.species)
                     .blended(Color::RGB(40, 40, 40))
                     .map_err(|e| e.to_string())?;
@@ -121,7 +121,7 @@ impl Renderer {
                     .map_err(|e| e.to_string())?;
                 let name_rect = Rect::new(
                     0 as i32 + 2,
-                    0 as i32 + 4 + 15 * index as i32,
+                    0 as i32 + 15 * index as i32,
                     name.query().width,
                     name.query().height,
                 );

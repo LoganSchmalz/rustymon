@@ -2,14 +2,14 @@ use regex::Regex;
 use sdl2::ttf::{Font, Sdl2TtfContext};
 
 pub struct Fonts<'ttf_module, 'rwops> {
-    pub press_start_2p: Font<'ttf_module, 'rwops>,
+    pub munro: Font<'ttf_module, 'rwops>,
 }
 
 impl<'ttf_module, 'rwops> Fonts<'ttf_module, 'rwops> {
     pub fn load(font_loader: &'ttf_module Sdl2TtfContext) -> Result<Self, String> {
-        let press_start_2p = font_loader.load_font("assets/fonts/PressStart2P-Regular.ttf", 8)?;
+        let munro = font_loader.load_font("assets/fonts/munro-small.ttf", 10)?;
 
-        Ok(Fonts { press_start_2p })
+        Ok(Fonts { munro })
     }
 }
 
@@ -58,14 +58,14 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
             if punc.is_match(curr_char) {
                 cs_len = self
                     .fonts
-                    .press_start_2p
+                    .munro
                     .size_of(curr_str.as_str())
                     .ok()
                     .unwrap()
                     .0;
                 nw_len = self
                     .fonts
-                    .press_start_2p
+                    .munro
                     .size_of(next_word.as_str())
                     .ok()
                     .unwrap()
