@@ -11,7 +11,7 @@ use crate::{
     constants::RANDOM_ENCOUNTER_CHANCE,
     font_manager::FontManager,
     menu::{main_menu::MainMenu, moves_menu::MovesMenu, textbox::Textbox, MenuManager},
-    render::Renderer,
+    render::{Renderer, Transition},
 
     resource_manager::TextureManager,
     tilemap::TileMap,
@@ -53,7 +53,8 @@ pub struct State {
     pub player: Entity,
     pub collisions: HashMap<usize, Entity>,
     pub rng: ThreadRng,
-    pub transitioning: bool
+    pub transitioning: bool,
+    pub trans: Transition,
 }
 
 impl Default for State {
@@ -144,7 +145,8 @@ impl Default for State {
             player,
             collisions: HashMap::new(),
             rng: rand::thread_rng(),
-            transitioning: false
+            transitioning: false,
+            trans: Transition::Fade,
         }
     }
 }
@@ -159,6 +161,7 @@ impl State {
         delta_time: f32,
         map: &mut TileMap,
     ) -> Result<(), String> {
+        renderer.trans = self.trans;
         renderer.is_fading = self.transitioning;
 
         match &self.screen {
@@ -236,6 +239,7 @@ impl State {
                                 Some(Stray::omikae()),
                             ],
                         });
+                        self.trans = Transition::Fade;
                         self.transitioning = true;
                     }
                 }
