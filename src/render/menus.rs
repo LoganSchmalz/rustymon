@@ -240,16 +240,16 @@ impl Renderer {
         let moves_menu = texture_manager.load("assets/UI/moves_menu.png")?; //load moves menu image as a texture
         self.canvas.copy(&moves_menu, None, box_quad)?;
 
-        let mut text_quad = Rect::new(10, 10, 0, 0);
+        let mut text_quad = Rect::new(10, (PIXELS_Y - 56) as i32, 132, 66);
 
         for (idx, mv) in menu.moves.iter().enumerate() { //mv = move
             if let Some(move_data) = mv {
                 let surface = font_man.fonts.press_start_2p.render(&move_data.name); //render the name of the move
                 
                 let surface = if idx == menu.selected {
-                    surface.blended(Color::RGB(0, 183, 235))
+                    surface.blended(Color::RGB(212, 101, 99))
                 } else {
-                    surface.blended(Color::RGB(40, 40, 40))
+                    surface.blended(Color::RGB(49, 41, 36))
                 };
                 
                 let surface = surface.map_err(|e| e.to_string())?;
