@@ -96,6 +96,7 @@ impl Renderer {
                     (PIXELS_X - healthbars.query().width) as i32 + 3,
                     (PIXELS_Y - healthbars.query().height) as i32 + 13 + 15 * index as i32,
                     (stray_data.cur_hp as f32 / stray_data.hp as f32  * 90.0).ceil() as u32,
+                    //render health as a fraction of the whole health bar
                     3,
                 );
                 self.canvas.set_draw_color(Color::RGB(0, 255, 0));
@@ -126,6 +127,7 @@ impl Renderer {
                     0 as i32 + 3,
                     0 as i32 + 13 + 15 * index as i32,
                     (stray_data.cur_hp as f32 / stray_data.hp as f32 * 90.0).ceil() as u32,
+                    //render health as a fraction of the whole health bar
                     3,
                 );
                 self.canvas.set_draw_color(Color::RGB(0, 255, 0));
