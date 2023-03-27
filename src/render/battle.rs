@@ -141,4 +141,18 @@ impl Renderer {
         self.canvas.present();
         Ok(())
     }
+
+    pub fn render_win(&mut self, texture_manager: &mut TextureManager<WindowContext>) -> Result<(), String> { //function to render win screen
+        let background = texture_manager.load("assets/backgrounds/winscreen.png")?;
+        self.canvas.copy(&background, None, None)?;
+        self.canvas.present();
+        Ok(())
+    }
+
+    pub fn render_loss(&mut self, texture_manager: &mut TextureManager<WindowContext>) -> Result<(), String> { //function to render loss screen
+        let background = texture_manager.load("assets/backgrounds/lossscreen.png")?;
+        self.canvas.copy(&background, None, None)?;
+        self.canvas.present();
+        Ok(())
+    }
 }

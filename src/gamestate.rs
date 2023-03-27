@@ -31,6 +31,8 @@ pub enum Screen {
     MainMenu,
     Overworld,
     Battle(Battle),
+    Win,
+    Loss,
 }
 
 #[derive(Default, Clone)]
@@ -166,8 +168,14 @@ impl State {
                 map,
                 &mut self.menus,
             )?,
-            Screen::Battle(battle) => {
+            Screen::Battle(battle) => { //render battle screen dynamically
                 renderer.render_battle(texture_manager, font_manager, battle, &mut self.menus, &self.world)?
+            }
+            Screen::Win => { //render win screen
+                renderer.render_win(texture_manager)?
+            }
+            Screen::Loss => { //render loss screen
+                renderer.render_loss(texture_manager)?
             }
         }
 
@@ -200,25 +208,25 @@ impl State {
 
     pub fn process_events(&mut self, font_man: &FontManager) {
         while let Some(event) = self.events.pop() {
-            let mut TEST_BATTLE: Battle = Battle {
-                player_strays: [
-                    Some(Stray::palliub()), 
-                    Some(Stray::cespae()), 
-                    None, 
-                    Some(Stray::catis())
-                ],
-                opponent_strays: [
-                    Some(Stray::carerus()), 
-                    None, 
-                    Some(Stray::rubridum()), 
-                    Some(Stray::omikae())
-                ],
-            };
             match event {
                 Event::PlayerMoved(pos) => {
                     if self.map.check_encounter(pos)
                         && self.rng.gen::<f32>() <= RANDOM_ENCOUNTER_CHANCE
                     {
+                        let mut TEST_BATTLE: Battle = Battle {
+                            player_strays: [
+                                Some(Stray::palliub()), 
+                                Some(Stray::cespae()), 
+                                None, 
+                                Some(Stray::catis())
+                            ],
+                            opponent_strays: [
+                                Some(Stray::carerus()), 
+                                None, 
+                                Some(Stray::rubridum()), 
+                                Some(Stray::omikae())
+                            ],
+                        };
                         self.screen = Screen::Battle(TEST_BATTLE).clone();
                         self.menus.open_menu(MovesMenu::new().into());
                     }
