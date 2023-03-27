@@ -11,9 +11,9 @@ pub struct MovesMenu {
 
 impl MovesMenu {
     pub fn new() -> MovesMenu {
-        let moves = vec![
-            
-        ];
+        //let moves = vec![
+
+        //];
         MovesMenu { selected: 0 } //selected will indicate the selected move as 0 (top left), 1 (top right), 2 (bottom right), or 3 (bottom left)
     }
 }
