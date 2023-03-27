@@ -2,6 +2,7 @@ use hecs::World;
 
 use crate::font_manager::FontManager;
 use crate::render::PIXELS_X;
+use crate::gamestate::event::Event;
 
 use super::menu_events::{MenuCommand, MenuInput};
 use super::MenuItem;
@@ -22,7 +23,7 @@ impl Textbox {
 }
 
 impl MenuItem for Textbox {
-    fn update(&mut self, action: MenuInput, _: &mut World) -> Option<MenuCommand> {
+    fn update(&mut self, action: MenuInput, _: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         match action {
             MenuInput::Accept | MenuInput::Reject => {
                 if self.advance_text() {

@@ -1,6 +1,8 @@
 use super::menu_events::MenuCommand;
 use super::{MenuInput, MenuItem};
 
+use crate::gamestate::event::Event;
+
 #[derive(PartialEq, Default)]
 pub enum MainMenuButton {
     #[default]
@@ -24,7 +26,7 @@ use hecs::World;
 use MainMenuButton::*;
 
 impl MenuItem for MainMenu {
-    fn update(&mut self, action: MenuInput, _: &mut World) -> Option<MenuCommand> {
+    fn update(&mut self, action: MenuInput, _: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         match action {
             MenuInput::Accept => {
                 if self.curr_button == Start {

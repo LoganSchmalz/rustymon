@@ -1,6 +1,7 @@
 use hecs::World;
 
 use crate::components::{bag::Bag, Player};
+use crate::gamestate::event::Event;
 
 use super::{
     menu_events::{MenuCommand, MenuInput},
@@ -27,7 +28,7 @@ impl PauseMenu {
 }
 
 impl MenuItem for PauseMenu {
-    fn update(&mut self, action: MenuInput, world: &mut World) -> Option<MenuCommand> {
+    fn update(&mut self, action: MenuInput, world: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         match action {
             MenuInput::Down => {
                 self.selected = if self.selected < self.items.len() - 1 {

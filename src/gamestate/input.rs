@@ -99,25 +99,25 @@ impl State {
 
         if self.input[Menu] == Pressed {
             self.menus
-                .interact(MenuInput::Start, &mut self.world, font_manager)
+                .interact(MenuInput::Start, &mut self.world, font_manager, &mut self.events)
         } else if self.input[Interact1] == Pressed {
             self.menus
-                .interact(MenuInput::Accept, &mut self.world, font_manager)
+                .interact(MenuInput::Accept, &mut self.world, font_manager, &mut self.events)
         } else if self.input[Interact2] == Pressed {
             self.menus
-                .interact(MenuInput::Reject, &mut self.world, font_manager)
+                .interact(MenuInput::Reject, &mut self.world, font_manager, &mut self.events)
         } else if self.input[Left] == Pressed {
             self.menus
-                .interact(MenuInput::Left, &mut self.world, font_manager)
+                .interact(MenuInput::Left, &mut self.world, font_manager, &mut self.events)
         } else if self.input[Right] == Pressed {
             self.menus
-                .interact(MenuInput::Right, &mut self.world, font_manager)
+                .interact(MenuInput::Right, &mut self.world, font_manager, &mut self.events)
         } else if self.input[Up] == Pressed {
             self.menus
-                .interact(MenuInput::Up, &mut self.world, font_manager)
+                .interact(MenuInput::Up, &mut self.world, font_manager, &mut self.events)
         } else if self.input[Down] == Pressed {
             self.menus
-                .interact(MenuInput::Down, &mut self.world, font_manager)
+                .interact(MenuInput::Down, &mut self.world, font_manager, &mut self.events)
         } else {
             false
         }

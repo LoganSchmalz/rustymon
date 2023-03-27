@@ -8,6 +8,7 @@ pub mod moves_menu;
 use hecs::World;
 
 use crate::font_manager::FontManager;
+use crate::gamestate::event::Event;
 
 use self::bag_menu::BagMenu;
 use self::main_menu::MainMenu;
@@ -18,7 +19,7 @@ use self::moves_menu::MovesMenu;
 
 #[enum_delegate::register]
 pub trait MenuItem {
-    fn update(&mut self, action: MenuInput, world: &mut World) -> Option<MenuCommand>;
+    fn update(&mut self, action: MenuInput, world: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand>;
 }
 
 #[enum_delegate::implement(MenuItem)]
@@ -81,6 +82,7 @@ impl MenuManager {
         action: MenuInput,
         world: &mut World,
         font_manager: &FontManager,
+        events: &mut Vec<Event>,
     ) -> bool {
         if self.is_open() {
             let curr_menu = self
@@ -88,7 +90,7 @@ impl MenuManager {
                 .last_mut()
                 .expect("Tried to change menu with no menus open");
 
-            if let Some(command) = curr_menu.update(action, world) {
+            if let Some(command) = curr_menu.update(action, world, events) {
                 self.process_command(command, world, font_manager);
             }
         } else if action == MenuInput::Start {
