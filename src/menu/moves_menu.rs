@@ -13,7 +13,7 @@ pub struct MovesMenu {
 
 impl MovesMenu {
     pub fn new() -> MovesMenu {
-        let moves = [Some(Move::wave()), Some(Move::peck()), None, None]; //currently hardcoding the moves, will change later
+        let moves = [Some(Move::wave()), Some(Move::peck()), Some(Move::slice()), Some(Move::screech())]; //currently hardcoding the moves, will change later
         MovesMenu { moves, selected: 0 } //selected will indicate the selected move as 0 (top left), 1 (top right), 2 (bottom right), or 3 (bottom left)
     }
 }
