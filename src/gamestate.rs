@@ -258,7 +258,9 @@ impl State {
                         moving.try_moving = MovingState::Moving(path.direction());
                     }
                 }
-                Event::BattleAttack(_) => todo!(),
+                Event::BattleAttack(selection) => {
+                    println!("{:?}", selection);
+                }           
             }
         }
     }

@@ -1,6 +1,6 @@
 use std::{clone::Clone};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Type {
     //enum for identifying the types of certain moves and strays
     Zen,
@@ -28,7 +28,7 @@ pub enum StrayName {
     Solikigoi,
 }
 
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub struct Move {
     //struct defining everything contained within a given move, using the type enum to define the type of the move
     pub name: String,
