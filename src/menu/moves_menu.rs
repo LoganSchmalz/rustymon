@@ -1,5 +1,6 @@
 use hecs::World;
 use crate::components::stray::Move;
+use crate::gamestate::event::Event;
 
 use super::{
     menu_events::{MenuCommand, MenuInput},
@@ -19,7 +20,7 @@ impl MovesMenu {
 }
 
 impl MenuItem for MovesMenu {
-    fn update(&mut self, action: MenuInput, world: &mut World) -> Option<MenuCommand> {
+    fn update(&mut self, action: MenuInput, world: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         let length = 4; //currently hardcoding length (the number of possible selections) as 4, may need to change to allow for less than 4 moves
         match action{ //check the user input to decide whether to activate a move or to scroll through moves
             MenuInput::Up => { //if user activates up input
@@ -40,6 +41,9 @@ impl MenuItem for MovesMenu {
             }
             MenuInput::Accept => { //if user activates accept input
                 //activate that move
+                if let Some(selection) = &self.moves[self.selected] {
+                    events.push(Event::BattleAttack(selection.clone()));
+                }
             }
             _ => {}
         }

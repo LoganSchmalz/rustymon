@@ -22,7 +22,7 @@ use self::{
     input::{Control, KeyState},
 };
 
-mod event;
+pub mod event;
 mod input;
 mod updates;
 
@@ -253,6 +253,7 @@ impl State {
                         moving.try_moving = MovingState::Moving(path.direction());
                     }
                 }
+                Event::BattleAttack(_) => todo!(),
             }
         }
     }

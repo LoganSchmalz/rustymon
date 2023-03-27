@@ -1,6 +1,7 @@
 use hecs::{Entity, World};
 
 use crate::components::bag::Bag;
+use crate::gamestate::event::Event;
 
 use super::{
     menu_events::{MenuCommand, MenuInput},
@@ -22,7 +23,7 @@ impl BagMenu {
 }
 
 impl MenuItem for BagMenu {
-    fn update(&mut self, action: MenuInput, world: &mut World) -> Option<MenuCommand> {
+    fn update(&mut self, action: MenuInput, world: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         let length = if let Ok(bag) = world.query_one_mut::<&Bag>(self.entity) {
             bag.items.len()
         } else {
