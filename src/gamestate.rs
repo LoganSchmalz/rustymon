@@ -202,6 +202,7 @@ impl State {
             self.update_collisions();
             self.update_animations(delta_time);
             self.process_events(font_manager);
+            self.update_screen(delta_time); //
         }
         Ok(())
     }

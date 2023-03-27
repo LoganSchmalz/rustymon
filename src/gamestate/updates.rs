@@ -21,6 +21,8 @@ impl State {
         }
     }
 
+    pub fn update_animations(&mut self, delta_time: f32) {}
+
     pub fn update_collisions(&mut self) {
         let mut collision_query = self
             .world
