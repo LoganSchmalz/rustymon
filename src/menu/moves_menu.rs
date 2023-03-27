@@ -32,11 +32,11 @@ impl MenuItem for MovesMenu {
                 println!("MOVED RIGHT IN MENU");
             }
             MenuInput::Down => { //if user activates down input
-                self.selected = ((self.selected as i8 - 2) as i8 % 4) as usize;
+                self.selected = ((self.selected as i8 - 2 + 4) % 4) as usize;
                 println!("MOVED DOWN IN MENU");
             }
             MenuInput::Left => { //if user activates left input
-                self.selected = ((self.selected as i8 - 1) % 4) as usize;
+                self.selected = ((self.selected as i8 - 1 + 4) % 4) as usize;
                 println!("MOVED LEFT IN MENU");
             }
             MenuInput::Accept => { //if user activates accept input
