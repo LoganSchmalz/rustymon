@@ -30,7 +30,7 @@ impl Renderer {
         map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
     ) -> Result<bool, String> {
-        self.canvas.set_draw_color(Color::RGB(255, 255, 255));
+        self.canvas.set_draw_color(Color::RGB(39, 45, 46));
         self.canvas.clear();
 
         self.update_camera(world)?;
