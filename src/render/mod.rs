@@ -153,8 +153,7 @@ impl Renderer {
     pub fn render_transition(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
-        delta_time: &f32,
-        map: &mut tilemap::TileMap,
+        delta_time: f32,
     ) -> Result<bool, String> {
         if self.is_fading {
             let fade_texture = texture_manager.load("assets/transitions/gooWipe.png")?;
@@ -175,17 +174,17 @@ impl Renderer {
                     > FADE_FRAMES / 2
                     && !self.did_trans
                 {
-                    match map.id {
-                        /*0 => {
+                    /*match map.id {
+                        0 => {
                             *map = TileMap::load(1);
                             obj_man.load_objects(Path::new("maps/map1/"));
                         }
                         1 => {
                             *map = TileMap::load(0);
                             obj_man.load_objects(Path::new("maps/map0"));
-                        }*/
+                        }
                         _ => panic!("Trying to load map that doesn't exist"),
-                    }
+                    }*/
                     return Ok(true);
                 }
             }

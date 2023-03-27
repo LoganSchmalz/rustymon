@@ -10,6 +10,7 @@ impl Renderer {
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
         font_manager: &FontManager,
+        delta_time: f32,
         battle: &Battle,
         menu_man: &mut menu::MenuManager,
         world: &World,
@@ -138,6 +139,9 @@ impl Renderer {
             }
         }
         self.render_menus(world, texture_manager, font_manager, menu_man)?; //render menu (either moves menu or enemy selection)
+        if self.is_fading {
+            self.render_transition(texture_manager, delta_time);
+        }
         self.canvas.present();
         Ok(())
     }

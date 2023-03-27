@@ -1,4 +1,4 @@
-use std::{collections::HashMap, clone::Clone};
+use std::{clone::Clone, collections::HashMap};
 
 use hecs::{CommandBuffer, Entity, World};
 use rand::{distributions::Uniform, rngs::ThreadRng, Rng};
@@ -7,10 +7,10 @@ use sdl2::{rect::Rect, video::WindowContext};
 use enum_map::EnumMap;
 
 use crate::{
-    components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, *, stray::*},
+    components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, stray::*, *},
     constants::RANDOM_ENCOUNTER_CHANCE,
     font_manager::FontManager,
-    menu::{main_menu::MainMenu, textbox::Textbox, MenuManager, moves_menu::MovesMenu},
+    menu::{main_menu::MainMenu, moves_menu::MovesMenu, textbox::Textbox, MenuManager},
     render::Renderer,
     resource_manager::TextureManager,
     tilemap::TileMap,
@@ -41,10 +41,9 @@ pub struct Battle {
     pub opponent_strays: [Option<Stray>; 4],
 }
 
-
-
 pub struct State {
     pub screen: Screen,
+    pub next_screen: Screen,
     pub input: EnumMap<Control, KeyState>,
     pub paused: bool,
     pub world: World,
@@ -55,6 +54,7 @@ pub struct State {
     pub player: Entity,
     pub collisions: HashMap<usize, Entity>,
     pub rng: ThreadRng,
+    pub transitioning: bool
 }
 
 impl Default for State {
@@ -133,6 +133,7 @@ impl Default for State {
 
         Self {
             screen: Screen::Overworld,
+            next_screen: Screen::Overworld,
             //screen: Screen::Battle(TEST_BATTLE),
             input: EnumMap::default(),
             paused: true,
@@ -144,6 +145,7 @@ impl Default for State {
             player,
             collisions: HashMap::new(),
             rng: rand::thread_rng(),
+            transitioning: false
         }
     }
 }
@@ -158,15 +160,30 @@ impl State {
         delta_time: f32,
         map: &mut TileMap,
     ) -> Result<(), String> {
+        renderer.is_fading = self.transitioning;
+
         match &self.screen {
             Screen::MainMenu => {}
-            Screen::Overworld => renderer.render_overworld(
+            Screen::Overworld => {
+                let transition_done = renderer.render_overworld(
+                    texture_manager,
+                    font_manager,
+                    delta_time,
+                    &self.world,
+                    map,
+                    &mut self.menus,
+                )?;
+                if transition_done {
+                    self.events.push(Event::TransitionFull);
+                }
+            }
+            Screen::Battle(battle) => renderer.render_battle(
                 texture_manager,
                 font_manager,
                 delta_time,
-                &self.world,
-                map,
+                battle,
                 &mut self.menus,
+                &self.world,
             )?,
             Screen::Battle(battle) => { //render battle screen dynamically
                 renderer.render_battle(texture_manager, font_manager, battle, &mut self.menus, &self.world)?
@@ -178,6 +195,8 @@ impl State {
                 renderer.render_loss(texture_manager)?
             }
         }
+
+        self.transitioning = renderer.is_fading;
 
         Ok(())
     }
@@ -230,7 +249,26 @@ impl State {
                         };
                         self.screen = Screen::Battle(TEST_BATTLE).clone();
                         self.menus.open_menu(MovesMenu::new().into());
+                        self.next_screen = Screen::Battle(Battle {
+                            player_strays: [
+                                Some(Stray::palliub()),
+                                Some(Stray::cespae()),
+                                None,
+                                Some(Stray::catis()),
+                            ],
+                            opponent_strays: [
+                                Some(Stray::carerus()),
+                                None,
+                                Some(Stray::rubridum()),
+                                Some(Stray::omikae()),
+                            ],
+                        });
+                        self.transitioning = true;
                     }
+                }
+                Event::TransitionFull => {
+                    std::mem::swap(&mut self.screen, &mut self.next_screen);
+                    self.menus.open_menu(MovesMenu::new().into());
                 }
                 Event::NpcMoved(entity) => {
                     let (moving, npc) = self
