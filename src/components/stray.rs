@@ -18,7 +18,7 @@ pub enum Type {
 pub enum StrayName {
     //names of all current strays, this code is currently defunct
     Aeternisc,
-    Bitaxium,
+    Bitaxum,
     Carerus,
     Catis,
     Cespae,
@@ -33,8 +33,46 @@ pub struct Move {
     //struct defining everything contained within a given move, using the type enum to define the type of the move
     pub name: String,
     pub power: i32,
-    pub accuracy: i32,
+    pub accuracy: f32,
     pub m_type: Type,
+}
+
+impl Move {
+    pub fn wave() -> Self {
+        Self { //contructor for all of wave's info
+            name: String::from("Wave"),
+            power: 15,
+            accuracy: 0.8,
+            m_type: Type::Water, 
+        }
+    }
+
+    pub fn slice() -> Self {
+        Self {
+            name: String::from("Slice"),
+            power: 5,
+            accuracy: 1.0,
+            m_type: Type::Water,
+        }
+    }
+
+    pub fn screech() -> Self{
+        Self {
+            name: String::from("Screech"),
+            power: 10,
+            accuracy: 0.9,
+            m_type: Type::Fire,
+        }
+    }
+
+    pub fn peck() -> Self{
+        Self{
+            name: String::from("Peck"),
+            power: 7,
+            accuracy: 0.85,
+            m_type: Type::Fire,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -70,9 +108,9 @@ impl Default for Stray {
 
 impl Stray {
     //constructors for all individual strays in game
-    pub fn bitaxium() -> Self {
-        Self { //contructor for all of bitaxium's info
-            species: String::from("Bitaxium"),
+    pub fn bitaxum() -> Self {
+        Self { //contructor for all of bitaxum's info
+            species: String::from("Bitaxum"),
             s_type: Type::Earth,
             moves: [None, None, None, None],
             hp: 20,
@@ -80,7 +118,7 @@ impl Stray {
             def: 40,
             spd: 10,
             cur_hp: 20,
-            texture: String::from("assets/strays/bitaxium.png")
+            texture: String::from("assets/strays/bitaxum.png")
         }
     }
 
