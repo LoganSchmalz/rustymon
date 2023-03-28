@@ -265,6 +265,132 @@ const floors = [
         "y": 80,
         "hasCollision": false
     },
+    {
+        "name": "PGTL",
+        "id": 38,
+        "x": 208,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "PGT",
+        "id": 39,
+        "x": 224,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "PGTR",
+        "id": 40,
+        "x": 240,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "PGL",
+        "id": 41,
+        "x": 208,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "PATH",
+        "id": 42,
+        "x": 224,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "PGR",
+        "id": 43,
+        "x": 240,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "PGBL",
+        "id": 44,
+        "x": 208,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "PGB",
+        "id": 45,
+        "x": 224,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "PGBR",
+        "id": 46,
+        "x": 240,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "GPTL",
+        "id": 47,
+        "x": 256,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "GPT",
+        "id": 48,
+        "x": 272,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "GPTR",
+        "id": 49,
+        "x": 288,
+        "y": 48,
+        "hasCollision": false
+    },
+    {
+        "name": "GPL",
+        "id": 50,
+        "x": 256,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "GRASSFLAT",
+        "id": 51,
+        "x": 272,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "GPR",
+        "id": 52,
+        "x": 288,
+        "y": 64,
+        "hasCollision": false
+    },
+    {
+        "name": "GPBL",
+        "id": 53,
+        "x": 256,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "GPB",
+        "id": 54,
+        "x": 272,
+        "y": 80,
+        "hasCollision": false
+    },
+    {
+        "name": "GPBR",
+        "id": 55,
+        "x": 288,
+        "y": 80,
+        "hasCollision": false
+    }
 ]
 const walls = [
     {
