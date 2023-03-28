@@ -13,34 +13,28 @@
 </head>
 
 <body>
-    <p>Floor Tiles</p>
-    <div class="swatches" id="floorSwatches">
+    <div class="toolbar">
+        <div class="swatches" id="swatches"></div>
+        <br>
+        <button onclick="expandMap(0)">Add North Row</button>
+        <button onclick="expandMap(1)">Add East Column</button>
+        <button onclick="expandMap(2)">Add South Row</button>
+        <button onclick="expandMap(3)">Add West Column</button>
+        <label>Expand Size: </label>
+        <input type="text" id="expandSize" value="1" placeholder="size">
+        <br>
+        <input type="file" id="file-selector" multiple accept=".txt"> 
+        <button onclick="importMap()">Import</button>
+        <br>
+        <button onclick="exportMap()">Export</button>
+        <br>
+        <input type="checkbox" id="floorCheck" name="floor" value="floor" onclick="showLayer(this.id)" checked />
+        <label for="floor">Floor</label>
+        <input type="checkbox" id="wallCheck" name="walls" value="walls" onclick="showLayer(this.id)" checked />
+        <label for="walls">Walls</label>
+        <input type="checkbox" id="objectCheck" name="objects" value="objects" onclick="showLayer(this.id)" checked />
+        <label for="objects">Objects</label>
     </div>
-    <p>Wall Tiles</p>
-    <div class="swatches" id="wallSwatches">
-    </div>
-    <p>Object Tiles</p>
-    <div class="swatches" id="objectSwatches">
-    </div>
-    <br>
-    <button onclick="expandMap(0)">Add North Row</button>
-    <button onclick="expandMap(1)">Add East Column</button>
-    <button onclick="expandMap(2)">Add South Row</button>
-    <button onclick="expandMap(3)">Add West Column</button>
-    <label>Expand Size: </label>
-    <input type="text" id="expandSize" value="1" placeholder="size">
-    <br>
-    <input type="file" id="file-selector" multiple accept=".txt"> 
-    <button onclick="importMap()">Import</button>
-    <br>
-    <button onclick="exportMap()">Export</button>
-    <br>
-    <input type="checkbox" id="floorCheck" name="floor" value="floor" onclick="showLayer(this.id)" checked />
-    <label for="floor">Floor</label>
-    <input type="checkbox" id="wallCheck" name="walls" value="walls" onclick="showLayer(this.id)" checked />
-    <label for="walls">Walls</label>
-    <input type="checkbox" id="objectCheck" name="objects" value="objects" onclick="showLayer(this.id)" checked />
-    <label for="objects">Objects</label>
     <hr>
     <div>
         <div class="grid" id="gridOverlay"></div>

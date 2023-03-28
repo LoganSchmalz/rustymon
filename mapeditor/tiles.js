@@ -261,7 +261,7 @@ const floors = [
     {
         "name": "GRASSPATH_H",
         "id": 37,
-        "x": 192,
+        "x": 176,
         "y": 80,
         "hasCollision": false
     },
@@ -390,7 +390,7 @@ const floors = [
         "x": 288,
         "y": 80,
         "hasCollision": false
-    }
+    },
 ]
 const walls = [
     {
@@ -417,7 +417,7 @@ const walls = [
     {
         "name": "WOOD",
         "id": 3,
-        "x": 134,
+        "x": 144,
         "y": 0,
         "hasCollision": true
     },
@@ -671,6 +671,13 @@ const walls = [
         "id": 39,
         "x": 368,
         "y": 32,
+        "hasCollision": true
+    },
+    {
+        "name": "DOOR",
+        "id": 40,
+        "x": 96,
+        "y": 0,
         "hasCollision": true
     },
 ]

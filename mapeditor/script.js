@@ -3,6 +3,7 @@ const BRUSH_SCALE = 3;
 var SELECTED_TILE = floors[1];
 var WIDTH = 44;
 var HEIGHT = 34;
+var TILEMAP_SIZE = 512;
 
 // initialize map object:
 var map = {
@@ -42,30 +43,61 @@ function showLayer(layer) {
 
 window.onload = function () {
     // load the swatches grids once on load time
+
+    //generate an empty grid of swatches of appropriate size
+    for(var y = 0; y < TILEMAP_SIZE; y += 16){
+        for(var x = 0; x < TILEMAP_SIZE; x += 16){
+            document.getElementById("swatches")
+            .insertAdjacentHTML('beforeend', `<div class='empty' id="${x}_${y}"></div>`)
+            document.getElementById(`${x}_${y}`).style.backgroundPosition = `0px 0px`
+        }
+    }
+
     for (f of floors) {
-        document.getElementById("floorSwatches")
-        .insertAdjacentHTML('beforeend', `<div class='floor' id="floor_${f.id}" onclick='selectSwatch(this.id)'></div>`)
-        document.getElementById(`floor_${f.id}`).style.backgroundPosition = `${f.x * BRUSH_SCALE * -1}px ${f.y * BRUSH_SCALE * -1}px`
+        document.getElementById(`${f.x}_${f.y}`).style.backgroundPosition = `${f.x * BRUSH_SCALE * -1}px ${f.y * BRUSH_SCALE * -1}px`
+        document.getElementById(`${f.x}_${f.y}`).className = "floor"
+        document.getElementById(`${f.x}_${f.y}`).onclick = function() {
+            var pos = this.id.split('_');
+            selectSwatch(pos[0], pos[1]);
+        }
     }
+
     for (w of walls) {
-        document.getElementById("wallSwatches")
-        .insertAdjacentHTML('beforeend', `<div class='wall' id="wall_${w.id}" onclick='selectSwatch(this.id)'></div>`)
-        document.getElementById(`wall_${w.id}`).style.backgroundPosition = `${w.x * BRUSH_SCALE * -1}px ${w.y * BRUSH_SCALE * -1}px`
+        document.getElementById(`${w.x}_${w.y}`).style.backgroundPosition = `${w.x * BRUSH_SCALE * -1}px ${w.y * BRUSH_SCALE * -1}px`
+        document.getElementById(`${w.x}_${w.y}`).className = "wall"
+        document.getElementById(`${w.x}_${w.y}`).onclick = function() {
+            var pos = this.id.split('_');
+            selectSwatch(pos[0], pos[1]);
+        }
     }
+
     for (o of objects) {
-        document.getElementById("objectSwatches")
-        .insertAdjacentHTML('beforeend', `<div class='object' id="object_${o.id}" onclick='selectSwatch(this.id)'></div>`)
-        document.getElementById(`object_${o.id}`).style.backgroundPosition = `${o.x * BRUSH_SCALE * -1}px ${o.y * BRUSH_SCALE * -1}px`
+        document.getElementById(`${o.x}_${o.y}`).style.backgroundPosition = `${o.x * BRUSH_SCALE * -1}px ${o.y * BRUSH_SCALE * -1}px`
+        document.getElementById(`${o.x}_${o.y}`).className = "object"
+        document.getElementById(`${o.x}_${o.y}`).onclick = function() {
+            var pos = this.id.split('_');
+            selectSwatch(pos[0], pos[1]);
+        }
     }
-    
+    loop1: for(var y = TILEMAP_SIZE-16; y >= 0; y -= 16){
+            for(var x = TILEMAP_SIZE-16; x >= 0; x -= 16){
+                var e = document.getElementById(`${x}_${y}`);
+                if(e.className != "empty") {
+                    break loop1;
+                } else {
+                    e.remove();
+                }
+            }
+        }
+
     // initial redraw of the map
     redrawMap();
 }
 
-function selectSwatch(id) {
-    i = id.split('_');
-    SELECTED_TILE = i[0] == 'floor' ? floors[i[1]] : i[0] == 'wall' ? walls[i[1]] : objects[i[1]];
-    document.getElementById(id).selected = true;
+function selectSwatch(x, y) {
+    t = floors.find(p => p.x == x && p.y == y) || walls.find(p => p.x == x && p.y == y) || objects.find(p => p.x == x && p.y == y)
+    SELECTED_TILE = t;
+    console.log(t);
     console.log("Selected swatch: " + SELECTED_TILE.name)
 }
 
@@ -82,8 +114,8 @@ function exportMap() {
     for (var i = 0; i < map.h; i++) {
         for (var j = 0; j < map.w; j++) {
             // fill each layer string with tile IDs from layer array
-            floorText += j==map.w-1 ? map.layers[0][i][j].id : map.layers[0][i][j].id + ' '
-            wallsText += j==map.w-1 ? map.layers[1][i][j].id : map.layers[1][i][j].id + ' '
+            floorText += j==map.w-1 ? floors.indexOf(map.layers[0][i][j]) : floors.indexOf(map.layers[0][i][j]) + ' '
+            wallsText += j==map.w-1 ? walls.indexOf(map.layers[1][i][j]) : walls.indexOf(map.layers[1][i][j]) + ' '
             
             // check if a cell is collidable on any of the three layers
             c = map.layers[0][i][j].hasCollision
@@ -133,11 +165,12 @@ async function importMap() {
 
     processFiles(floor, wall).then((res) => {
         console.log(res);
-        WIDTH = res[0][0].length; 
+        WIDTH = res[0][0].length;
         HEIGHT = res[0].length;
         map.w = WIDTH;
         map.h = HEIGHT;
         map.layers = res;
+        console.log(WIDTH,HEIGHT)
         redrawMap();
     })
 }
