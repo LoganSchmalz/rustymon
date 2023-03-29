@@ -269,15 +269,28 @@ impl State {
                     }
                 }
                 Event::BattleAttack(selection) => {
-                    println!("{:?}", selection);
-                    if let Screen::Battle(b) = &mut self.screen {
-                        b.selected_move = Some(selection);
-                        b.battle_state = BattleState::SelectingOpponentStray;
-                        self.menus.close_menu();
-                        self.menus.open_menu(BattleSelectStray::new().into());
+                    println!("{:?}", selection);    //print the selected move
+                    if let Screen::Battle(b) = &mut self.screen {    //if the current screen is a battle
+                        b.selected_move = Some(selection);  //set the selected move of the battle to be the move we selected to trigger the event
+                        b.battle_state = BattleState::SelectingOpponentStray;   //change battle state to next menu
+                        self.menus.close_menu();    //close move menu
+                        self.menus.open_menu(BattleSelectStray::new().into()); //open opponent selection menu
                     }
                 }
-                Event::AttackStray(_) => todo!(),    
+                Event::AttackStray(idx) => {
+                    if let Screen::Battle(battle) = &mut self.screen {  //if the current screen is a battle
+                        if let Some(stray) = &mut battle.opponent_strays[idx] { //stray = opponent at the index chosen
+                            let rand_int: f32 = self.rng.gen();
+                            let mut damage = 0;
+                            if let Some(mv) = &mut battle.selected_move {
+                                if (rand_int < mv.accuracy) { damage =  mv.power; }
+                            } 
+                            stray.cur_hp = stray.cur_hp - damage;   //subtract hp from selected stray by the amount of damage the move does
+                            self.menus.close_menu();    //close opponent selection menu
+                            self.menus.open_menu(MovesMenu::new().into());  //open moves menu
+                        }
+                    }
+                },    
 
             }
         }
