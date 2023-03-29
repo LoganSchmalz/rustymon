@@ -14,7 +14,7 @@ pub struct BattleSelectStray {
 
 impl BattleSelectStray {
     pub fn new() -> BattleSelectStray {
-        let stray = [Some(String::from("A")), Some(String::from("B")), Some(String::from("C")), Some(String::from("D"))]; //currently hardcoding the moves, will change later
+        let stray = [Some(String::from("Carerus")), Some(String::from(" ")), Some(String::from("Rubridum")), Some(String::from("Omikae"))]; //currently hardcoding the moves, will change later
         BattleSelectStray { stray, selected: 0 } //selected will indicate the selected move as 0 (top left), 1 (top right), 2 (bottom right), or 3 (bottom left)
     }
 }
