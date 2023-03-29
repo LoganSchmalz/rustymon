@@ -208,12 +208,12 @@ impl Renderer {
                     self.fade_anim_time -= delta_time;
                     if self.fade_anim_time <= 0.0 {
                         self.is_fading = false; //end transition
+                        return Ok(true); //return Ok(true) to indicate success
                     } else {
                         let texture = texture_manager.load("assets/backgrounds/winscreen.png")?; //load texture for win screen
                         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //rectangle containing entire screen
                         self.canvas.copy(&texture, None, screen_quad)?; //render win screen texture over whole screen
                     }
-                    return Ok(true); //return Ok(true) to indicate success
                 }
                 Ok(false) //return Ok(false) to indicate mishap in the code
             },
@@ -221,12 +221,12 @@ impl Renderer {
                 if self.is_fading {
                     if self.fade_anim_time <= 0.0 {
                         self.is_fading = false; //end transition
+                        return Ok(true); //return Ok(true) to indicate success
                     } else {
                         let texture = texture_manager.load("assets/backgrounds/lossscreen.png")?; //load texture for loss screen
                         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //rectangle containing entire screen
                         self.canvas.copy(&texture, None, screen_quad)?; //render loss screen texture over whole screen
                     }
-                    return Ok(true); //return Ok(true) to indicate success
                 }
                 Ok(false) //return Ok(false) to indicate mishap in the code
             },

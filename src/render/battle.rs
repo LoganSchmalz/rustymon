@@ -14,7 +14,7 @@ impl Renderer {
         battle: &Battle,
         menu_man: &mut menu::MenuManager,
         world: &World,
-    ) -> Result<(), String> {
+    ) -> Result<bool, String> {
         //self.canvas.set_draw_color(Color::RGB(255, 255, 255));
         //self.canvas.clear();
         let background = texture_manager.load("assets/backgrounds/battlebg.png")?;
@@ -138,11 +138,11 @@ impl Renderer {
             }
         }
         self.render_menus(world, texture_manager, font_manager, menu_man)?; //render menu (either moves menu or enemy selection)
-        if self.is_fading {
-            self.render_transition(texture_manager, delta_time, self.trans);
-        }
+        let did_trans = if self.is_fading {
+            self.render_transition(texture_manager, delta_time, self.trans)?
+        } else { false };
         self.canvas.present();
-        Ok(())
+        Ok(did_trans)
     }
 
     pub fn render_win(

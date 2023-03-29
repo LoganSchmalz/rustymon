@@ -190,19 +190,26 @@ impl State {
                     map,
                     &mut self.menus,
                 )?;
-                if transition_done {
+                if self.transitioning && transition_done {
                     self.events.push(Event::TransitionFull);
+                    self.transitioning = false;
                 }
             }
-            Screen::Battle(battle) => renderer.render_battle(
-                //render battle screen dynamically
-                texture_manager,
-                font_manager,
-                delta_time,
-                battle,
-                &mut self.menus,
-                &self.world,
-            )?,
+            Screen::Battle(battle) => {
+                let transition_done = renderer.render_battle(
+                    //render battle screen dynamically
+                    texture_manager,
+                    font_manager,
+                    delta_time,
+                    battle,
+                    &mut self.menus,
+                    &self.world,
+                )?;
+                if self.transitioning && transition_done {
+                    self.events.push(Event::TransitionFull);
+                    self.transitioning = false;
+                }
+            }
         }
 
         self.transitioning = renderer.is_fading;
@@ -263,7 +270,10 @@ impl State {
                 }
                 Event::TransitionFull => {
                     std::mem::swap(&mut self.screen, &mut self.next_screen);
+                    if matches!(self.screen, Screen::Battle(_)) {
                     self.menus.open_menu(MovesMenu::new().into());
+                    }
+                    self.transitioning = false;
                 }
                 Event::NpcMoved(entity) => {
                     let (moving, npc) = self
@@ -294,7 +304,7 @@ impl State {
                             let rand_int: f32 = self.rng.gen();
                             let mut damage = 0;
                             if let Some(mv) = &mut battle.selected_move {
-                                if (rand_int < mv.accuracy) {
+                                if rand_int < mv.accuracy {
                                     damage = mv.power;
                                 }
                             }
@@ -305,9 +315,11 @@ impl State {
                                 battle.opponent_strays[idx] = None;
                             }
                         }
+                        dbg!(&battle.opponent_strays);
                         if battle.opponent_strays.iter().all(|x| x.is_none()) {
                             self.menus.close_menu();
-                            std::mem::swap(&mut self.screen, &mut self.next_screen);
+                            self.trans = Transition::Win;
+                            self.transitioning = true;
                         }
                     }
                 }

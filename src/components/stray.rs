@@ -75,7 +75,7 @@ impl Move {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Stray {
     //stray data structure, containing mutable list of up to 4 available moves, 
     pub species: String, //species of stray
