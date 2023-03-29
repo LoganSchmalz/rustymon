@@ -10,7 +10,13 @@ use crate::{
     components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, stray::*, *},
     constants::RANDOM_ENCOUNTER_CHANCE,
     font_manager::FontManager,
-    menu::{main_menu::MainMenu, moves_menu::MovesMenu, textbox::Textbox, MenuManager, battle_select_stray::{self, BattleSelectStray}},
+    menu::{
+        battle_select_stray::{self, BattleSelectStray},
+        main_menu::MainMenu,
+        moves_menu::MovesMenu,
+        textbox::Textbox,
+        MenuManager,
+    },
     render::{Renderer, Transition},
     resource_manager::TextureManager,
     tilemap::TileMap,
@@ -43,7 +49,8 @@ pub struct Battle {
 
 #[derive(Clone, Default)]
 pub enum BattleState {
-    #[default] SelectingMove, 
+    #[default]
+    SelectingMove,
     SelectingOpponentStray,
     SelectingFriendlyStray,
 }
@@ -187,7 +194,8 @@ impl State {
                     self.events.push(Event::TransitionFull);
                 }
             }
-            Screen::Battle(battle) => renderer.render_battle( //render battle screen dynamically
+            Screen::Battle(battle) => renderer.render_battle(
+                //render battle screen dynamically
                 texture_manager,
                 font_manager,
                 delta_time,
@@ -269,29 +277,40 @@ impl State {
                     }
                 }
                 Event::BattleAttack(selection) => {
-                    println!("{:?}", selection);    //print the selected move
-                    if let Screen::Battle(b) = &mut self.screen {    //if the current screen is a battle
-                        b.selected_move = Some(selection);  //set the selected move of the battle to be the move we selected to trigger the event
-                        b.battle_state = BattleState::SelectingOpponentStray;   //change battle state to next menu
-                        self.menus.close_menu();    //close move menu
+                    println!("{:?}", selection); //print the selected move
+                    if let Screen::Battle(b) = &mut self.screen {
+                        //if the current screen is a battle
+                        b.selected_move = Some(selection); //set the selected move of the battle to be the move we selected to trigger the event
+                        b.battle_state = BattleState::SelectingOpponentStray; //change battle state to next menu
+                        self.menus.close_menu(); //close move menu
                         self.menus.open_menu(BattleSelectStray::new().into()); //open opponent selection menu
                     }
                 }
                 Event::AttackStray(idx) => {
-                    if let Screen::Battle(battle) = &mut self.screen {  //if the current screen is a battle
-                        if let Some(stray) = &mut battle.opponent_strays[idx] { //stray = opponent at the index chosen
+                    if let Screen::Battle(battle) = &mut self.screen {
+                        //if the current screen is a battle
+                        if let Some(stray) = &mut battle.opponent_strays[idx] {
+                            //stray = opponent at the index chosen
                             let rand_int: f32 = self.rng.gen();
                             let mut damage = 0;
                             if let Some(mv) = &mut battle.selected_move {
-                                if (rand_int < mv.accuracy) { damage =  mv.power; }
-                            } 
-                            stray.cur_hp = stray.cur_hp - damage;   //subtract hp from selected stray by the amount of damage the move does
-                            self.menus.close_menu();    //close opponent selection menu
-                            self.menus.open_menu(MovesMenu::new().into());  //open moves menu
+                                if (rand_int < mv.accuracy) {
+                                    damage = mv.power;
+                                }
+                            }
+                            stray.cur_hp = stray.cur_hp - damage; //subtract hp from selected stray by the amount of damage the move does
+                            self.menus.close_menu(); //close opponent selection menu
+                            self.menus.open_menu(MovesMenu::new().into()); //open moves menu
+                            if stray.cur_hp <= 0 {
+                                battle.opponent_strays[idx] = None;
+                            }
+                        }
+                        if battle.opponent_strays.iter().all(|x| x.is_none()) {
+                            self.menus.close_menu();
+                            std::mem::swap(&mut self.screen, &mut self.next_screen);
                         }
                     }
-                },    
-
+                }
             }
         }
     }
