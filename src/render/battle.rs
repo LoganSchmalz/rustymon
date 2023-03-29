@@ -91,7 +91,7 @@ impl Renderer {
                 );
                 self.canvas.copy(&name, None, name_rect)?;
 
-                if stray_data.hp > 0 {
+                if stray_data.cur_hp > 0 {
                     let health_rect = Rect::new(
                         (PIXELS_X - healthbars.query().width) as i32 + 3,
                         (PIXELS_Y - healthbars.query().height) as i32 + 13 + 15 * index as i32,
@@ -124,7 +124,7 @@ impl Renderer {
                 );
                 self.canvas.copy(&name, None, name_rect)?;
 
-                if stray_data.hp > 0 {
+                if stray_data.cur_hp > 0 {
                     let health_rect = Rect::new(
                         0 as i32 + 3,
                         0 as i32 + 13 + 15 * index as i32,
