@@ -7,5 +7,6 @@ pub enum Event {
     PlayerMoved(Vec2),
     NpcMoved(Entity),
     BattleAttack(Move),
+    AttackStray(usize),
     TransitionFull,
 }

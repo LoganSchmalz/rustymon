@@ -257,6 +257,9 @@ impl Renderer {
                 menu::Menu::MovesMenu(menu) => {
                     self.render_moves_menu(menu, texture_manager, font_man)?
                 }
+                menu::Menu::BattleSelectStray(menu) => {
+                    self.render_battle_select_stray_menu(menu, texture_manager, font_man)?
+                }
             }
         }
 

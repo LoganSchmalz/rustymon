@@ -11,7 +11,6 @@ mod vec2;
 use crate::{gamestate::State, resource_manager::TextureManager};
 
 extern crate sdl2;
-
 extern crate enum_map;
 
 #[macro_use]

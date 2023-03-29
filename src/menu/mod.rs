@@ -4,6 +4,7 @@ pub mod menu_events;
 pub mod pause_menu;
 pub mod textbox;
 pub mod moves_menu;
+pub mod battle_select_stray;
 
 use hecs::World;
 
@@ -16,6 +17,7 @@ use self::menu_events::{MenuCommand, MenuInput};
 use self::pause_menu::PauseMenu;
 use self::textbox::Textbox;
 use self::moves_menu::MovesMenu;
+use self::battle_select_stray::BattleSelectStray;
 
 #[enum_delegate::register]
 pub trait MenuItem {
@@ -29,6 +31,7 @@ pub enum Menu {
     PauseMenu(PauseMenu),
     BagMenu(BagMenu),
     MovesMenu(MovesMenu),
+    BattleSelectStray(BattleSelectStray),
 }
 
 pub struct MenuManager {

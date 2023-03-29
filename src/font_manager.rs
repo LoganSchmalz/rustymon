@@ -37,7 +37,7 @@ impl<'ttf_module, 'rwops> FontManager<'ttf_module, 'rwops> {
         let punc = Regex::new("[.?\n \t!,:;]").unwrap();
 
         let mut ret: Vec<String> = vec![];
-        //let pad_y = 10 as u32;
+        //let pad_y = 10 as u32;w
         let pad_x = 10u32;
 
         let line_w = box_w - pad_x * 2;

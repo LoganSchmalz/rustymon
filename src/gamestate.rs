@@ -10,9 +10,8 @@ use crate::{
     components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, stray::*, *},
     constants::RANDOM_ENCOUNTER_CHANCE,
     font_manager::FontManager,
-    menu::{main_menu::MainMenu, moves_menu::MovesMenu, textbox::Textbox, MenuManager},
+    menu::{main_menu::MainMenu, moves_menu::MovesMenu, textbox::Textbox, MenuManager, battle_select_stray::{self, BattleSelectStray}},
     render::{Renderer, Transition},
-
     resource_manager::TextureManager,
     tilemap::TileMap,
     vec2::{Direction, Vec2},
@@ -38,6 +37,15 @@ pub enum Screen {
 pub struct Battle {
     pub player_strays: [Option<Stray>; 4],
     pub opponent_strays: [Option<Stray>; 4],
+    pub selected_move: Option<Move>,
+    pub battle_state: BattleState,
+}
+
+#[derive(Clone, Default)]
+pub enum BattleState {
+    #[default] SelectingMove, 
+    SelectingOpponentStray,
+    SelectingFriendlyStray,
 }
 
 pub struct State {
@@ -238,6 +246,8 @@ impl State {
                                 Some(Stray::rubridum()),
                                 Some(Stray::omikae()),
                             ],
+                            selected_move: None,
+                            battle_state: BattleState::SelectingMove,
                         });
                         self.trans = Transition::Fade;
                         self.transitioning = true;
@@ -260,7 +270,15 @@ impl State {
                 }
                 Event::BattleAttack(selection) => {
                     println!("{:?}", selection);
-                }           
+                    if let Screen::Battle(b) = &mut self.screen {
+                        b.selected_move = Some(selection);
+                        b.battle_state = BattleState::SelectingOpponentStray;
+                        self.menus.close_menu();
+                        self.menus.open_menu(BattleSelectStray::new().into());
+                    }
+                }
+                Event::AttackStray(_) => todo!(),    
+
             }
         }
     }
