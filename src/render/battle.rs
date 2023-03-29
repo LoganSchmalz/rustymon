@@ -1,7 +1,7 @@
-use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 use hecs::World;
+use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 
-use crate::{font_manager::FontManager, gamestate::Battle, resource_manager::TextureManager, menu};
+use crate::{font_manager::FontManager, gamestate::Battle, menu, resource_manager::TextureManager};
 
 use super::{Renderer, Transition, PIXELS_X, PIXELS_Y};
 
@@ -26,14 +26,14 @@ impl Renderer {
                 let dst = Rect::new(
                     20 * index as i32,
                     70 + 10 * index as i32,
-                    texture.query().width/2,
+                    texture.query().width / 2,
                     texture.query().height,
                 );
                 let slice = Rect::new(
-                    (texture.query().width/2) as i32,
+                    (texture.query().width / 2) as i32,
                     0,
-                    texture.query().width/2,
-                    texture.query().height
+                    texture.query().width / 2,
+                    texture.query().height,
                 );
                 self.canvas.copy(&texture, slice, dst)?;
             }
@@ -45,15 +45,10 @@ impl Renderer {
                 let dst = Rect::new(
                     130 + 20 * index as i32,
                     10 + 10 * index as i32,
-                    texture.query().width/2,
+                    texture.query().width / 2,
                     texture.query().height,
                 );
-                let slice = Rect::new(
-                    0,
-                    0,
-                    texture.query().width/2,
-                    texture.query().height
-                );
+                let slice = Rect::new(0, 0, texture.query().width / 2, texture.query().height);
                 self.canvas.copy(&texture, slice, dst)?;
             }
         }
@@ -96,15 +91,17 @@ impl Renderer {
                 );
                 self.canvas.copy(&name, None, name_rect)?;
 
-                let health_rect = Rect::new(
-                    (PIXELS_X - healthbars.query().width) as i32 + 3,
-                    (PIXELS_Y - healthbars.query().height) as i32 + 13 + 15 * index as i32,
-                    (stray_data.cur_hp as f32 / stray_data.hp as f32  * 90.0).ceil() as u32,
-                    //render health as a fraction of the whole health bar
-                    3,
-                );
-                self.canvas.set_draw_color(Color::RGB(0, 255, 0));
-                self.canvas.fill_rect(health_rect)?;
+                if stray_data.hp > 0 {
+                    let health_rect = Rect::new(
+                        (PIXELS_X - healthbars.query().width) as i32 + 3,
+                        (PIXELS_Y - healthbars.query().height) as i32 + 13 + 15 * index as i32,
+                        (stray_data.cur_hp as f32 / stray_data.hp as f32 * 90.0).ceil() as u32,
+                        //render health as a fraction of the whole health bar
+                        3,
+                    );
+                    self.canvas.set_draw_color(Color::RGB(0, 255, 0));
+                    self.canvas.fill_rect(health_rect)?;
+                }
             }
         }
 
@@ -127,15 +124,17 @@ impl Renderer {
                 );
                 self.canvas.copy(&name, None, name_rect)?;
 
-                let health_rect = Rect::new(
-                    0 as i32 + 3,
-                    0 as i32 + 13 + 15 * index as i32,
-                    (stray_data.cur_hp as f32 / stray_data.hp as f32 * 90.0).ceil() as u32,
-                    //render health as a fraction of the whole health bar
-                    3,
-                );
-                self.canvas.set_draw_color(Color::RGB(0, 255, 0));
-                self.canvas.fill_rect(health_rect)?;
+                if stray_data.hp > 0 {
+                    let health_rect = Rect::new(
+                        0 as i32 + 3,
+                        0 as i32 + 13 + 15 * index as i32,
+                        (stray_data.cur_hp as f32 / stray_data.hp as f32 * 90.0).ceil() as u32,
+                        //render health as a fraction of the whole health bar
+                        3,
+                    );
+                    self.canvas.set_draw_color(Color::RGB(0, 255, 0));
+                    self.canvas.fill_rect(health_rect)?;
+                }
             }
         }
         self.render_menus(world, texture_manager, font_manager, menu_man)?; //render menu (either moves menu or enemy selection)
@@ -146,14 +145,24 @@ impl Renderer {
         Ok(())
     }
 
-    pub fn render_win(&mut self, texture_manager: &mut TextureManager<WindowContext>, delta_time: f32) -> Result<(), String> { //function to render win screen
+    pub fn render_win(
+        &mut self,
+        texture_manager: &mut TextureManager<WindowContext>,
+        delta_time: f32,
+    ) -> Result<(), String> {
+        //function to render win screen
         let background = texture_manager.load("assets/backgrounds/winscreen.png")?;
         self.canvas.copy(&background, None, None)?;
         self.canvas.present();
         Ok(())
     }
 
-    pub fn render_loss(&mut self, texture_manager: &mut TextureManager<WindowContext>, delta_time: f32) -> Result<(), String> { //function to render loss screen
+    pub fn render_loss(
+        &mut self,
+        texture_manager: &mut TextureManager<WindowContext>,
+        delta_time: f32,
+    ) -> Result<(), String> {
+        //function to render loss screen
         let background = texture_manager.load("assets/backgrounds/lossscreen.png")?;
         self.canvas.copy(&background, None, None)?;
         self.canvas.present();
