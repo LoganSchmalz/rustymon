@@ -63,7 +63,7 @@ impl Renderer {
             &healthbars,
             None,
             Rect::new(
-                (PIXELS_X - healthbars.query().width) as i32,
+                (PIXELS_X - healthbars.query().width) as i32 + 6,
                 (PIXELS_Y - healthbars.query().height) as i32,
                 healthbars.query().width,
                 healthbars.query().height,
@@ -85,7 +85,7 @@ impl Renderer {
                     .create_texture_from_surface(name_surface)
                     .map_err(|e| e.to_string())?;
                 let name_rect = Rect::new(
-                    (PIXELS_X - healthbars.query().width) as i32 + 8,
+                    (PIXELS_X - healthbars.query().width) as i32 + 8 + 6,
                     (PIXELS_Y - healthbars.query().height) as i32 + 15 * index as i32,
                     name.query().width,
                     name.query().height,
@@ -101,7 +101,7 @@ impl Renderer {
                         4
                     );
                     let health_rect = Rect::new(
-                        (PIXELS_X - healthbars.query().width) as i32 + 6,
+                        (PIXELS_X - healthbars.query().width) as i32 + 6 + 6,
                         (PIXELS_Y - healthbars.query().height) as i32 + 12 + 15 * index as i32,
                         (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32,
                         //render health as a fraction of the whole health bar
