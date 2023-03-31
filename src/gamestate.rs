@@ -5,6 +5,7 @@ use rand::{distributions::Uniform, rngs::ThreadRng, Rng};
 use sdl2::{rect::Rect, video::WindowContext};
 
 use enum_map::EnumMap;
+use priority_queue::PriorityQueue;
 
 use crate::{
     components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, stray::*, *},
@@ -45,7 +46,26 @@ pub struct Battle {
     pub opponent_strays: [Option<Stray>; 4],
     pub selected_move: Option<Move>,
     pub battle_state: BattleState,
+    pub stray_turns: PriorityQueue<Stray, i32>,
 }
+
+impl Battle {
+    pub fn new(player_strays: [Option<Stray>; 4], opponent_strays: [Option<Stray>; 4]) -> Battle {
+            stray_turns = PriorityQueue::new();
+            for (stray) in player_strays.iter().chain(opponent_strays.iter()) {
+                stray_turns.
+            }
+        
+            Battle {
+                player_strays,
+                opponent_strays,
+                selected_move: None,
+                battle_state: BattleState::SelectingMove,
+                stray_turns,
+            }
+        }
+}
+
 
 #[derive(Clone, Default)]
 pub enum BattleState {
@@ -177,7 +197,7 @@ impl State {
         map: &mut TileMap,
     ) -> Result<(), String> {
         renderer.trans = self.trans;
-        renderer.is_fading = self.transitioning;
+        renderer.transitioning = self.transitioning;
 
         match &self.screen {
             Screen::MainMenu => {}
@@ -212,7 +232,7 @@ impl State {
             }
         }
 
-        self.transitioning = renderer.is_fading;
+        self.transitioning = renderer.transitioning;
 
         Ok(())
     }
@@ -248,22 +268,20 @@ impl State {
                     if self.map.check_encounter(pos)
                         && self.rng.gen::<f32>() <= RANDOM_ENCOUNTER_CHANCE
                     {
-                        self.next_screen = Screen::Battle(Battle {
-                            player_strays: [
+                        self.next_screen = Screen::Battle(Battle::new(
+                            [
                                 Some(Stray::palliub()),
                                 Some(Stray::cespae()),
                                 None,
                                 Some(Stray::catis()),
                             ],
-                            opponent_strays: [
+                            [
                                 Some(Stray::carerus()),
                                 None,
                                 Some(Stray::rubridum()),
                                 Some(Stray::omikae()),
-                            ],
-                            selected_move: None,
-                            battle_state: BattleState::SelectingMove,
-                        });
+                            ]
+                        ));
                         self.trans = Transition::Fade;
                         self.transitioning = true;
                     }
@@ -304,7 +322,7 @@ impl State {
                             let rand_int: f32 = self.rng.gen();
                             let mut damage = 0;
                             if let Some(mv) = &mut battle.selected_move {
-                                if rand_int < mv.accuracy {
+                                if rand_int < (mv.accuracy/100) as f32 {
                                     damage = mv.power;
                                 }
                             }

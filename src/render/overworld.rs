@@ -37,7 +37,7 @@ impl Renderer {
         self.render_overworld_tiles(texture_manager, map)?;
         self.render_entities(world, texture_manager)?;
         self.render_menus(world, texture_manager, font_man, menu_man)?;
-        let transition_done = if self.is_fading {
+        let transition_done = if self.transitioning {
             self.render_transition(texture_manager, delta_time, self.trans)
         } else {
             Ok(false)

@@ -265,7 +265,7 @@ impl Renderer {
                 self.canvas.copy(&texture, None, text_quad)?;
 
                 //text_quad.set_y(text_quad.y + 27 as i32);
-                if (idx % 2 == 0) {
+                if idx % 2 == 0 {
                     text_quad.set_x(text_quad.x + 64 as i32)
                 } else {
                     text_quad.set_x(text_quad.x - 64 as i32);
@@ -311,7 +311,7 @@ impl Renderer {
                 self.canvas.copy(&texture, None, text_quad)?;
 
                 //text_quad.set_y(text_quad.y + 27 as i32);
-                if (idx % 2 == 0) {
+                if idx % 2 == 0 {
                     text_quad.set_x(text_quad.x + 64 as i32)
                 } else {
                     text_quad.set_x(text_quad.x - 64 as i32);

@@ -138,7 +138,7 @@ impl Renderer {
             }
         }
         self.render_menus(world, texture_manager, font_manager, menu_man)?; //render menu (either moves menu or enemy selection)
-        let did_trans = if self.is_fading {
+        let did_trans = if self.transitioning {
             self.render_transition(texture_manager, delta_time, self.trans)?
         } else { false };
         self.canvas.present();

@@ -26,6 +26,7 @@ pub const PIXELS_Y: u32 = 160;
 const FADE_FRAMES: i32 = 14;
 const FADE_TIME: f32 = FADE_FRAMES as f32 * 64.0;
 const _TEXT_TIME: f32 = 500.0;
+const WINLOSS_TIME: f32 = 500.0;
 
 #[derive(PartialEq)]
 pub enum DisplayScreen {
@@ -46,9 +47,9 @@ pub struct Renderer {
     old_window_x: u32,
     old_window_y: u32,
     canvas: Canvas<Window>,
-    pub is_fading: bool,
+    pub transitioning: bool,
     did_trans: bool,
-    fade_anim_time: f32,
+    anim_time: f32,
     camera: Camera,
     floortile_rects: EnumMap<FloorTile, Rect>,
     walltile_rects: EnumMap<WallTile, Rect>,
@@ -149,9 +150,9 @@ impl Renderer {
             old_window_x: PIXELS_X,
             old_window_y: PIXELS_Y,
             canvas,
-            is_fading: false,
+            transitioning: false,
             did_trans: false,
-            fade_anim_time: FADE_TIME,
+            anim_time: FADE_TIME,
             camera: Camera::default(),
             floortile_rects,
             walltile_rects,
@@ -165,23 +166,24 @@ impl Renderer {
         delta_time: f32,
         trans: Transition,
     ) -> Result<bool, String> {
+        println!("{}", self.anim_time);
         match trans {
             Transition::Fade => {
-                if self.is_fading {
+                if self.transitioning {
                     let fade_texture = texture_manager.load("assets/transitions/gooWipe.png")?;
 
-                    self.fade_anim_time -= delta_time;
-                    if self.fade_anim_time <= 0.0 {
-                        self.is_fading = false;
+                    self.anim_time -= delta_time;
+                    if self.anim_time <= 0.0 {
+                        self.transitioning = false;
                     } else {
                         //might be timing issues here (starts at -_delta_time instead of the actual beginning)
                         let curr_fade_frame: i32 = (FADE_FRAMES as f64
-                            * (1.0 - (self.fade_anim_time / FADE_TIME) as f64))
+                            * (1.0 - (self.anim_time / FADE_TIME) as f64))
                             .round() as i32;
                         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
                         let fade_slice = Rect::new(240 * curr_fade_frame, 0, 240, 160);
                         self.canvas.copy(&fade_texture, fade_slice, screen_quad)?;
-                        if (FADE_FRAMES as f64 * (1.0 - (self.fade_anim_time / FADE_TIME) as f64)).round()
+                        if (FADE_FRAMES as f64 * (1.0 - (self.anim_time / FADE_TIME) as f64)).round()
                             as i32
                             > FADE_FRAMES / 2
                             && !self.did_trans
@@ -204,10 +206,10 @@ impl Renderer {
                 Ok(false)
             },
             Transition::Win => { //render win screen for set amount of time
-                if self.is_fading {
-                    self.fade_anim_time -= delta_time;
-                    if self.fade_anim_time <= 0.0 {
-                        self.is_fading = false; //end transition
+                if self.transitioning {
+                    self.anim_time -= delta_time;
+                    if self.anim_time <= 0.0 {
+                        self.transitioning = false; //end transition
                         return Ok(true); //return Ok(true) to indicate success
                     } else {
                         let texture = texture_manager.load("assets/backgrounds/winscreen.png")?; //load texture for win screen
@@ -218,9 +220,9 @@ impl Renderer {
                 Ok(false) //return Ok(false) to indicate mishap in the code
             },
             Transition::Loss => {  //render loss screen for set amount of time
-                if self.is_fading {
-                    if self.fade_anim_time <= 0.0 {
-                        self.is_fading = false; //end transition
+                if self.transitioning {
+                    if self.anim_time <= 0.0 {
+                        self.transitioning = false; //end transition
                         return Ok(true); //return Ok(true) to indicate success
                     } else {
                         let texture = texture_manager.load("assets/backgrounds/lossscreen.png")?; //load texture for loss screen
@@ -266,10 +268,10 @@ impl Renderer {
         Ok(())
     }
 
-    pub fn play_fade(&mut self) {
+    /*pub fn play_fade(&mut self) {
         //TODO LOCK PLAYER WHEN FADE IS PLAYING SO THEY CANT WALK ON WATER
-        self.is_fading = true;
+        self.transitioning = true;
         self.did_trans = false;
-        self.fade_anim_time = FADE_TIME;
-    }
+        self.anim_time = FADE_TIME;
+    }*/
 }

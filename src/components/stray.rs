@@ -1,6 +1,6 @@
 use std::{clone::Clone};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Type {
     //enum for identifying the types of certain moves and strays
     Zen,
@@ -28,12 +28,12 @@ pub enum StrayName {
     Solikigoi,
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone,Debug, PartialEq, Eq, Hash)]
 pub struct Move {
     //struct defining everything contained within a given move, using the type enum to define the type of the move
     pub name: String,
     pub power: i32,
-    pub accuracy: f32,
+    pub accuracy: i32,
     pub m_type: Type,
 }
 
@@ -42,7 +42,7 @@ impl Move {
         Self { //contructor for all of wave's info
             name: String::from("Wave"),
             power: 15,
-            accuracy: 0.8,
+            accuracy: 80,
             m_type: Type::Water, 
         }
     }
@@ -51,7 +51,7 @@ impl Move {
         Self {
             name: String::from("Slice"),
             power: 5,
-            accuracy: 1.0,
+            accuracy: 100,
             m_type: Type::Water,
         }
     }
@@ -60,7 +60,7 @@ impl Move {
         Self {
             name: String::from("Screech"),
             power: 10,
-            accuracy: 0.9,
+            accuracy: 90,
             m_type: Type::Fire,
         }
     }
@@ -69,13 +69,13 @@ impl Move {
         Self{
             name: String::from("Peck"),
             power: 7,
-            accuracy: 0.85,
+            accuracy: 85,
             m_type: Type::Fire,
         }
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Stray {
     //stray data structure, containing mutable list of up to 4 available moves, 
     pub species: String, //species of stray
