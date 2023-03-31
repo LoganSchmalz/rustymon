@@ -71,6 +71,7 @@ impl Renderer {
         )?;
 
         let creator = self.canvas.texture_creator();
+        let healthbar = texture_manager.load("assets/UI/healthbar.png")?;
 
         for (index, stray) in battle.player_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
@@ -92,6 +93,13 @@ impl Renderer {
                 self.canvas.copy(&name, None, name_rect)?;
 
                 if stray_data.cur_hp > 0 {
+                    let health_pixels = (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32;
+                    let health_slice = Rect::new( //cropping the healthbar png based on health percentage
+                        (79 - health_pixels) as i32,
+                        0 as i32,
+                        health_pixels,
+                        4
+                    );
                     let health_rect = Rect::new(
                         (PIXELS_X - healthbars.query().width) as i32 + 6,
                         (PIXELS_Y - healthbars.query().height) as i32 + 12 + 15 * index as i32,
@@ -99,8 +107,8 @@ impl Renderer {
                         //render health as a fraction of the whole health bar
                         4,
                     );
-                    self.canvas.set_draw_color(Color::RGB(112, 133, 101));
-                    self.canvas.fill_rect(health_rect)?;
+                    self.canvas.copy(&healthbar, health_slice, health_rect); //filling the healthbar with the healthbar png
+                    //self.canvas.fill_rect(health_rect)?;
                 }
             }
         }
@@ -125,15 +133,21 @@ impl Renderer {
                 self.canvas.copy(&name, None, name_rect)?;
 
                 if stray_data.cur_hp > 0 {
+                    let health_pixels = (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32;
+                    let health_slice = Rect::new( //cropping the healthbar png based on health percentage
+                        (79 - health_pixels) as i32,
+                        0 as i32,
+                        health_pixels,
+                        4
+                    );
                     let health_rect = Rect::new(
                         0 as i32 + 6,
                         0 as i32 + 12 + 15 * index as i32,
-                        (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32,
+                        health_pixels,
                         //render health as a fraction of the whole health bar
                         4,
                     );
-                    self.canvas.set_draw_color(Color::RGB(112, 133, 101));
-                    self.canvas.fill_rect(health_rect)?;
+                    self.canvas.copy(&healthbar, health_slice, health_rect);
                 }
             }
         }
