@@ -46,22 +46,26 @@ pub struct Battle {
     pub opponent_strays: [Option<Stray>; 4],
     pub selected_move: Option<Move>,
     pub battle_state: BattleState,
-    pub stray_turns: PriorityQueue<Stray, i32>,
+    pub turn_order: PriorityQueue<Stray, i32>,
 }
 
 impl Battle {
     pub fn new(player_strays: [Option<Stray>; 4], opponent_strays: [Option<Stray>; 4]) -> Battle {
-            stray_turns = PriorityQueue::new();
+            let mut turn_order = PriorityQueue::new();
             for (stray) in player_strays.iter().chain(opponent_strays.iter()) {
-                stray_turns.
+                if let Some(stray) = stray {
+                    turn_order.push(stray.clone(), stray.spd);
+                }
             }
+
+            dbg!(turn_order.clone());
         
             Battle {
                 player_strays,
                 opponent_strays,
                 selected_move: None,
                 battle_state: BattleState::SelectingMove,
-                stray_turns,
+                turn_order,
             }
         }
 }
