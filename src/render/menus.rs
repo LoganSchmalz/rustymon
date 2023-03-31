@@ -106,17 +106,18 @@ impl Renderer {
             Rect::new(0, 0, 72, 24)
         };
 
-        /*if menu.curr_button == MainMenuButton::LoadButton {
-            load_button.set_color_mod(223, 3, 67);
+        let load_src = if menu.curr_button == MainMenuButton::Load {
+            Rect::new(0, 18, 16, 18)
         } else {
-            load_button.set_color_mod(255, 255, 255);
-        }
+            Rect::new(0, 0, 16, 18)
+        };
 
-        if menu.curr_button == MainMenuButton::SettingsButton {
-            settings_button.set_color_mod(223, 3, 67);
+        let settings_src = if menu.curr_button == MainMenuButton::Settings {
+            Rect::new(0, 18, 16, 18)
         } else {
-            settings_button.set_color_mod(255, 255, 255);
-        }*/
+            Rect::new(0, 0, 16, 18)
+        };
+
         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
         let start_quad = Rect::new(
             PIXELS_X as i32 / 2 - start_src.width() as i32 / 2,
@@ -124,13 +125,13 @@ impl Renderer {
             start_src.width(),
             start_src.height(),
         );
-        let load_quad = Rect::new(102, 122, 16, 16);
-        let settings_quad = Rect::new(121, 122, 16, 16);
+        let load_quad = Rect::new(102, 122, 16, 18);
+        let settings_quad = Rect::new(121, 122, 16, 18);
 
         self.canvas.copy(&titlescreen, None, screen_quad)?;
         self.canvas.copy(&start_button, start_src, start_quad)?;
-        self.canvas.copy(&load_button, None, load_quad)?;
-        self.canvas.copy(&settings_button, None, settings_quad)?;
+        self.canvas.copy(&load_button, load_src, load_quad)?;
+        self.canvas.copy(&settings_button, settings_src, settings_quad)?;
 
         self.canvas.present();
 
