@@ -78,13 +78,13 @@ impl Renderer {
                     .fonts
                     .munro
                     .render(&stray_data.species)
-                    .blended(Color::RGB(40, 40, 40))
+                    .blended(Color::RGB(31, 27, 24))
                     .map_err(|e| e.to_string())?;
                 let name = creator
                     .create_texture_from_surface(name_surface)
                     .map_err(|e| e.to_string())?;
                 let name_rect = Rect::new(
-                    (PIXELS_X - healthbars.query().width) as i32 + 2,
+                    (PIXELS_X - healthbars.query().width) as i32 + 8,
                     (PIXELS_Y - healthbars.query().height) as i32 + 15 * index as i32,
                     name.query().width,
                     name.query().height,
@@ -93,13 +93,13 @@ impl Renderer {
 
                 if stray_data.cur_hp > 0 {
                     let health_rect = Rect::new(
-                        (PIXELS_X - healthbars.query().width) as i32 + 3,
-                        (PIXELS_Y - healthbars.query().height) as i32 + 13 + 15 * index as i32,
-                        (stray_data.cur_hp as f32 / stray_data.hp as f32 * 90.0).ceil() as u32,
+                        (PIXELS_X - healthbars.query().width) as i32 + 6,
+                        (PIXELS_Y - healthbars.query().height) as i32 + 12 + 15 * index as i32,
+                        (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32,
                         //render health as a fraction of the whole health bar
-                        3,
+                        4,
                     );
-                    self.canvas.set_draw_color(Color::RGB(0, 255, 0));
+                    self.canvas.set_draw_color(Color::RGB(112, 133, 101));
                     self.canvas.fill_rect(health_rect)?;
                 }
             }
@@ -111,13 +111,13 @@ impl Renderer {
                     .fonts
                     .munro
                     .render(&stray_data.species)
-                    .blended(Color::RGB(40, 40, 40))
+                    .blended(Color::RGB(31, 27, 24))
                     .map_err(|e| e.to_string())?;
                 let name = creator
                     .create_texture_from_surface(name_surface)
                     .map_err(|e| e.to_string())?;
                 let name_rect = Rect::new(
-                    0 as i32 + 2,
+                    0 as i32 + 8,
                     0 as i32 + 15 * index as i32,
                     name.query().width,
                     name.query().height,
@@ -126,13 +126,13 @@ impl Renderer {
 
                 if stray_data.cur_hp > 0 {
                     let health_rect = Rect::new(
-                        0 as i32 + 3,
-                        0 as i32 + 13 + 15 * index as i32,
-                        (stray_data.cur_hp as f32 / stray_data.hp as f32 * 90.0).ceil() as u32,
+                        0 as i32 + 6,
+                        0 as i32 + 12 + 15 * index as i32,
+                        (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32,
                         //render health as a fraction of the whole health bar
-                        3,
+                        4,
                     );
-                    self.canvas.set_draw_color(Color::RGB(0, 255, 0));
+                    self.canvas.set_draw_color(Color::RGB(112, 133, 101));
                     self.canvas.fill_rect(health_rect)?;
                 }
             }
