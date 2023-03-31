@@ -326,7 +326,7 @@ impl State {
                             let rand_int: f32 = self.rng.gen();
                             let mut damage = 0;
                             if let Some(mv) = &mut battle.selected_move {
-                                if rand_int < (mv.accuracy/100) as f32 {
+                                if rand_int < (mv.accuracy as f32/100 as f32) {
                                     damage = mv.power;
                                 }
                             }
