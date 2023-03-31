@@ -127,7 +127,7 @@ impl Default for State {
             Collision,
         ));
 
-        let _npc = world.spawn((
+        let _dad = world.spawn((
             Position(Vec2(16f32, 16f32)),
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
@@ -156,6 +156,128 @@ impl Default for State {
                 sprinting: false,
             },
         ));
+
+        let _shaman = world.spawn((
+            Position(Vec2(30f32, 15f32)),
+            MovingEntity {
+                moving: MovingState::Moving(Direction::Left),
+                try_moving: MovingState::Moving(Direction::Left),
+                rotation: Direction::Left,
+                ..Default::default()
+            },
+            Sprite::character(String::from("assets/char-sprites/shamansprite.png")),
+            Collision,
+            Npc {
+                says: "You have much to learn.".to_string(),
+                path: Some(WalkingPath {
+                    path: vec![
+                        Direction::Left,
+                        Direction::Left,
+                        Direction::Right,
+                        Direction::Right,
+                    ],
+                    index: 0,
+                }),
+            },
+            HumanWalkAnimation {
+                rotation: Direction::Left,
+                time: (1.0, 0.0),
+                left_leg: true,
+                sprinting: false,
+            },
+        ));
+
+        let _sika = world.spawn((
+            Position(Vec2(30f32, 24f32)),
+            MovingEntity {
+                moving: MovingState::Moving(Direction::Left),
+                try_moving: MovingState::Moving(Direction::Left),
+                rotation: Direction::Left,
+                ..Default::default()
+            },
+            Sprite::character(String::from("assets/char-sprites/sikasprite.png")),
+            Collision,
+            Npc {
+                says: "You are small".to_string(),
+                path: Some(WalkingPath {
+                    path: vec![
+                        Direction::Up,
+                        Direction::Up,
+                        Direction::Down,
+                        Direction::Down,
+                    ],
+                    index: 0,
+                }),
+            },
+            HumanWalkAnimation {
+                rotation: Direction::Left,
+                time: (1.0, 0.0),
+                left_leg: true,
+                sprinting: false,
+            },
+        ));
+
+        let _mom = world.spawn((
+            Position(Vec2(16f32, 24f32)),
+            MovingEntity {
+                moving: MovingState::Moving(Direction::Left),
+                try_moving: MovingState::Moving(Direction::Left),
+                rotation: Direction::Left,
+                ..Default::default()
+            },
+            Sprite::character(String::from("assets/char-sprites/momsprite.png")),
+            Collision,
+            Npc {
+                says: "Son, I'm not real.".to_string(),
+                path: Some(WalkingPath {
+                    path: vec![
+                        Direction::Up,
+                        Direction::Up,
+                        Direction::Down,
+                        Direction::Down,
+                    ],
+                    index: 0,
+                }),
+            },
+            HumanWalkAnimation {
+                rotation: Direction::Left,
+                time: (1.0, 0.0),
+                left_leg: true,
+                sprinting: false,
+            },
+        ));
+
+        let _ilasiak = world.spawn((
+            Position(Vec2(22f32, 18f32)),
+            MovingEntity {
+                moving: MovingState::Moving(Direction::Left),
+                try_moving: MovingState::Moving(Direction::Left),
+                rotation: Direction::Left,
+                ..Default::default()
+            },
+            Sprite::character(String::from("assets/char-sprites/ilasiaksprite.png")),
+            Collision,
+            Npc {
+                says: "Hey bub, move outta the way!".to_string(),
+                path: Some(WalkingPath {
+                    path: vec![
+                        Direction::Up,
+                        Direction::Right,
+                        Direction::Down,
+                        Direction::Left,
+                    ],
+                    index: 0,
+                }),
+            },
+            HumanWalkAnimation {
+                rotation: Direction::Left,
+                time: (1.0, 0.0),
+                left_leg: true,
+                sprinting: false,
+            },
+        ));
+
+
 
         let _berry = world.spawn((
             Position(Vec2(10f32, 8f32)),
