@@ -14,20 +14,6 @@ pub enum Type {
     Light,
 }
 
-#[derive(Debug)]
-pub enum StrayName {
-    //names of all current strays, this code is currently defunct
-    Aeternisc,
-    Bitaxum,
-    Carerus,
-    Catis,
-    Cespae,
-    Omikae,
-    Palliub,
-    Rubridum,
-    Solikigoi,
-}
-
 #[derive(Clone,Debug, PartialEq, Eq, Hash)]
 pub struct Move {
     //struct defining everything contained within a given move, using the type enum to define the type of the move

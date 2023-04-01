@@ -11,7 +11,7 @@ use std::hash::Hash;
 use std::rc::Rc;
 
 pub type TextureManager<'l, T> = ResourceManager<'l, String, Texture<'l>, TextureCreator<T>>;
-pub type FontManager<'l> = ResourceManager<'l, FontDetails, Font<'l, 'static>, Sdl2TtfContext>;
+//pub type FontManager<'l> = ResourceManager<'l, FontDetails, Font<'l, 'static>, Sdl2TtfContext>;
 
 // Generic struct to cache any resource loaded by a ResourceLoader
 pub struct ResourceManager<'l, K, R, L>

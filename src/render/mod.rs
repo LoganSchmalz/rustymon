@@ -49,7 +49,7 @@ pub struct Renderer {
     canvas: Canvas<Window>,
     pub transitioning: bool,
     did_trans: bool,
-    anim_time: f32,
+    pub anim_time: f32,
     camera: Camera,
     floortile_rects: EnumMap<FloorTile, Rect>,
     walltile_rects: EnumMap<WallTile, Rect>,
@@ -166,6 +166,7 @@ impl Renderer {
         delta_time: f32,
         trans: Transition,
     ) -> Result<bool, String> {
+        println!("{}", self.anim_time);
         match trans {
             Transition::Fade => {
                 if self.transitioning {
@@ -198,6 +199,8 @@ impl Renderer {
                                 }
                                 _ => panic!("Trying to load map that doesn't exist"),
                             }*/
+                            self.anim_time = 1500.0; //TODO remove this it's literally a hack to get the win/loss screen to play longer
+
                             return Ok(true);
                         }
                     }

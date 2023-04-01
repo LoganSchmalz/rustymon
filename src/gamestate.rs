@@ -356,6 +356,7 @@ impl State {
                     self.events.push(Event::TransitionFull);
                     self.transitioning = false;
                 }
+
             }
         }
 
@@ -397,8 +398,8 @@ impl State {
                     {
                         self.next_screen = Screen::Battle(Battle::new(
                             [
-                                Some(Stray::palliub(true)),
                                 Some(Stray::cespae(true)),
+                                Some(Stray::palliub(true)),
                                 None,
                                 Some(Stray::catis(true)),
                             ],
@@ -457,10 +458,10 @@ impl State {
                             }
                             stray.cur_hp = stray.cur_hp - damage; //subtract hp from selected stray by the amount of damage the move does
                             self.menus.close_menu(); //close opponent selection menu
-                            loop { //TODO: REMOVE THIS  LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
+                            loop { //TODO: REMOVE THIS LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
                                 if let Some(s) = battle.turn_order.pop_front() { //remove stray that just went from the front of the queue
-                                    if s.cur_hp > 0 {
-                                        battle.turn_order.push_back(s); //if stray that just moved is still alive, add it back to the back of the queue
+                                    if s.cur_hp > 0 { //if stray is still alive
+                                        battle.turn_order.push_back(s); //add it back to the back of the queue
                                     }
                                 }
                                 if battle.turn_order[0].owner { //if current turn is a player's stray
@@ -476,6 +477,11 @@ impl State {
                         if battle.opponent_strays.iter().all(|x| x.is_none()) {
                             self.menus.close_menu();
                             self.trans = Transition::Win;
+                            self.transitioning = true;
+                        }
+                        if battle.player_strays.iter().all(|x| x.is_none()) {
+                            self.menus.close_menu();
+                            self.trans = Transition::Loss;
                             self.transitioning = true;
                         }
                     }

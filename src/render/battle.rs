@@ -75,11 +75,17 @@ impl Renderer {
 
         for (index, stray) in battle.player_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
+                let text_color = //text color for stray name based on whether or not it is their turn currentl
+                if &battle.turn_order[0] == stray_data { //if it is the stray's turn
+                    Color::RGB(167, 84, 94) //red
+                } else {
+                    Color::RGB(31, 27, 24) //black
+                };
                 let name_surface = font_manager
                     .fonts
                     .munro
                     .render(&stray_data.species)
-                    .blended(Color::RGB(31, 27, 24))
+                    .blended(text_color)
                     .map_err(|e| e.to_string())?;
                 let name = creator
                     .create_texture_from_surface(name_surface)
@@ -107,7 +113,7 @@ impl Renderer {
                         //render health as a fraction of the whole health bar
                         4,
                     );
-                    self.canvas.copy(&healthbar, health_slice, health_rect); //filling the healthbar with the healthbar png
+                    self.canvas.copy(&healthbar, health_slice, health_rect)?; //filling the healthbar with the healthbar png
                     //self.canvas.fill_rect(health_rect)?;
                 }
             }
@@ -115,11 +121,17 @@ impl Renderer {
 
         for (index, stray) in battle.opponent_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
+                let text_color = //text color for stray name based on whether or not it is their turn currentl
+                if &battle.turn_order[0] == stray_data { //if it is the stray's turn
+                    Color::RGB(167, 84, 94) //red
+                } else {
+                    Color::RGB(31, 27, 24) //black
+                };
                 let name_surface = font_manager
                     .fonts
                     .munro
                     .render(&stray_data.species)
-                    .blended(Color::RGB(31, 27, 24))
+                    .blended(text_color)
                     .map_err(|e| e.to_string())?;
                 let name = creator
                     .create_texture_from_surface(name_surface)
@@ -147,7 +159,7 @@ impl Renderer {
                         //render health as a fraction of the whole health bar
                         4,
                     );
-                    self.canvas.copy(&healthbar, health_slice, health_rect);
+                    self.canvas.copy(&healthbar, health_slice, health_rect)?;
                 }
             }
         }
@@ -159,7 +171,7 @@ impl Renderer {
         Ok(did_trans)
     }
 
-    pub fn render_win(
+    pub fn _render_win(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
         delta_time: f32,
@@ -171,7 +183,7 @@ impl Renderer {
         Ok(())
     }
 
-    pub fn render_loss(
+    pub fn _render_loss(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
         delta_time: f32,
