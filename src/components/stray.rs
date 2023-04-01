@@ -36,8 +36,8 @@ impl Move {
     pub fn flail() -> Self {
         Self { //contructor for all of flail's info
             name: String::from("Flail"),
-            power: 30,
-            accuracy: 50,
+            power: 0,
+            accuracy: 100,
             m_type: Type::Earth, 
         }
     } 
@@ -207,7 +207,7 @@ impl Stray {
         Self { //contructor for all of palliub's info
             species: String::from("Palliub"),
             s_type: Type::Water,
-            moves: [Some(Move::wave()), Some(Move::slice()), None, None],
+            moves: [Some(Move::wave()), Some(Move::slice()), Some(Move::flail()), None],
             hp: 15,
             atk: 30,
             def: 20,
@@ -267,7 +267,7 @@ impl Stray {
         Self { //contructor for all of catis's info
             species: String::from("Catis"),
             s_type: Type::Earth,
-            moves: [Some(Move::vortex()), Some(Move::bash()), None, None],
+            moves: [Some(Move::vortex()), Some(Move::bash()), Some(Move::flail()), None],
             hp: 25,
             atk: 15,
             def: 30,
@@ -282,7 +282,7 @@ impl Stray {
         Self { //constructor for all of cespae's info 
             species: String::from("Cespae"),
             s_type: Type::Zen,
-            moves: [Some(Move::ram()), Some(Move::bash()), None, None],
+            moves: [Some(Move::ram()), Some(Move::bash()), Some(Move::flail()), None],
             hp: 15,
             atk: 20,
             def: 30,

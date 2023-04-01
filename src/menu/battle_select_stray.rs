@@ -1,5 +1,4 @@
 use hecs::World;
-use crate::components::stray::Stray;
 use crate::gamestate::event::Event;
 
 use super::{

@@ -3,7 +3,7 @@ use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 
 use crate::{font_manager::FontManager, gamestate::Battle, menu, resource_manager::TextureManager};
 
-use super::{Renderer, Transition, PIXELS_X, PIXELS_Y};
+use super::{Renderer, PIXELS_X, PIXELS_Y};
 
 impl Renderer {
     pub fn render_battle(
@@ -76,7 +76,7 @@ impl Renderer {
         for (index, stray) in battle.player_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
                 let text_color = //text color for stray name based on whether or not it is their turn currentl
-                if &battle.turn_order[0] == stray_data { //if it is the stray's turn
+                if battle.turn_order[0].species == stray_data.species { //if it is the stray's turn
                     Color::RGB(167, 84, 94) //red
                 } else {
                     Color::RGB(31, 27, 24) //black
@@ -122,7 +122,7 @@ impl Renderer {
         for (index, stray) in battle.opponent_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
                 let text_color = //text color for stray name based on whether or not it is their turn currentl
-                if &battle.turn_order[0] == stray_data { //if it is the stray's turn
+                if battle.turn_order[0].species == stray_data.species { //if it is the stray's turn
                     Color::RGB(167, 84, 94) //red
                 } else {
                     Color::RGB(31, 27, 24) //black

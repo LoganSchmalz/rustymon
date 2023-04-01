@@ -10,9 +10,8 @@ use crate::{
     constants::TILE_SIZE,
     font_manager::FontManager,
     menu,
-    menu::Menu,
     resource_manager::TextureManager,
-    tilemap::{self, FloorTile, WallTile},
+    tilemap::{FloorTile, WallTile},
 };
 
 use self::overworld::Camera;

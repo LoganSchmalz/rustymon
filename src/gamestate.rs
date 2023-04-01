@@ -474,9 +474,9 @@ impl State {
                                 battle.opponent_strays[idx] = None;
                             }
                             loop { //TODO: REMOVE THIS  LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
-                                if let Some(s) = battle.turn_order.pop_front() { //remove stray that just went from the front of the queue
+                                if let Some(s) = &battle.turn_order.pop_front() { //remove stray that just went from the front of the queue
                                     if s.cur_hp > 0 {
-                                        battle.turn_order.push_back(s); //if stray that just moved is still alive, add it back to the back of the queue
+                                        battle.turn_order.push_back(s.clone()); //if stray that just moved is still alive, add it back to the back of the queue
                                     }
                                 }
                                 //println!("{}", battle.turn_order[0].clone().species);
@@ -510,8 +510,13 @@ impl State {
                                         if let Some(p_stray) = &mut battle.player_strays[rand_p_stray] {
                                             p_stray.cur_hp -= damage; //subtract hp from selected stray by the amount of damage the move does
                                             self.menus.open_menu(Textbox::new(&("".to_owned() + &String::from(&battle.turn_order[0].species) + " used " + &mv.name + " on " + &p_stray.species + "!"), font_man).into());
+                                            //TODO fix bug where only one enemy turn displays at a time
+                                            if p_stray.cur_hp <= 0 {
+                                                battle.player_strays[rand_p_stray] = None;
+                                            }
                                         }
                                     }
+                                    
                                     
                                     if battle.opponent_strays.iter().all(|x| x.is_none()) {
                                         self.menus.close_menu();

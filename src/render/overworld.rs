@@ -11,7 +11,7 @@ use crate::{
     vec2::Vec2,
 };
 
-use super::{Renderer, Transition, PIXELS_X, PIXELS_Y};
+use super::{Renderer, PIXELS_X, PIXELS_Y};
 
 #[derive(Default)]
 pub struct Camera {
