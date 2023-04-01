@@ -458,13 +458,13 @@ impl State {
                             stray.cur_hp = stray.cur_hp - damage; //subtract hp from selected stray by the amount of damage the move does
                             self.menus.close_menu(); //close opponent selection menu
                             loop { //TODO: REMOVE THIS  LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
-                                if let Some(s) = battle.turn_order.pop_front() {
+                                if let Some(s) = battle.turn_order.pop_front() { //remove stray that just went from the front of the queue
                                     if s.cur_hp > 0 {
-                                        battle.turn_order.push_back(s);
+                                        battle.turn_order.push_back(s); //if stray that just moved is still alive, add it back to the back of the queue
                                     }
                                 }
-                                if battle.turn_order[0].owner {
-                                    break;
+                                if battle.turn_order[0].owner { //if current turn is a player's stray
+                                    break; //continue adjusting turn order until it's one of the player's stray's turn
                                 }
                             }
                             //println!("{}", battle.turn_order[0].clone().species);
