@@ -178,6 +178,7 @@ pub struct Stray {
     pub def: i32, //defense stat
     pub spd: i32, //speed stat
     pub cur_hp: i32, //current health points stat
+    pub owner: bool, //true if owned by player, false if owned by opponent
     pub texture: String, //name of the texture file for the given stray
 }
 
@@ -193,6 +194,7 @@ impl Default for Stray {
             def: 20,
             spd: 35,
             cur_hp: 15,
+            owner: true,
             texture: String::from("assets/strays/palliub.png")
         }
     }
@@ -200,7 +202,7 @@ impl Default for Stray {
 
 impl Stray {
     //constructors for all individual strays in game
-    pub fn bitaxum() -> Self {
+    pub fn bitaxum(owner: bool) -> Self {
         Self { //contructor for all of bitaxum's info
             species: String::from("Bitaxum"),
             s_type: Type::Earth,
@@ -210,11 +212,12 @@ impl Stray {
             def: 40,
             spd: 10,
             cur_hp: 20,
+            owner,
             texture: String::from("assets/strays/bitaxum.png")
         }
     }
 
-    pub fn palliub() -> Self {
+    pub fn palliub(owner: bool) -> Self {
         Self { //contructor for all of palliub's info
             species: String::from("Palliub"),
             s_type: Type::Water,
@@ -224,11 +227,12 @@ impl Stray {
             def: 20,
             spd: 35,
             cur_hp: 15,
+            owner,
             texture: String::from("assets/strays/palliub.png")
         }
     }
 
-    pub fn rubridum() -> Self {
+    pub fn rubridum(owner: bool) -> Self {
         Self { //contructor for all of rubridum's info
             species: String::from("Rubridum"),
             s_type: Type::Fire,
@@ -238,11 +242,12 @@ impl Stray {
             def: 25,
             spd: 25,
             cur_hp: 15,
+            owner,
             texture: String::from("assets/strays/rubridum.png")
         }
     }
 
-    pub fn aeternisc() -> Self {
+    pub fn aeternisc(owner: bool) -> Self {
         Self { //contructor for all of aeternisc's info
             species: String::from("Aeternisc"),
             s_type: Type::Time,
@@ -252,11 +257,12 @@ impl Stray {
             def: 35,
             spd: 10,
             cur_hp: 50,
+            owner,
             texture: String::from("assets/strays/aeternisc.png")
         }
     }
 
-    pub fn solikigoi() -> Self {
+    pub fn solikigoi(owner: bool) -> Self {
         Self { //contructor for all of solikigoi's info
             species: String::from("Solikigoi"),
             s_type: Type::Water,
@@ -266,11 +272,12 @@ impl Stray {
             def: 35,
             spd: 15,
             cur_hp: 20,
+            owner,
             texture: String::from("assets/strays/solikigoi.png")
         }
     }
 
-    pub fn catis() -> Self {
+    pub fn catis(owner: bool) -> Self {
         Self { //contructor for all of catis's info
             species: String::from("Catis"),
             s_type: Type::Earth,
@@ -280,11 +287,12 @@ impl Stray {
             def: 30,
             spd: 10,
             cur_hp: 25,
+            owner,
             texture: String::from("assets/strays/catis.png")
         }
     }
     
-    pub fn cespae() -> Self {
+    pub fn cespae(owner: bool) -> Self {
         Self { //constructor for all of cespae's info 
             species: String::from("Cespae"),
             s_type: Type::Zen,
@@ -294,11 +302,12 @@ impl Stray {
             def: 30,
             spd: 20,
             cur_hp: 15,
+            owner,
             texture: String::from("assets/strays/cespae.png")
         }
     }
 
-    pub fn omikae() -> Self {
+    pub fn omikae(owner: bool) -> Self {
         Self { //constructor for all of omikae's info 
             species: String::from("Omikae"),
             s_type: Type::Astral,
@@ -308,11 +317,12 @@ impl Stray {
             def: 30,
             spd: 20,
             cur_hp: 20,
+            owner,
             texture: String::from("assets/strays/omikae.png")
         }
     }
 
-    pub fn carerus() -> Self {
+    pub fn carerus(owner: bool) -> Self {
         Self { //constructor for all of carerus's info 
             species: String::from("Carerus"),
             s_type: Type::Dark,
@@ -322,6 +332,7 @@ impl Stray {
             def: 15,
             spd: 20,
             cur_hp: 20,
+            owner,
             texture: String::from("assets/strays/carerus.png")
         }
     }

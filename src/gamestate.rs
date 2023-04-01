@@ -5,7 +5,8 @@ use rand::{distributions::Uniform, rngs::ThreadRng, Rng};
 use sdl2::{rect::Rect, video::WindowContext};
 
 use enum_map::EnumMap;
-use priority_queue::PriorityQueue;
+use std::collections::VecDeque;
+
 
 use crate::{
     components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, stray::*, *},
@@ -46,19 +47,19 @@ pub struct Battle {
     pub opponent_strays: [Option<Stray>; 4],
     pub selected_move: Option<Move>,
     pub battle_state: BattleState,
-    pub turn_order: Vec<Stray>,
+    pub turn_order: VecDeque<Stray>,
 }
 
 impl Battle {
     pub fn new(player_strays: [Option<Stray>; 4], opponent_strays: [Option<Stray>; 4]) -> Battle {
-            let mut turn_order = Vec::new();
+            let mut turn_order = VecDeque::new();
             for stray in player_strays.iter().chain(opponent_strays.iter()) {
                 if let Some(stray) = stray {
-                    turn_order.push(stray.clone());
+                    turn_order.push_back(stray.clone());
                 }
             }
 
-            turn_order.sort_by(|a, b| b.spd.cmp(&a.spd));
+            turn_order.make_contiguous().sort_by(|a, b| b.spd.cmp(&a.spd));
             
             Battle {
                 player_strays,
@@ -396,16 +397,16 @@ impl State {
                     {
                         self.next_screen = Screen::Battle(Battle::new(
                             [
-                                Some(Stray::palliub()),
-                                Some(Stray::cespae()),
+                                Some(Stray::palliub(true)),
+                                Some(Stray::cespae(true)),
                                 None,
-                                Some(Stray::catis()),
+                                Some(Stray::catis(true)),
                             ],
                             [
-                                Some(Stray::carerus()),
+                                Some(Stray::carerus(false)),
                                 None,
-                                Some(Stray::rubridum()),
-                                Some(Stray::omikae()),
+                                Some(Stray::rubridum(false)),
+                                Some(Stray::omikae(false)),
                             ]
                         ));
                         self.trans = Transition::Fade;
@@ -456,6 +457,17 @@ impl State {
                             }
                             stray.cur_hp = stray.cur_hp - damage; //subtract hp from selected stray by the amount of damage the move does
                             self.menus.close_menu(); //close opponent selection menu
+                            loop { //TODO: REMOVE THIS  LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
+                                if let Some(s) = battle.turn_order.pop_front() {
+                                    if s.cur_hp > 0 {
+                                        battle.turn_order.push_back(s);
+                                    }
+                                }
+                                if battle.turn_order[0].owner {
+                                    break;
+                                }
+                            }
+                            //println!("{}", battle.turn_order[0].clone().species);
                             self.menus.open_menu(MovesMenu::new(battle.turn_order[0].moves.clone()).into()); //open moves menu
                             if stray.cur_hp <= 0 {
                                 battle.opponent_strays[idx] = None;
