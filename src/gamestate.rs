@@ -13,6 +13,7 @@ use crate::{
     constants::RANDOM_ENCOUNTER_CHANCE,
     font_manager::FontManager,
     menu::{
+        Menu,
         battle_select_stray::{self, BattleSelectStray},
         main_menu::MainMenu,
         moves_menu::MovesMenu,
@@ -280,8 +281,18 @@ impl Default for State {
 
 
 
-        let _berry = world.spawn((
-            Position(Vec2(10f32, 8f32)),
+        let _berry1 = world.spawn((
+            Position(Vec2(16f32, 8f32)),
+            Sprite::berry(),
+            Collision,
+            GroundItem {
+                item: bag::Item::Berry,
+                amount: 1,
+            },
+        ));
+
+        let _berry2 = world.spawn((
+            Position(Vec2(16f32, 16f32)),
             Sprite::berry(),
             Collision,
             GroundItem {
@@ -447,6 +458,8 @@ impl State {
                     if let Screen::Battle(battle) = &mut self.screen {
                         //if the current screen is a battle
                         if let Some(stray) = &mut battle.opponent_strays[idx] {
+                            self.menus.close_menu(); //close opponent selection menu
+                            self.menus.close_menu(); //close move selection menu?
                             //stray = opponent at the index chosen
                             let mut rand_int: f32 = self.rng.gen();
                             let mut damage = 0;
@@ -456,8 +469,7 @@ impl State {
                                 }
                             }
                             stray.cur_hp = stray.cur_hp - damage; //subtract hp from selected stray by the amount of damage the move does
-                            self.menus.close_menu(); //close opponent selection menu
-                            self.menus.close_menu(); //close move selection menu
+                            
                             if stray.cur_hp <= 0 {
                                 battle.opponent_strays[idx] = None;
                             }
@@ -495,10 +507,12 @@ impl State {
                                         if rand_int < (mv.accuracy as f32/100 as f32) {
                                             damage = mv.power;
                                         }
+                                        if let Some(p_stray) = &mut battle.player_strays[rand_p_stray] {
+                                            p_stray.cur_hp -= damage; //subtract hp from selected stray by the amount of damage the move does
+                                            self.menus.open_menu(Textbox::new(&("".to_owned() + &String::from(&battle.turn_order[0].species) + " used " + &mv.name + " on " + &p_stray.species + "!"), font_man).into());
+                                        }
                                     }
-                                    if let Some(p_stray) = &mut battle.player_strays[rand_p_stray] {
-                                        p_stray.cur_hp -= damage; //subtract hp from selected stray by the amount of damage the move does
-                                    }
+                                    
                                     if battle.opponent_strays.iter().all(|x| x.is_none()) {
                                         self.menus.close_menu();
                                         self.trans = Transition::Win;
@@ -512,7 +526,9 @@ impl State {
 
                                 }
                             }
+                             
                             self.menus.open_menu(MovesMenu::new(battle.turn_order[0].moves.clone()).into()); //open moves menu
+                            
                             //println!("{}", battle.turn_order[0].clone().species);
                         }
                         if battle.opponent_strays.iter().all(|x| x.is_none()) {

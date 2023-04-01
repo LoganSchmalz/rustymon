@@ -10,6 +10,7 @@ use crate::{
     constants::TILE_SIZE,
     font_manager::FontManager,
     menu,
+    menu::Menu,
     resource_manager::TextureManager,
     tilemap::{self, FloorTile, WallTile},
 };
@@ -259,7 +260,9 @@ impl Renderer {
                     self.render_bag_menu(menu, world, texture_manager, font_man)?
                 }
                 menu::Menu::MovesMenu(menu) => {
-                    self.render_moves_menu(menu, texture_manager, font_man)?
+                    //if !matches!(menu_man.menus[0], Menu::Textbox(_)) {
+                        self.render_moves_menu(menu, texture_manager, font_man)?
+                    //}
                 }
                 menu::Menu::BattleSelectStray(menu) => {
                     self.render_battle_select_stray_menu(menu, texture_manager, font_man)?

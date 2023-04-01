@@ -36,6 +36,7 @@ pub enum Menu {
 
 pub struct MenuManager {
     pub menus: Vec<Menu>, // this is a stack
+    pub menu_queue: Vec<Menu>,
 }
 
 impl MenuManager {
@@ -43,15 +44,28 @@ impl MenuManager {
         MenuManager {
             //menus: vec![Menu::MainMenu(MainMenu::new())],
             menus: vec![],
+            menu_queue: vec![],
+
         }
     }
 
     pub fn open_menu(&mut self, next_menu: Menu) {
-        self.menus.push(next_menu);
+        if self.menus.len() == 0 { //if no menu is open
+            self.menus.push(next_menu); //open menu
+        } else { //if a menu is open
+            if !matches!(next_menu, Menu::Textbox(_)) { //if the current menu is a textbox
+                self.menu_queue.push(next_menu); //add next menu to queue, do not open yet
+            }
+        }
     }
 
     pub fn close_menu(&mut self) -> bool {
         self.menus.pop();
+        if self.menu_queue.len() > 0 { //if there are menus in the queue
+            if let Some(m) = self.menu_queue.pop() { //remove first queued menu from queue
+                self.open_menu(m); //open first queued menu
+            }
+        }
         false
     }
 
