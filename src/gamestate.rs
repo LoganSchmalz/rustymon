@@ -356,7 +356,6 @@ impl State {
                     self.events.push(Event::TransitionFull);
                     self.transitioning = false;
                 }
-
             }
         }
 
@@ -449,7 +448,7 @@ impl State {
                         //if the current screen is a battle
                         if let Some(stray) = &mut battle.opponent_strays[idx] {
                             //stray = opponent at the index chosen
-                            let rand_int: f32 = self.rng.gen();
+                            let mut rand_int: f32 = self.rng.gen();
                             let mut damage = 0;
                             if let Some(mv) = &mut battle.selected_move {
                                 if rand_int < (mv.accuracy as f32/100 as f32) {
@@ -458,21 +457,63 @@ impl State {
                             }
                             stray.cur_hp = stray.cur_hp - damage; //subtract hp from selected stray by the amount of damage the move does
                             self.menus.close_menu(); //close opponent selection menu
-                            loop { //TODO: REMOVE THIS LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
-                                if let Some(s) = battle.turn_order.pop_front() { //remove stray that just went from the front of the queue
-                                    if s.cur_hp > 0 { //if stray is still alive
-                                        battle.turn_order.push_back(s); //add it back to the back of the queue
-                                    }
-                                }
-                                if battle.turn_order[0].owner { //if current turn is a player's stray
-                                    break; //continue adjusting turn order until it's one of the player's stray's turn
-                                }
-                            }
-                            //println!("{}", battle.turn_order[0].clone().species);
-                            self.menus.open_menu(MovesMenu::new(battle.turn_order[0].moves.clone()).into()); //open moves menu
+                            self.menus.close_menu(); //close move selection menu
                             if stray.cur_hp <= 0 {
                                 battle.opponent_strays[idx] = None;
                             }
+                            loop { //TODO: REMOVE THIS  LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
+                                if let Some(s) = battle.turn_order.pop_front() { //remove stray that just went from the front of the queue
+                                    if s.cur_hp > 0 {
+                                        battle.turn_order.push_back(s); //if stray that just moved is still alive, add it back to the back of the queue
+                                    }
+                                }
+                                //println!("{}", battle.turn_order[0].clone().species);
+                                if battle.turn_order[0].owner { //if current turn is a player's stray
+                                    break; //continue adjusting turn order until it's one of the player's stray's turn
+                                } else { //if current turn is an enemy stray
+                                    let mut rand_p_stray: usize = 0;
+                                    let mut rand_move: usize = 0;
+                                    loop { //TODO: probly wanna change this cause these nested loops are cringe
+                                        rand_p_stray= self.rng.gen::<usize>() % 4;
+                                        //println!("rand stray: {}", rand_p_stray);
+                                        if battle.player_strays[rand_p_stray].is_some() { //loop until enemy selects a valid target
+                                            break;
+                                        }
+                                    }
+                                    loop { //TODO: probly wanna change this cause these nested loops are cringe
+                                        rand_move = self.rng.gen::<usize>() % 4;
+                                        //println!("rand move: {}", rand_move);
+                                        if battle.turn_order[0].moves[rand_move].is_some() { //loop until enemy selects a valid move
+                                            break;
+                                        }
+                                    }
+
+                                    //do random move on random target
+                                    rand_int = self.rng.gen();
+                                    damage = 0;
+                                    if let Some(mv) = &battle.turn_order[0].moves[rand_p_stray] {
+                                        if rand_int < (mv.accuracy as f32/100 as f32) {
+                                            damage = mv.power;
+                                        }
+                                    }
+                                    if let Some(p_stray) = &mut battle.player_strays[rand_p_stray] {
+                                        p_stray.cur_hp -= damage; //subtract hp from selected stray by the amount of damage the move does
+                                    }
+                                    if battle.opponent_strays.iter().all(|x| x.is_none()) {
+                                        self.menus.close_menu();
+                                        self.trans = Transition::Win;
+                                        self.transitioning = true;
+                                    }
+                                    if battle.player_strays.iter().all(|x| x.is_none()) {
+                                        self.menus.close_menu();
+                                        self.trans = Transition::Loss;
+                                        self.transitioning = true;
+                                    }    
+
+                                }
+                            }
+                            self.menus.open_menu(MovesMenu::new(battle.turn_order[0].moves.clone()).into()); //open moves menu
+                            //println!("{}", battle.turn_order[0].clone().species);
                         }
                         if battle.opponent_strays.iter().all(|x| x.is_none()) {
                             self.menus.close_menu();

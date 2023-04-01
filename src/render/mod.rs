@@ -166,7 +166,7 @@ impl Renderer {
         delta_time: f32,
         trans: Transition,
     ) -> Result<bool, String> {
-        println!("{}", self.anim_time);
+        //println!("{}", self.anim_time);
         match trans {
             Transition::Fade => {
                 if self.transitioning {
