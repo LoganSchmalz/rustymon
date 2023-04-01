@@ -413,11 +413,13 @@ impl State {
                     }
                 }
                 Event::TransitionFull => {
-                    std::mem::swap(&mut self.screen, &mut self.next_screen);
-                    if matches!(self.screen, Screen::Battle(_)) {
-                    self.menus.open_menu(MovesMenu::new().into());
-                    }
-                    self.transitioning = false;
+                        std::mem::swap(&mut self.screen, &mut self.next_screen);
+                        if matches!(self.screen, Screen::Battle(_)) {
+                            if let Screen::Battle(battle) = &mut self.screen {
+                                self.menus.open_menu(MovesMenu::new(battle.turn_order[0].moves.clone()).into());
+                            }
+                        }
+                        self.transitioning = false;
                 }
                 Event::NpcMoved(entity) => {
                     let (moving, npc) = self
@@ -454,7 +456,7 @@ impl State {
                             }
                             stray.cur_hp = stray.cur_hp - damage; //subtract hp from selected stray by the amount of damage the move does
                             self.menus.close_menu(); //close opponent selection menu
-                            self.menus.open_menu(MovesMenu::new().into()); //open moves menu
+                            self.menus.open_menu(MovesMenu::new(battle.turn_order[0].moves.clone()).into()); //open moves menu
                             if stray.cur_hp <= 0 {
                                 battle.opponent_strays[idx] = None;
                             }

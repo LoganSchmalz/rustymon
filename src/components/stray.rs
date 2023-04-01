@@ -38,6 +38,24 @@ pub struct Move {
 }
 
 impl Move {
+    pub fn slam() -> Self {
+        Self { //contructor for all of slam's info
+            name: String::from("Slam"),
+            power: 15,
+            accuracy: 80,
+            m_type: Type::Earth, 
+        }
+    }
+
+    pub fn flail() -> Self {
+        Self { //contructor for all of flail's info
+            name: String::from("Flail"),
+            power: 30,
+            accuracy: 50,
+            m_type: Type::Earth, 
+        }
+    } 
+    
     pub fn wave() -> Self {
         Self { //contructor for all of wave's info
             name: String::from("Wave"),
@@ -71,6 +89,80 @@ impl Move {
             power: 7,
             accuracy: 85,
             m_type: Type::Fire,
+        }
+    }
+
+    //all moves below are the same
+
+    pub fn reincarnate() -> Self {
+        Self { //contructor for all of reincarnate's info
+            name: String::from("Reincarnate"),
+            power: 10,
+            accuracy: 100,
+            m_type: Type::Time, 
+        }
+    }
+
+    pub fn high_tide() -> Self {
+        Self { //contructor for all of high tide's info
+            name: String::from("High Tide"),
+            power: 10,
+            accuracy: 100,
+            m_type: Type::Water, 
+        }
+    }
+
+    pub fn vortex() -> Self {
+        Self { //contructor for all of vortex's info
+            name: String::from("Vortex"),
+            power: 10,
+            accuracy: 100,
+            m_type: Type::Astral, 
+        }
+    }
+
+    pub fn bash() -> Self {
+        Self { //contructor for all of bash's info
+            name: String::from("Bash"),
+            power: 10,
+            accuracy: 100,
+            m_type: Type::Dark, 
+        }
+    }
+
+    pub fn ram() -> Self {
+        Self { //contructor for all of ram's info
+            name: String::from("Ram"),
+            power: 10,
+            accuracy: 100,
+            m_type: Type::Wind, 
+        }
+    }
+
+    pub fn wisp() -> Self {
+        Self { //contructor for all of wisp's info
+            name: String::from("Wisp"),
+            power: 10,
+            accuracy: 100,
+            m_type: Type::Fire, 
+        }
+    }
+
+    pub fn blitz() -> Self {
+        Self { //contructor for all of blitz's info
+            name: String::from("Blitz"),
+            power: 10,
+            accuracy: 100,
+            m_type: Type::Fire, 
+        }
+    }
+
+    pub fn scratch() -> Self {
+        Self { //contructor for all of scratch's info
+            name: String::from("Scratch"),
+            power: 10,
+            accuracy: 100,
+            m_type: Type::Zen, 
         }
     }
 }
@@ -112,7 +204,7 @@ impl Stray {
         Self { //contructor for all of bitaxum's info
             species: String::from("Bitaxum"),
             s_type: Type::Earth,
-            moves: [None, None, None, None],
+            moves: [Some(Move::slam()), Some(Move::flail()), None, None],
             hp: 20,
             atk: 20,
             def: 40,
@@ -126,7 +218,7 @@ impl Stray {
         Self { //contructor for all of palliub's info
             species: String::from("Palliub"),
             s_type: Type::Water,
-            moves: [None, None, None, None],
+            moves: [Some(Move::wave()), Some(Move::slice()), None, None],
             hp: 15,
             atk: 30,
             def: 20,
@@ -140,7 +232,7 @@ impl Stray {
         Self { //contructor for all of rubridum's info
             species: String::from("Rubridum"),
             s_type: Type::Fire,
-            moves: [None, None, None, None],
+            moves: [Some(Move::screech()), Some(Move::peck()), None, None],
             hp: 15,
             atk: 35,
             def: 25,
@@ -154,7 +246,7 @@ impl Stray {
         Self { //contructor for all of aeternisc's info
             species: String::from("Aeternisc"),
             s_type: Type::Time,
-            moves: [None, None, None, None],
+            moves: [Some(Move::reincarnate()), Some(Move::flail()), None, None],
             hp: 50,
             atk: 25,
             def: 35,
@@ -168,7 +260,7 @@ impl Stray {
         Self { //contructor for all of solikigoi's info
             species: String::from("Solikigoi"),
             s_type: Type::Water,
-            moves: [None, None, None, None],
+            moves: [Some(Move::wave()), Some(Move::high_tide()), None, None],
             hp: 20,
             atk: 15,
             def: 35,
@@ -182,7 +274,7 @@ impl Stray {
         Self { //contructor for all of catis's info
             species: String::from("Catis"),
             s_type: Type::Earth,
-            moves: [None, None, None, None],
+            moves: [Some(Move::vortex()), Some(Move::bash()), None, None],
             hp: 25,
             atk: 15,
             def: 30,
@@ -196,7 +288,7 @@ impl Stray {
         Self { //constructor for all of cespae's info 
             species: String::from("Cespae"),
             s_type: Type::Zen,
-            moves: [None, None, None, None],
+            moves: [Some(Move::ram()), Some(Move::bash()), None, None],
             hp: 15,
             atk: 20,
             def: 30,
@@ -210,7 +302,7 @@ impl Stray {
         Self { //constructor for all of omikae's info 
             species: String::from("Omikae"),
             s_type: Type::Astral,
-            moves: [None, None, None, None],
+            moves: [Some(Move::wisp()), Some(Move::blitz()), None, None],
             hp: 20,
             atk: 15,
             def: 30,
@@ -224,7 +316,7 @@ impl Stray {
         Self { //constructor for all of carerus's info 
             species: String::from("Carerus"),
             s_type: Type::Dark,
-            moves: [None, None, None, None],
+            moves: [Some(Move::scratch()), Some(Move::slice()), None, None],
             hp: 20,
             atk: 30,
             def: 15,
