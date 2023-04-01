@@ -24,16 +24,24 @@ impl MenuItem for MovesMenu {
         let length = 4; //currently hardcoding length (the number of possible selections) as 4, may need to change to allow for less than 4 moves
         match action{ //check the user input to decide whether to activate a move or to scroll through moves
             MenuInput::Up => { //if user activates up input
-                self.selected = ((self.selected as i8 + 2) % 4) as usize;
+                if let Some(mv) = &self.moves[((self.selected as i8 + 2) % 4) as usize] { //making sure there's an actual move at the index
+                    self.selected = ((self.selected as i8 + 2) % 4) as usize;
+                }
             }
             MenuInput::Right => { //if user activates right input
-                self.selected = ((self.selected as i8 + 1) % 4) as usize;
+                if let Some(mv) = &self.moves[((self.selected as i8 + 1) % 4) as usize] { //making sure there's an actual move at the index
+                    self.selected = ((self.selected as i8 + 1) % 4) as usize;
+                }
             }
             MenuInput::Down => { //if user activates down input
-                self.selected = ((self.selected as i8 - 2 + 4) % 4) as usize;
+                if let Some(mv) = &self.moves[((self.selected as i8 - 2 + 4) % 4) as usize] { //making sure there's an actual move at the index
+                    self.selected = ((self.selected as i8 - 2 + 4) % 4) as usize;
+                }
             }
             MenuInput::Left => { //if user activates left input
-                self.selected = ((self.selected as i8 - 1 + 4) % 4) as usize;
+                if let Some(mv) = &self.moves[((self.selected as i8 - 1 + 4) % 4) as usize] { //making sure there's an actual move at the index
+                    self.selected = ((self.selected as i8 - 1 + 4) % 4) as usize;
+                }
             }
             MenuInput::Accept => { //if user activates accept input
                 //activate that move
