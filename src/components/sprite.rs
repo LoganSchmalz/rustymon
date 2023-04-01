@@ -20,7 +20,7 @@ impl Sprite {
     pub fn berry() -> Self {
         Self {
             texture: String::from("assets/tiles/objectsprites.png"),
-            src: Rect::new(0, 0, 16, 20),
+            src: Rect::new(32, 0, 16, 16),
             shift_x: 0,
             shift_y: 0,
         }

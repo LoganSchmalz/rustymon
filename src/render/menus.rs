@@ -29,10 +29,15 @@ impl Renderer {
         let box_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
 
         let texture = texture_manager.load("assets/UI/bag_menu.png")?;
+        let berry_texture = texture_manager.load("assets/tiles/objectsprites.png")?; //hard-coding berry texture currently
+        let berry_rect = Rect::new(32, 0, 16, 16);
+        let berry_dst = Rect::new(104, 6, 16, 16);
 
         self.canvas.copy(&texture, None, box_quad)?;
+        self.canvas.copy(&berry_texture, berry_rect, berry_dst)?;
 
         let mut text_quad = Rect::new(140, 10, 0, 0);
+        
 
         let mut query = world.query_one::<&Bag>(menu.entity).unwrap();
         let bag = query.get();
