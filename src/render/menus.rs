@@ -6,10 +6,11 @@ use crate::{
     font_manager::FontManager,
     menu::{
         bag_menu::BagMenu,
+        battle_select_stray::BattleSelectStray,
         main_menu::{MainMenu, MainMenuButton},
+        moves_menu::MovesMenu,
         pause_menu::PauseMenu,
         textbox::Textbox,
-        moves_menu::MovesMenu, battle_select_stray::BattleSelectStray,
     },
     resource_manager::TextureManager,
 };
@@ -37,7 +38,6 @@ impl Renderer {
         self.canvas.copy(&berry_texture, berry_rect, berry_dst)?;
 
         let mut text_quad = Rect::new(140, 10, 0, 0);
-        
 
         let mut query = world.query_one::<&Bag>(menu.entity).unwrap();
         let bag = query.get();
@@ -136,7 +136,8 @@ impl Renderer {
         self.canvas.copy(&titlescreen, None, screen_quad)?;
         self.canvas.copy(&start_button, start_src, start_quad)?;
         self.canvas.copy(&load_button, load_src, load_quad)?;
-        self.canvas.copy(&settings_button, settings_src, settings_quad)?;
+        self.canvas
+            .copy(&settings_button, settings_src, settings_quad)?;
 
         self.canvas.present();
 
@@ -236,7 +237,8 @@ impl Renderer {
         Ok(())
     }
 
-    pub (super) fn render_moves_menu( //function for rendering the moves menu
+    pub(super) fn render_moves_menu(
+        //function for rendering the moves menu
         &mut self,
         menu: &MovesMenu,
         texture_manager: &mut TextureManager<WindowContext>,
@@ -248,16 +250,17 @@ impl Renderer {
 
         let mut text_quad = Rect::new(10, (PIXELS_Y - 56) as i32, 132, 66);
 
-        for (idx, mv) in menu.moves.iter().enumerate() { //mv = move
+        for (idx, mv) in menu.moves.iter().enumerate() {
+            //mv = move
             if let Some(move_data) = mv {
                 let surface = font_man.fonts.munro.render(&move_data.name); //render the name of the move
-                
+
                 let surface = if idx == menu.selected {
                     surface.blended(Color::RGB(212, 101, 99))
                 } else {
                     surface.blended(Color::RGB(49, 41, 36))
                 };
-                
+
                 let surface = surface.map_err(|e| e.to_string())?;
 
                 text_quad.set_width(surface.width());
@@ -269,20 +272,20 @@ impl Renderer {
                     .map_err(|e| e.to_string())?;
 
                 self.canvas.copy(&texture, None, text_quad)?;
-
-                //text_quad.set_y(text_quad.y + 27 as i32);
-                if idx % 2 == 0 {
-                    text_quad.set_x(text_quad.x + 64 as i32)
-                } else {
-                    text_quad.set_x(text_quad.x - 64 as i32);
-                    text_quad.set_y(text_quad.y + 27 as i32);
-                }
+            }
+            if idx % 2 == 0 {
+                text_quad.set_x(text_quad.x + 64 as i32)
+            } else {
+                text_quad.set_x(text_quad.x - 64 as i32);
+                text_quad.set_y(text_quad.y + 27 as i32);
             }
         }
 
         Ok(())
     }
-    pub (super) fn render_battle_select_stray_menu( //function for rendering the moves menu
+
+    pub(super) fn render_battle_select_stray_menu(
+        //function for rendering the moves menu
         &mut self,
         menu: &BattleSelectStray,
         texture_manager: &mut TextureManager<WindowContext>,
@@ -294,16 +297,17 @@ impl Renderer {
 
         let mut text_quad = Rect::new(10, (PIXELS_Y - 56) as i32, 132, 66);
 
-        for (idx, mv) in menu.stray.iter().enumerate() { //mv = move
+        for (idx, mv) in menu.stray.iter().enumerate() {
+            //mv = move
             if let Some(move_data) = mv {
                 let surface = font_man.fonts.munro.render(&move_data); //render the name of the move
-                
+
                 let surface = if idx == menu.selected {
                     surface.blended(Color::RGB(212, 101, 99))
                 } else {
                     surface.blended(Color::RGB(49, 41, 36))
                 };
-                
+
                 let surface = surface.map_err(|e| e.to_string())?;
 
                 text_quad.set_width(surface.width());
@@ -315,14 +319,12 @@ impl Renderer {
                     .map_err(|e| e.to_string())?;
 
                 self.canvas.copy(&texture, None, text_quad)?;
-
-                //text_quad.set_y(text_quad.y + 27 as i32);
-                if idx % 2 == 0 {
-                    text_quad.set_x(text_quad.x + 64 as i32)
-                } else {
-                    text_quad.set_x(text_quad.x - 64 as i32);
-                    text_quad.set_y(text_quad.y + 27 as i32);
-                }
+            }
+            if idx % 2 == 0 {
+                text_quad.set_x(text_quad.x + 64 as i32)
+            } else {
+                text_quad.set_x(text_quad.x - 64 as i32);
+                text_quad.set_y(text_quad.y + 27 as i32);
             }
         }
 

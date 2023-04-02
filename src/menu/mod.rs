@@ -1,10 +1,10 @@
 pub mod bag_menu;
+pub mod battle_select_stray;
 pub mod main_menu;
 pub mod menu_events;
+pub mod moves_menu;
 pub mod pause_menu;
 pub mod textbox;
-pub mod moves_menu;
-pub mod battle_select_stray;
 
 use hecs::World;
 
@@ -12,16 +12,21 @@ use crate::font_manager::FontManager;
 use crate::gamestate::event::Event;
 
 use self::bag_menu::BagMenu;
+use self::battle_select_stray::BattleSelectStray;
 use self::main_menu::MainMenu;
 use self::menu_events::{MenuCommand, MenuInput};
+use self::moves_menu::MovesMenu;
 use self::pause_menu::PauseMenu;
 use self::textbox::Textbox;
-use self::moves_menu::MovesMenu;
-use self::battle_select_stray::BattleSelectStray;
 
 #[enum_delegate::register]
 pub trait MenuItem {
-    fn update(&mut self, action: MenuInput, world: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand>;
+    fn update(
+        &mut self,
+        action: MenuInput,
+        world: &mut World,
+        events: &mut Vec<Event>,
+    ) -> Option<MenuCommand>;
 }
 
 #[enum_delegate::implement(MenuItem)]
@@ -45,15 +50,17 @@ impl MenuManager {
             //menus: vec![Menu::MainMenu(MainMenu::new())],
             menus: vec![],
             menu_queue: vec![],
-
         }
     }
 
     pub fn open_menu(&mut self, next_menu: Menu) {
-        if self.menus.len() == 0 { //if no menu is open
+        if self.menus.len() == 0 {
+            //if no menu is open
             self.menus.push(next_menu); //open menu
-        } else { //if a menu is open
-            if !matches!(next_menu, Menu::Textbox(_)) { //if the current menu is a textbox
+        } else {
+            //if a menu is open
+            if !matches!(next_menu, Menu::Textbox(_)) {
+                //if the current menu is a textbox
                 self.menu_queue.push(next_menu); //add next menu to queue, do not open yet
             }
         }
@@ -61,8 +68,10 @@ impl MenuManager {
 
     pub fn close_menu(&mut self) -> bool {
         self.menus.pop();
-        if self.menu_queue.len() > 0 { //if there are menus in the queue
-            if let Some(m) = self.menu_queue.pop() { //remove first queued menu from queue
+        if self.menu_queue.len() > 0 {
+            //if there are menus in the queue
+            if let Some(m) = self.menu_queue.pop() {
+                //remove first queued menu from queue
                 self.open_menu(m); //open first queued menu
             }
         }

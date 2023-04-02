@@ -497,7 +497,15 @@ impl State {
                         b.selected_move = Some(selection); //set the selected move of the battle to be the move we selected to trigger the event
                         b.battle_state = BattleState::SelectingOpponentStray; //change battle state to next menu
                         self.menus.close_menu(); //close move menu
-                        self.menus.open_menu(BattleSelectStray::new().into()); //open opponent selection menu
+                        let mut stray: [Option<String>; 4] = [None, None, None, None];
+                        for (i, s) in b.opponent_strays.iter().enumerate() {
+                            stray[i] = match s {
+                                Some(s) => Some(s.species.clone()),
+                                None => None,
+                            }
+                        }
+                        self.menus.open_menu(BattleSelectStray::new(stray).into());
+                        //open opponent selection menu
                     }
                 }
                 Event::AttackStray(idx) => {
