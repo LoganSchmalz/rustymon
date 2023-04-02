@@ -487,7 +487,6 @@ impl State {
                                     let mut rand_move: usize = 0;
                                     loop { //TODO: probly wanna change this cause these nested loops are cringe
                                         rand_p_stray= self.rng.gen::<usize>() % 4;
-                                        //println!("rand stray: {}", rand_p_stray);
                                         if battle.player_strays[rand_p_stray].is_some() { //loop until enemy selects a valid target
                                             break;
                                         }
@@ -503,7 +502,7 @@ impl State {
                                     //do random move on random target
                                     rand_int = self.rng.gen();
                                     damage = 0;
-                                    if let Some(mv) = &battle.turn_order[0].moves[rand_p_stray] {
+                                    if let Some(mv) = &battle.turn_order[0].moves[rand_move] {
                                         if rand_int < (mv.accuracy as f32/100 as f32) {
                                             damage = mv.power;
                                         }
