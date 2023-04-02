@@ -400,13 +400,11 @@ impl State {
         font_manager: &FontManager,
     ) -> Result<(), String> {
         //determine correct input handler
-        if self.allow_input {
-            if self.menus.is_open() {
-                self.update_player_moving(MovingState::Idle);
-                self.paused = self.handle_input_menus(font_manager);
-            } else {
-                self.handle_input_gameplay(font_manager);
-            }
+        if self.menus.is_open() {
+            self.update_player_moving(MovingState::Idle);
+            self.paused = self.handle_input_menus(font_manager);
+        } else {
+            self.handle_input_gameplay(font_manager);
         }
 
         //do any physics/animation updates

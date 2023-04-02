@@ -55,8 +55,10 @@ impl State {
         renderer: &mut Renderer,
     ) -> Result<bool, String> {
         for (control, state) in self.input {
-            if state == KeyState::Pressed {
-                self.input[control] = KeyState::Held
+            if self.allow_input {
+                if state == KeyState::Pressed {
+                    self.input[control] = KeyState::Held;
+                }
             }
         }
 
@@ -90,6 +92,7 @@ impl State {
                 _ => {}
             }
         }
+
         Ok(false)
     }
 
@@ -97,27 +100,59 @@ impl State {
         use Control::*;
         use KeyState::*;
 
+        if !self.allow_input {
+            return false;
+        }
+
         if self.input[Menu] == Pressed {
-            self.menus
-                .interact(MenuInput::Start, &mut self.world, font_manager, &mut self.events)
+            self.menus.interact(
+                MenuInput::Start,
+                &mut self.world,
+                font_manager,
+                &mut self.events,
+            )
         } else if self.input[Interact1] == Pressed {
-            self.menus
-                .interact(MenuInput::Accept, &mut self.world, font_manager, &mut self.events)
+            self.menus.interact(
+                MenuInput::Accept,
+                &mut self.world,
+                font_manager,
+                &mut self.events,
+            )
         } else if self.input[Interact2] == Pressed {
-            self.menus
-                .interact(MenuInput::Reject, &mut self.world, font_manager, &mut self.events)
+            self.menus.interact(
+                MenuInput::Reject,
+                &mut self.world,
+                font_manager,
+                &mut self.events,
+            )
         } else if self.input[Left] == Pressed {
-            self.menus
-                .interact(MenuInput::Left, &mut self.world, font_manager, &mut self.events)
+            self.menus.interact(
+                MenuInput::Left,
+                &mut self.world,
+                font_manager,
+                &mut self.events,
+            )
         } else if self.input[Right] == Pressed {
-            self.menus
-                .interact(MenuInput::Right, &mut self.world, font_manager, &mut self.events)
+            self.menus.interact(
+                MenuInput::Right,
+                &mut self.world,
+                font_manager,
+                &mut self.events,
+            )
         } else if self.input[Up] == Pressed {
-            self.menus
-                .interact(MenuInput::Up, &mut self.world, font_manager, &mut self.events)
+            self.menus.interact(
+                MenuInput::Up,
+                &mut self.world,
+                font_manager,
+                &mut self.events,
+            )
         } else if self.input[Down] == Pressed {
-            self.menus
-                .interact(MenuInput::Down, &mut self.world, font_manager, &mut self.events)
+            self.menus.interact(
+                MenuInput::Down,
+                &mut self.world,
+                font_manager,
+                &mut self.events,
+            )
         } else {
             false
         }
@@ -126,6 +161,11 @@ impl State {
     pub fn handle_input_gameplay(&mut self, font_man: &FontManager) {
         use Control::*;
         use KeyState::*;
+
+        if !self.allow_input {
+            self.update_player_moving(MovingState::Idle);
+            return;
+        }
 
         if self.input[Menu] == Pressed {
             self.menus.open_menu(PauseMenu::new().into());
