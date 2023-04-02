@@ -7,20 +7,18 @@ use sdl2::{rect::Rect, video::WindowContext};
 use enum_map::EnumMap;
 use std::collections::VecDeque;
 
-
 use crate::{
     components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, stray::*, *},
-    constants::RANDOM_ENCOUNTER_CHANCE,
+    constants::{FADE_FRAMES, FADE_TIME, RANDOM_ENCOUNTER_CHANCE},
     font_manager::FontManager,
     menu::{
-        Menu,
         battle_select_stray::{self, BattleSelectStray},
         main_menu::MainMenu,
         moves_menu::MovesMenu,
         textbox::Textbox,
-        MenuManager,
+        Menu, MenuManager,
     },
-    render::{Renderer, Transition},
+    render::Renderer,
     resource_manager::TextureManager,
     tilemap::TileMap,
     vec2::{Direction, Vec2},
@@ -53,36 +51,41 @@ pub struct Battle {
 
 impl Battle {
     pub fn new(player_strays: [Option<Stray>; 4], opponent_strays: [Option<Stray>; 4]) -> Battle {
-            let mut turn_order = VecDeque::new();
-            let mut strays: Vec<&Option<Stray>> = vec![]; 
+        let mut turn_order = VecDeque::new();
+        let mut strays: Vec<&Option<Stray>> = vec![];
 
-            for stray in player_strays.iter().chain(opponent_strays.iter()) {
-                strays.push(stray);
-            }
+        for stray in player_strays.iter().chain(opponent_strays.iter()) {
+            strays.push(stray);
+        }
 
-            for (idx,stray) in player_strays.iter().enumerate() {
-                if stray.is_some() {
-                    turn_order.push_back(idx);
-                }
-            }
-            for (idx,stray) in opponent_strays.iter().enumerate() {
-                if stray.is_some() {
-                    turn_order.push_back(idx+4);
-                }
-            }
-
-            turn_order.make_contiguous().sort_by(|a, b| strays[*b].as_ref().unwrap().spd.cmp(&strays[*a].as_ref().unwrap().spd));
-            
-            Battle {
-                player_strays,
-                opponent_strays,
-                selected_move: None,
-                battle_state: BattleState::SelectingMove,
-                turn_order,
+        for (idx, stray) in player_strays.iter().enumerate() {
+            if stray.is_some() {
+                turn_order.push_back(idx);
             }
         }
-}
+        for (idx, stray) in opponent_strays.iter().enumerate() {
+            if stray.is_some() {
+                turn_order.push_back(idx + 4);
+            }
+        }
 
+        turn_order.make_contiguous().sort_by(|a, b| {
+            strays[*b]
+                .as_ref()
+                .unwrap()
+                .spd
+                .cmp(&strays[*a].as_ref().unwrap().spd)
+        });
+
+        Battle {
+            player_strays,
+            opponent_strays,
+            selected_move: None,
+            battle_state: BattleState::SelectingMove,
+            turn_order,
+        }
+    }
+}
 
 #[derive(Clone, Default)]
 pub enum BattleState {
@@ -92,11 +95,29 @@ pub enum BattleState {
     SelectingFriendlyStray,
 }
 
+#[derive(Copy, Clone, Debug)]
+pub enum TransitionType {
+    Fade,
+    Win,
+    Loss,
+}
+
+#[derive(Debug)]
+pub enum Transition {
+    None,
+    Transitioning {
+        transition_type: TransitionType,
+        time: f32,
+        full: bool,
+    },
+}
+
 pub struct State {
     pub screen: Screen,
     pub next_screen: Screen,
     pub input: EnumMap<Control, KeyState>,
     pub paused: bool,
+    pub allow_input: bool,
     pub world: World,
     pub cmd: CommandBuffer,
     pub events: Vec<Event>,
@@ -105,8 +126,7 @@ pub struct State {
     pub player: Entity,
     pub collisions: HashMap<usize, Entity>,
     pub rng: ThreadRng,
-    pub transitioning: bool,
-    pub trans: Transition,
+    pub transition: Transition,
 }
 
 impl Default for State {
@@ -290,8 +310,6 @@ impl Default for State {
             },
         ));
 
-
-
         let _berry1 = world.spawn((
             Position(Vec2(16f32, 8f32)),
             Sprite::berry(),
@@ -321,6 +339,7 @@ impl Default for State {
             //screen: Screen::Battle(TEST_BATTLE),
             input: EnumMap::default(),
             paused: true,
+            allow_input: true,
             world,
             cmd,
             events: vec![],
@@ -329,8 +348,7 @@ impl Default for State {
             player,
             collisions: HashMap::new(),
             rng: rand::thread_rng(),
-            transitioning: false,
-            trans: Transition::Fade,
+            transition: Transition::None,
         }
     }
 }
@@ -345,43 +363,47 @@ impl State {
         delta_time: f32,
         map: &mut TileMap,
     ) -> Result<(), String> {
-        renderer.trans = self.trans;
-        renderer.transitioning = self.transitioning;
-
         match &self.screen {
             Screen::MainMenu => {}
             Screen::Overworld => {
-                let transition_done = renderer.render_overworld(
+                renderer.render_overworld(
                     texture_manager,
                     font_manager,
-                    delta_time,
                     &self.world,
                     map,
                     &mut self.menus,
                 )?;
-                if self.transitioning && transition_done {
-                    self.events.push(Event::TransitionFull);
-                    self.transitioning = false;
-                }
             }
             Screen::Battle(battle) => {
-                let transition_done = renderer.render_battle(
+                renderer.render_battle(
                     //render battle screen dynamically
                     texture_manager,
                     font_manager,
-                    delta_time,
                     battle,
                     &mut self.menus,
                     &self.world,
                 )?;
-                if self.transitioning && transition_done {
-                    self.events.push(Event::TransitionFull);
-                    self.transitioning = false;
-                }
             }
         }
 
-        self.transitioning = renderer.transitioning;
+        if let Transition::Transitioning { time, full, .. } = &mut self.transition {
+            if *time <= FADE_TIME {
+                *time += delta_time;
+            } else {
+                self.transition = Transition::None;
+                self.allow_input = true;
+                return Ok(());
+            }
+
+            if !*full && FADE_FRAMES / 2 >= FADE_FRAMES * (1.0 - *time / FADE_TIME).round() as i32 {
+                self.events.push(Event::TransitionFull);
+                *full = true;
+            }
+
+            renderer.render_transition(texture_manager, &self.transition)?;
+        }
+
+        renderer.present();
 
         Ok(())
     }
@@ -393,11 +415,13 @@ impl State {
         font_manager: &FontManager,
     ) -> Result<(), String> {
         //determine correct input handler
-        if self.menus.is_open() {
-            self.update_player_moving(MovingState::Idle);
-            self.paused = self.handle_input_menus(font_manager);
-        } else {
-            self.handle_input_gameplay(font_manager);
+        if self.allow_input {
+            if self.menus.is_open() {
+                self.update_player_moving(MovingState::Idle);
+                self.paused = self.handle_input_menus(font_manager);
+            } else {
+                self.handle_input_gameplay(font_manager);
+            }
         }
 
         //do any physics/animation updates
@@ -429,21 +453,34 @@ impl State {
                                 None,
                                 Some(Stray::rubridum(false)),
                                 Some(Stray::omikae(false)),
-                            ]
+                            ],
                         ));
-                        self.trans = Transition::Fade;
-                        self.transitioning = true;
+                        self.transition = Transition::Transitioning {
+                            transition_type: TransitionType::Fade,
+                            time: 0.0,
+                            full: false,
+                        };
+                        self.allow_input = false;
                     }
                 }
                 Event::TransitionFull => {
-                        std::mem::swap(&mut self.screen, &mut self.next_screen);
-                        if matches!(self.screen, Screen::Battle(_)) {
-                            if let Screen::Battle(battle) = &mut self.screen {
-                                self.menus.open_menu(MovesMenu::new(battle.player_strays[battle.turn_order[0]].as_ref().unwrap().moves.clone()).into());
-                            }
+                    std::mem::swap(&mut self.screen, &mut self.next_screen);
+                    if matches!(self.screen, Screen::Battle(_)) {
+                        if let Screen::Battle(battle) = &mut self.screen {
+                            self.menus.open_menu(
+                                MovesMenu::new(
+                                    battle.player_strays[battle.turn_order[0]]
+                                        .as_ref()
+                                        .unwrap()
+                                        .moves
+                                        .clone(),
+                                )
+                                .into(),
+                            );
                         }
-                        self.transitioning = false;
+                    }
                 }
+
                 Event::NpcMoved(entity) => {
                     let (moving, npc) = self
                         .world
@@ -471,48 +508,68 @@ impl State {
                         if let Some(stray) = &mut battle.opponent_strays[idx] {
                             self.menus.close_menu(); //close opponent selection menu
                             self.menus.close_menu(); //close move selection menu?
-                            //stray = opponent at the index chosen
+                                                     //stray = opponent at the index chosen
                             let mut rand_int: f32 = self.rng.gen();
                             let mut damage = 0;
                             if let Some(mv) = &mut battle.selected_move {
-                                if rand_int < (mv.accuracy as f32/100 as f32) {
+                                if rand_int < (mv.accuracy as f32 / 100 as f32) {
                                     damage = mv.power;
                                 }
                             }
                             stray.cur_hp = stray.cur_hp - damage; //subtract hp from selected stray by the amount of damage the move does
-                            
+
                             if stray.cur_hp <= 0 {
                                 battle.opponent_strays[idx] = None;
                             }
-                            loop { //TODO: REMOVE THIS  LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
-                                if let Some(i) = &battle.turn_order.pop_front() { //remove stray that just went from the front of the queue
+                            loop {
+                                //TODO: REMOVE THIS  LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
+                                if let Some(i) = &battle.turn_order.pop_front() {
+                                    //remove stray that just went from the front of the queue
                                     if *i > 3 {
-                                        if battle.opponent_strays[*i-4].is_some() {
+                                        if battle.opponent_strays[*i - 4].is_some() {
                                             battle.turn_order.push_back(*i); //if stray that just moved is still alive, add it back to the back of the queue
                                         }
                                     } else {
                                         if battle.player_strays[*i].is_some() {
                                             battle.turn_order.push_back(*i); //if stray that just moved is still alive, add it back to the back of the queue
-                                        } 
+                                        }
                                     }
                                 }
                                 //println!("{}", battle.turn_order[0].clone().species);
-                                if battle.turn_order[0] < 4 { //if current turn is a player's stray
-                                    break; //continue adjusting turn order until it's one of the player's stray's turn
-                                } else if battle.opponent_strays[battle.turn_order[0]-4].as_ref().is_some() { //if current turn is an enemy stray
+                                if battle.turn_order[0] < 4 {
+                                    //if current turn is a player's stray
+                                    if battle.player_strays[battle.turn_order[0]].is_none() {
+                                        battle.turn_order.pop_front();
+                                    } else {
+                                        break; //continue adjusting turn order until it's one of the player's stray's turn
+                                    }
+                                } else if battle.opponent_strays[battle.turn_order[0] - 4]
+                                    .as_ref()
+                                    .is_some()
+                                {
+                                    //if current turn is an enemy stray
                                     let mut rand_p_stray: usize = 0;
                                     let mut rand_move: usize = 0;
-                                    loop { //TODO: probly wanna change this cause these nested loops are cringe
-                                        rand_p_stray= self.rng.gen::<usize>() % 4;
+                                    loop {
+                                        //TODO: probly wanna change this cause these nested loops are cringe
+                                        rand_p_stray = self.rng.gen::<usize>() % 4;
                                         //println!("rand stray: {}", rand_p_stray);
-                                        if battle.player_strays[rand_p_stray].is_some() { //loop until enemy selects a valid target
+                                        if battle.player_strays[rand_p_stray].is_some() {
+                                            //loop until enemy selects a valid target
                                             break;
                                         }
                                     }
-                                    loop { //TODO: probly wanna change this cause these nested loops are cringe
+                                    loop {
+                                        //TODO: probly wanna change this cause these nested loops are cringe
                                         rand_move = self.rng.gen::<usize>() % 4;
                                         //println!("rand move: {}", rand_move);
-                                        if battle.opponent_strays[battle.turn_order[0]-4].as_ref().unwrap().moves[rand_move].is_some() { //loop until enemy selects a valid move
+                                        if battle.opponent_strays[battle.turn_order[0] - 4]
+                                            .as_ref()
+                                            .unwrap()
+                                            .moves[rand_move]
+                                            .is_some()
+                                        {
+                                            //loop until enemy selects a valid move
                                             break;
                                         }
                                     }
@@ -520,48 +577,95 @@ impl State {
                                     //do random move on random target
                                     rand_int = self.rng.gen();
                                     damage = 0;
-                                    let mv = battle.opponent_strays[battle.turn_order[0]-4].as_ref().unwrap().moves[rand_move].as_ref().unwrap(); 
-                                    if rand_int < (mv.accuracy as f32/100 as f32) {
+                                    let mv = battle.opponent_strays[battle.turn_order[0] - 4]
+                                        .as_ref()
+                                        .unwrap()
+                                        .moves[rand_move]
+                                        .as_ref()
+                                        .unwrap();
+                                    if rand_int < (mv.accuracy as f32 / 100 as f32) {
                                         damage = mv.power;
                                     }
                                     if let Some(p_stray) = &mut battle.player_strays[rand_p_stray] {
                                         p_stray.cur_hp -= damage; //subtract hp from selected stray by the amount of damage the move does
-                                        self.menus.open_menu(Textbox::new(&("".to_owned() + &String::from(&battle.opponent_strays[battle.turn_order[0]-4].as_ref().unwrap().species) + " used " + &mv.name + " on " + &p_stray.species + "!"), font_man).into());
+                                        self.menus.open_menu(
+                                            Textbox::new(
+                                                &("".to_owned()
+                                                    + &String::from(
+                                                        &battle.opponent_strays
+                                                            [battle.turn_order[0] - 4]
+                                                            .as_ref()
+                                                            .unwrap()
+                                                            .species,
+                                                    )
+                                                    + " used "
+                                                    + &mv.name
+                                                    + " on "
+                                                    + &p_stray.species
+                                                    + "!"),
+                                                font_man,
+                                            )
+                                            .into(),
+                                        );
                                         //TODO fix bug where only one enemy turn displays at a time
                                         if p_stray.cur_hp <= 0 {
                                             battle.player_strays[rand_p_stray] = None;
                                         }
                                     }
-                                    
-                                    
-                                    
+
                                     if battle.opponent_strays.iter().all(|x| x.is_none()) {
                                         self.menus.close_menu();
-                                        self.trans = Transition::Win;
-                                        self.transitioning = true;
+                                        self.transition = Transition::Transitioning {
+                                            transition_type: TransitionType::Win,
+                                            time: 0.0,
+                                            full: false,
+                                        };
+                                        self.allow_input = false;
                                     }
                                     if battle.player_strays.iter().all(|x| x.is_none()) {
                                         self.menus.close_menu();
-                                        self.trans = Transition::Loss;
-                                        self.transitioning = true;
-                                    }    
-
+                                        self.transition = Transition::Transitioning {
+                                            transition_type: TransitionType::Loss,
+                                            time: 0.0,
+                                            full: false,
+                                        };
+                                        self.allow_input = false;
+                                    }
                                 }
                             }
-                            
-                            self.menus.open_menu(MovesMenu::new(battle.player_strays[battle.turn_order[0]].as_ref().unwrap().moves.clone()).into()); //open moves menu
-                            
-                            //println!("{}", battle.turn_order[0].clone().species);
+
+                            // println!("{}", battle.turn_order[0]);
+
+                            self.menus.open_menu(
+                                MovesMenu::new(
+                                    battle.player_strays[battle.turn_order[0]]
+                                        .as_ref()
+                                        .unwrap()
+                                        .moves
+                                        .clone(),
+                                )
+                                .into(),
+                            ); //open moves menu
+
+                            // println!("{}", battle.turn_order[0].clone().species);
                         }
                         if battle.opponent_strays.iter().all(|x| x.is_none()) {
                             self.menus.close_menu();
-                            self.trans = Transition::Win;
-                            self.transitioning = true;
+                            self.transition = Transition::Transitioning {
+                                transition_type: TransitionType::Win,
+                                time: 0.0,
+                                full: false,
+                            };
+                            self.allow_input = false;
                         }
                         if battle.player_strays.iter().all(|x| x.is_none()) {
                             self.menus.close_menu();
-                            self.trans = Transition::Loss;
-                            self.transitioning = true;
+                            self.transition = Transition::Transitioning {
+                                transition_type: TransitionType::Loss,
+                                time: 0.0,
+                                full: false,
+                            };
+                            self.allow_input = false;
                         }
                     }
                 }

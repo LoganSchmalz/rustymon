@@ -7,8 +7,9 @@ use sdl2::{
 };
 
 use crate::{
-    constants::TILE_SIZE,
+    constants::{FADE_FRAMES, FADE_TIME, TILE_SIZE},
     font_manager::FontManager,
+    gamestate::{Transition, TransitionType},
     menu,
     resource_manager::TextureManager,
     tilemap::{FloorTile, WallTile},
@@ -23,22 +24,12 @@ mod resize;
 
 pub const PIXELS_X: u32 = 240;
 pub const PIXELS_Y: u32 = 160;
-const FADE_FRAMES: i32 = 14;
-const FADE_TIME: f32 = FADE_FRAMES as f32 * 64.0;
 const _TEXT_TIME: f32 = 500.0;
-const WINLOSS_TIME: f32 = 500.0;
 
 #[derive(PartialEq)]
 pub enum DisplayScreen {
     _MainMenu,
     _OverWorld,
-}
-
-#[derive(Copy, Clone)]
-pub enum Transition {
-    Fade,
-    Win,
-    Loss,
 }
 
 pub struct Renderer {
@@ -47,13 +38,9 @@ pub struct Renderer {
     old_window_x: u32,
     old_window_y: u32,
     canvas: Canvas<Window>,
-    pub transitioning: bool,
-    did_trans: bool,
-    pub anim_time: f32,
     camera: Camera,
     floortile_rects: EnumMap<FloorTile, Rect>,
     walltile_rects: EnumMap<WallTile, Rect>,
-    pub trans: Transition,
 }
 
 impl Renderer {
@@ -150,91 +137,60 @@ impl Renderer {
             old_window_x: PIXELS_X,
             old_window_y: PIXELS_Y,
             canvas,
-            transitioning: false,
-            did_trans: false,
-            anim_time: FADE_TIME,
             camera: Camera::default(),
             floortile_rects,
             walltile_rects,
-            trans: Transition::Fade,
         }
+    }
+
+    pub fn present(&mut self) {
+        self.canvas.present();
     }
 
     pub fn render_transition(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
-        delta_time: f32,
-        trans: Transition,
-    ) -> Result<bool, String> {
-        //println!("{}", self.anim_time);
-        match trans {
-            Transition::Fade => {
-                if self.transitioning {
-                    let fade_texture = texture_manager.load("assets/transitions/gooWipe.png")?;
+        transition: &Transition,
+    ) -> Result<(), String> {
+        if let Transition::Transitioning {
+            transition_type,
+            time,
+            ..
+        } = transition
+        {
+            match transition_type {
+                TransitionType::Fade => {
+                    {
+                        let fade_texture =
+                            texture_manager.load("assets/transitions/gooWipe.png")?;
 
-                    self.anim_time -= delta_time;
-                    if self.anim_time <= 0.0 {
-                        self.transitioning = false;
-                    } else {
                         //might be timing issues here (starts at -_delta_time instead of the actual beginning)
-                        let curr_fade_frame: i32 = (FADE_FRAMES as f64
-                            * (1.0 - (self.anim_time / FADE_TIME) as f64))
-                            .round() as i32;
+                        let curr_fade_frame: i32 =
+                            (FADE_FRAMES as f32 * (1.0 - (*time / FADE_TIME))).round() as i32;
                         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y);
                         let fade_slice = Rect::new(240 * curr_fade_frame, 0, 240, 160);
                         self.canvas.copy(&fade_texture, fade_slice, screen_quad)?;
-                        if (FADE_FRAMES as f64 * (1.0 - (self.anim_time / FADE_TIME) as f64)).round()
-                            as i32
-                            > FADE_FRAMES / 2
-                            && !self.did_trans
-                        {
-                            /*match map.id {
-                                0 => {
-                                    *map = TileMap::load(1);
-                                    obj_man.load_objects(Path::new("maps/map1/"));
-                                }
-                                1 => {
-                                    *map = TileMap::load(0);
-                                    obj_man.load_objects(Path::new("maps/map0"));
-                                }
-                                _ => panic!("Trying to load map that doesn't exist"),
-                            }*/
-                            self.anim_time = 1500.0; //TODO remove this it's literally a hack to get the win/loss screen to play longer
-
-                            return Ok(true);
-                        }
                     }
                 }
-                Ok(false)
-            },
-            Transition::Win => { //render win screen for set amount of time
-                if self.transitioning {
-                    self.anim_time -= delta_time;
-                    if self.anim_time <= 0.0 {
-                        self.transitioning = false; //end transition
-                        return Ok(true); //return Ok(true) to indicate success
-                    } else {
+                TransitionType::Win => {
+                    //render win screen for set amount of time
+                    if *time <= FADE_TIME {
                         let texture = texture_manager.load("assets/backgrounds/winscreen.png")?; //load texture for win screen
                         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //rectangle containing entire screen
                         self.canvas.copy(&texture, None, screen_quad)?; //render win screen texture over whole screen
                     }
                 }
-                Ok(false) //return Ok(false) to indicate mishap in the code
-            },
-            Transition::Loss => {  //render loss screen for set amount of time
-                if self.transitioning {
-                    if self.anim_time <= 0.0 {
-                        self.transitioning = false; //end transition
-                        return Ok(true); //return Ok(true) to indicate success
-                    } else {
+                TransitionType::Loss => {
+                    //render loss screen for set amount of time
+                    if *time <= FADE_TIME {
                         let texture = texture_manager.load("assets/backgrounds/lossscreen.png")?; //load texture for loss screen
                         let screen_quad = Rect::new(0, 0, PIXELS_X, PIXELS_Y); //rectangle containing entire screen
                         self.canvas.copy(&texture, None, screen_quad)?; //render loss screen texture over whole screen
                     }
                 }
-                Ok(false) //return Ok(false) to indicate mishap in the code
-            },
+            }
         }
+        Ok(())
     }
 
     pub fn render_menus(
@@ -260,7 +216,7 @@ impl Renderer {
                 }
                 menu::Menu::MovesMenu(menu) => {
                     //if !matches!(menu_man.menus[0], Menu::Textbox(_)) {
-                        self.render_moves_menu(menu, texture_manager, font_man)?
+                    self.render_moves_menu(menu, texture_manager, font_man)?
                     //}
                 }
                 menu::Menu::BattleSelectStray(menu) => {

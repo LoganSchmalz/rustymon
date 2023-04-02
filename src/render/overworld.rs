@@ -25,11 +25,10 @@ impl Renderer {
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
         font_man: &FontManager,
-        delta_time: f32,
         world: &World,
         map: &mut tilemap::TileMap,
         menu_man: &mut menu::MenuManager,
-    ) -> Result<bool, String> {
+    ) -> Result<(), String> {
         self.canvas.set_draw_color(Color::RGB(39, 45, 46));
         self.canvas.clear();
 
@@ -37,15 +36,8 @@ impl Renderer {
         self.render_overworld_tiles(texture_manager, map)?;
         self.render_entities(world, texture_manager)?;
         self.render_menus(world, texture_manager, font_man, menu_man)?;
-        let transition_done = if self.transitioning {
-            self.render_transition(texture_manager, delta_time, self.trans)
-        } else {
-            Ok(false)
-        };
 
-        self.canvas.present();
-
-        transition_done
+        Ok(())
     }
 
     pub fn update_camera(&mut self, world: &World) -> Result<(), String> {

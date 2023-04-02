@@ -10,11 +10,10 @@ impl Renderer {
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
         font_manager: &FontManager,
-        delta_time: f32,
         battle: &Battle,
         menu_man: &mut menu::MenuManager,
         world: &World,
-    ) -> Result<bool, String> {
+    ) -> Result<(), String> {
         //self.canvas.set_draw_color(Color::RGB(255, 255, 255));
         //self.canvas.clear();
         let background = texture_manager.load("assets/backgrounds/battlebg.png")?;
@@ -167,34 +166,29 @@ impl Renderer {
             }
         }
         self.render_menus(world, texture_manager, font_manager, menu_man)?; //render menu (either moves menu or enemy selection)
-        let did_trans = if self.transitioning {
-            self.render_transition(texture_manager, delta_time, self.trans)?
-        } else { false };
-        self.canvas.present();
-        Ok(did_trans)
+
+        Ok(())
     }
 
     pub fn _render_win(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
-        delta_time: f32,
     ) -> Result<(), String> {
         //function to render win screen
         let background = texture_manager.load("assets/backgrounds/winscreen.png")?;
         self.canvas.copy(&background, None, None)?;
-        self.canvas.present();
+
         Ok(())
     }
 
     pub fn _render_loss(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
-        delta_time: f32,
     ) -> Result<(), String> {
         //function to render loss screen
         let background = texture_manager.load("assets/backgrounds/lossscreen.png")?;
         self.canvas.copy(&background, None, None)?;
-        self.canvas.present();
+
         Ok(())
     }
 }

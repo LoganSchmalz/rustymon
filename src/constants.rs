@@ -9,3 +9,6 @@ pub const RUNNING_TIME_PER_TILE: f32 = 1.0 / RUN_SPEED; // in ms
 pub const _HUMAN_WIDTH: u32 = 16;
 pub const _HUMAN_HEIGHT: u32 = 20;
 pub const ROTATION_TIME: f32 = RUNNING_TIME_PER_TILE;
+
+pub const FADE_FRAMES: i32 = 14;
+pub const FADE_TIME: f32 = FADE_FRAMES as f32 * 64.0;
