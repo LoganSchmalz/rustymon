@@ -76,7 +76,7 @@ impl Renderer {
         for (index, stray) in battle.player_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
                 let text_color = //text color for stray name based on whether or not it is their turn currentl
-                if battle.turn_order[0].species == stray_data.species { //if it is the stray's turn
+                if battle.player_strays[battle.turn_order[0]].as_ref().unwrap().species == stray_data.species { //if it is the stray's turn
                     Color::RGB(167, 84, 94) //red
                 } else {
                     Color::RGB(31, 27, 24) //black
@@ -121,12 +121,15 @@ impl Renderer {
 
         for (index, stray) in battle.opponent_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
-                let text_color = //text color for stray name based on whether or not it is their turn currentl
-                if battle.turn_order[0].species == stray_data.species { //if it is the stray's turn
-                    Color::RGB(167, 84, 94) //red
-                } else {
-                    Color::RGB(31, 27, 24) //black
-                };
+                let mut text_color = Color::RGB(31, 27, 24); //black
+                //text color for stray name based on whether or not it is their turn currentl
+                
+                if battle.turn_order[0] > 3 {
+                    if battle.opponent_strays[battle.turn_order[0]].as_ref().unwrap().species == stray_data.species { //if it is the stray's turn
+                        text_color = Color::RGB(167, 84, 94); //red
+                    }
+                }
+
                 let name_surface = font_manager
                     .fonts
                     .munro
