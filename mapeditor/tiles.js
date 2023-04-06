@@ -566,35 +566,35 @@ const walls = [
         "id": 24,
         "x": 304,
         "y": 0,
-        "hasCollision": true
+        "hasCollision": false
     },
     {
         "name": "ROOF_2",
         "id": 25,
         "x": 320,
         "y": 0,
-        "hasCollision": true
+        "hasCollision": false
     },
     {
         "name": "ROOF_3",
         "id": 26,
         "x": 336,
         "y": 0,
-        "hasCollision": true
+        "hasCollision": false
     },
     {
         "name": "ROOF_4",
         "id": 27,
         "x": 352,
         "y": 0,
-        "hasCollision": true
+        "hasCollision": false
     },
     {
         "name": "ROOF_5",
         "id": 28,
         "x": 288,
         "y": 16,
-        "hasCollision": true
+        "hasCollision": false
     },
     {
         "name": "ROOF_6",
@@ -629,14 +629,14 @@ const walls = [
         "id": 33,
         "x": 368,
         "y": 16,
-        "hasCollision": true
+        "hasCollision": false
     },
     {
         "name": "ROOF_11",
         "id": 34,
         "x": 288,
         "y": 32,
-        "hasCollision": true
+        "hasCollision": false
     },
     {
         "name": "ROOF_12",
@@ -671,7 +671,7 @@ const walls = [
         "id": 39,
         "x": 368,
         "y": 32,
-        "hasCollision": true
+        "hasCollision": false
     },
     {
         "name": "DOOR",
