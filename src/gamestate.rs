@@ -454,6 +454,7 @@ impl State {
                     battle.selected_move = Some(selection); //set the selected move of the battle to be the move we selected to trigger the event
                     battle.menus.close_menu(); //close move menu
                     battle.battle_state = BattleState::SelectingOpponentStray;
+                    battle.selected_stray = battle.get_left_opponent_stray(Some(0));
                 }
                 Event::AttackStray(idx) => {
                     let Screen::Battle(battle) = &mut self.screen else { panic!() };
