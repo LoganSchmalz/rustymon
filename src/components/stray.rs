@@ -14,12 +14,20 @@ pub enum Type {
     Light,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum MoveKind {
+    //enum listing the kinds of moves (could later be expanded to include things like DOT, different kinds of AOE, etc.)
+    Healing,
+    Damage,
+}
+
 #[derive(Clone,Debug, PartialEq, Eq, Hash)]
 pub struct Move {
     //struct defining everything contained within a given move, using the type enum to define the type of the move
     pub name: String,
     pub power: i32,
     pub accuracy: i32,
+    pub kind: MoveKind,
     pub m_type: Type,
 }
 
@@ -29,6 +37,7 @@ impl Move {
             name: String::from("Slam"),
             power: 15,
             accuracy: 80,
+            kind: MoveKind::Damage,
             m_type: Type::Earth, 
         }
     }
@@ -38,6 +47,7 @@ impl Move {
             name: String::from("Flail"),
             power: 0,
             accuracy: 100,
+            kind: MoveKind::Damage,
             m_type: Type::Earth, 
         }
     } 
@@ -47,6 +57,7 @@ impl Move {
             name: String::from("Wave"),
             power: 15,
             accuracy: 80,
+            kind: MoveKind::Damage,
             m_type: Type::Water, 
         }
     }
@@ -56,6 +67,7 @@ impl Move {
             name: String::from("Slice"),
             power: 5,
             accuracy: 100,
+            kind: MoveKind::Damage,
             m_type: Type::Water,
         }
     }
@@ -65,6 +77,7 @@ impl Move {
             name: String::from("Screech"),
             power: 10,
             accuracy: 90,
+            kind: MoveKind::Damage,
             m_type: Type::Fire,
         }
     }
@@ -74,6 +87,7 @@ impl Move {
             name: String::from("Peck"),
             power: 7,
             accuracy: 85,
+            kind: MoveKind::Damage,
             m_type: Type::Fire,
         }
     }
@@ -85,6 +99,7 @@ impl Move {
             name: String::from("Reincarnate"),
             power: 10,
             accuracy: 100,
+            kind: MoveKind::Damage,
             m_type: Type::Time, 
         }
     }
@@ -94,6 +109,7 @@ impl Move {
             name: String::from("High Tide"),
             power: 10,
             accuracy: 100,
+            kind: MoveKind::Damage,
             m_type: Type::Water, 
         }
     }
@@ -103,6 +119,7 @@ impl Move {
             name: String::from("Vortex"),
             power: 10,
             accuracy: 100,
+            kind: MoveKind::Healing,
             m_type: Type::Astral, 
         }
     }
@@ -112,6 +129,7 @@ impl Move {
             name: String::from("Bash"),
             power: 10,
             accuracy: 100,
+            kind: MoveKind::Damage,
             m_type: Type::Dark, 
         }
     }
@@ -121,6 +139,7 @@ impl Move {
             name: String::from("Ram"),
             power: 10,
             accuracy: 100,
+            kind: MoveKind::Damage,
             m_type: Type::Wind, 
         }
     }
@@ -130,6 +149,7 @@ impl Move {
             name: String::from("Wisp"),
             power: 10,
             accuracy: 100,
+            kind: MoveKind::Damage,
             m_type: Type::Fire, 
         }
     }
@@ -139,6 +159,7 @@ impl Move {
             name: String::from("Blitz"),
             power: 10,
             accuracy: 100,
+            kind: MoveKind::Damage,
             m_type: Type::Fire, 
         }
     }
@@ -148,6 +169,7 @@ impl Move {
             name: String::from("Scratch"),
             power: 10,
             accuracy: 100,
+            kind: MoveKind::Damage,
             m_type: Type::Zen, 
         }
     }
