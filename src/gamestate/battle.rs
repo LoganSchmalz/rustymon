@@ -73,7 +73,7 @@ impl Battle {
             }
         }
         //try to get most left stray
-        for (i, s) in self.opponent_strays[0..4].iter().enumerate() {
+        for i in 0..4 {
             if self.opponent_strays[i].is_some() {
                 return Some(i);
             };

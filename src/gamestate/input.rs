@@ -249,8 +249,6 @@ impl State {
                     println!("attacked {:?}", &battle.selected_stray);
                     self.events
                         .push(crate::gamestate::event::Event::AttackStray(index));
-                    battle.selected_stray = None;
-                    battle.battle_state = BattleState::SelectingMove;
                 }
             } else if self.input[Left] == Pressed {
                 match battle.battle_state {

@@ -135,7 +135,7 @@ impl Renderer {
                         (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32;
                     let health_slice = Rect::new(
                         //cropping the healthbar png based on health percentage
-                        (79 - health_pixels) as i32,
+                        79 - health_pixels as i32,
                         0 as i32,
                         health_pixels,
                         4,
@@ -159,7 +159,7 @@ impl Renderer {
                                                              //text color for stray name based on whether or not it is their turn currentl
 
                 if battle.turn_order[0] > 3 {
-                    if battle.opponent_strays[battle.turn_order[0]]
+                    if battle.opponent_strays[battle.turn_order[0] - 4]
                         .as_ref()
                         .unwrap()
                         .species
@@ -192,7 +192,7 @@ impl Renderer {
                         (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32;
                     let health_slice = Rect::new(
                         //cropping the healthbar png based on health percentage
-                        (79 - health_pixels) as i32,
+                        79 - health_pixels as i32,
                         0 as i32,
                         health_pixels,
                         4,
