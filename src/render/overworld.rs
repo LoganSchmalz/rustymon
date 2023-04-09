@@ -2,12 +2,12 @@ use hecs::World;
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 
 use crate::{
-    components::{animation::HumanWalkAnimation, sprite::Sprite, Player, Position},
+    components::{animation::HumanWalkAnimation, sprite::Sprite, Player, Position, Collision},
     constants::TILE_SIZE,
     font_manager::FontManager,
     menu,
     resource_manager::TextureManager,
-    tilemap::{self, FloorTile, WallTile},
+    tilemap::{self, FloorTile, WallTile, CollisionTile},
     vec2::Vec2,
 };
 
@@ -35,6 +35,7 @@ impl Renderer {
         self.update_camera(world)?;
         self.render_overworld_tiles(texture_manager, map)?;
         self.render_entities(world, texture_manager)?;
+        self.render_front_overworld_tiles(texture_manager, map)?;
         self.render_menus(world, texture_manager, font_man, menu_man)?;
 
         Ok(())
@@ -130,7 +131,40 @@ impl Renderer {
                 }
             };
             if let Some(tile) = map.walls.get(i) {
-                if !matches!(tile, WallTile::NONE) {
+                // check if the tile is empty AND if it is not a front tile (to be rendered after the entities)
+                if !matches!(tile, WallTile::NONE) && !map.front_filter.contains(tile) {
+                    let src = self.walltile_rects[*tile];
+                    self.canvas.copy(&texture, src, render_quad)?
+                }
+            };
+        }
+
+        Ok(())
+    }
+
+    pub fn render_front_overworld_tiles(
+        &mut self,
+        texture_manager: &mut TextureManager<WindowContext>,
+        map: &tilemap::TileMap,
+    ) -> Result<(), String> {
+        self.canvas.set_draw_color(Color::RGB(0, 0, 0));
+
+        let texture = texture_manager.load("assets/tiles/tilesprites.png")?;
+
+        let top_left = Vec2::from(self.camera.top_left).to_usize(map.size_x);
+        let bottom_right = Vec2::from(self.camera.bottom_right).to_usize(map.size_x);
+
+        for i in top_left..bottom_right {
+            let render_quad = Rect::new(
+                (i % map.size_x) as i32 * TILE_SIZE - self.camera.offset.0,
+                (i / map.size_x) as i32 * TILE_SIZE - self.camera.offset.1,
+                TILE_SIZE as u32,
+                TILE_SIZE as u32,
+            );
+
+            // render wall tiles in the front_filter after entities are rendered
+            if let Some(tile) = map.walls.get(i) {
+                if map.front_filter.contains(tile) {
                     let src = self.walltile_rects[*tile];
                     self.canvas.copy(&texture, src, render_quad)?
                 }

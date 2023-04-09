@@ -3,7 +3,7 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use std::{fs, path::Path};
 
-use crate::vec2::Vec2;
+use crate::vec2::{Vec2, self};
 
 #[derive(FromPrimitive, ToPrimitive, Debug, Enum, Clone, Copy)]
 pub enum FloorTile {
@@ -47,7 +47,7 @@ pub enum FloorTile {
     GRASSPATH_H,
 }
 
-#[derive(FromPrimitive, ToPrimitive, Debug, Enum, Clone, Copy)]
+#[derive(FromPrimitive, ToPrimitive, PartialEq, Debug, Enum, Clone, Copy)]
 pub enum WallTile {
     NONE,
     WOODL,
@@ -92,7 +92,7 @@ pub enum WallTile {
     DOOR,
 }
 
-#[derive(FromPrimitive, ToPrimitive)]
+#[derive(FromPrimitive, ToPrimitive, PartialEq, Debug)]
 pub enum CollisionTile {
     None,
     Wall,
@@ -104,6 +104,7 @@ pub struct TileMap {
     pub size_y: usize,
     pub floor: Vec<FloorTile>,
     pub walls: Vec<WallTile>,
+    pub front_filter: Vec<WallTile>,
     pub collision: Vec<CollisionTile>,
     pub id: i32,
 }
@@ -163,6 +164,19 @@ impl TileMap {
             )
         }
 
+        // filter out wall tiles that you cannot walk behind (only front wall tiles)
+        let front_filter = vec![
+            WallTile::ROOF_1,
+            WallTile::ROOF_2,
+            WallTile::ROOF_3,
+            WallTile::ROOF_4,
+            WallTile::ROOF_5,
+            WallTile::ROOF_10,
+            WallTile::ROOF_11,
+            WallTile::ROOF_16,
+            WallTile::TREE_TOP
+            ];
+
         let collision: Vec<CollisionTile> = fs::read_to_string(mapfolder.join("collision.txt"))
             .unwrap_or_else(|_| panic!("{}collision.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
@@ -184,6 +198,7 @@ impl TileMap {
             size_y: *size_y,
             floor,
             walls,
+            front_filter,
             collision,
             id,
         }
