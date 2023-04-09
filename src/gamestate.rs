@@ -11,6 +11,7 @@ use crate::{
     components::{animation::HumanWalkAnimation, bag::Bag, sprite::Sprite, stray::*, *},
     constants::{FADE_FRAMES, FADE_TIME, RANDOM_ENCOUNTER_CHANCE},
     font_manager::FontManager,
+    gamestate::battle::BattleState,
     menu::{
         battle_select_stray::{self, BattleSelectStray},
         main_menu::MainMenu,
@@ -25,10 +26,12 @@ use crate::{
 };
 
 use self::{
+    battle::Battle,
     event::Event,
     input::{Control, KeyState},
 };
 
+pub mod battle;
 pub mod event;
 mod input;
 mod updates;
@@ -38,61 +41,6 @@ pub enum Screen {
     MainMenu,
     Overworld,
     Battle(Battle),
-}
-
-#[derive(Default, Clone)]
-pub struct Battle {
-    pub player_strays: [Option<Stray>; 4],
-    pub opponent_strays: [Option<Stray>; 4],
-    pub selected_move: Option<Move>,
-    pub battle_state: BattleState,
-    pub turn_order: VecDeque<usize>,
-}
-
-impl Battle {
-    pub fn new(player_strays: [Option<Stray>; 4], opponent_strays: [Option<Stray>; 4]) -> Battle {
-        let mut turn_order = VecDeque::new();
-        let mut strays: Vec<&Option<Stray>> = vec![];
-
-        for stray in player_strays.iter().chain(opponent_strays.iter()) {
-            strays.push(stray);
-        }
-
-        for (idx, stray) in player_strays.iter().enumerate() {
-            if stray.is_some() {
-                turn_order.push_back(idx);
-            }
-        }
-        for (idx, stray) in opponent_strays.iter().enumerate() {
-            if stray.is_some() {
-                turn_order.push_back(idx + 4);
-            }
-        }
-
-        turn_order.make_contiguous().sort_by(|a, b| {
-            strays[*b]
-                .as_ref()
-                .unwrap()
-                .spd
-                .cmp(&strays[*a].as_ref().unwrap().spd)
-        });
-
-        Battle {
-            player_strays,
-            opponent_strays,
-            selected_move: None,
-            battle_state: BattleState::SelectingMove,
-            turn_order,
-        }
-    }
-}
-
-#[derive(Clone, Default)]
-pub enum BattleState {
-    #[default]
-    SelectingMove,
-    SelectingOpponentStray,
-    SelectingFriendlyStray,
 }
 
 #[derive(Copy, Clone, Debug)]

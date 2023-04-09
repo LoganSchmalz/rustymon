@@ -1,7 +1,7 @@
 use hecs::World;
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 
-use crate::{font_manager::FontManager, gamestate::Battle, menu, resource_manager::TextureManager};
+use crate::{font_manager::FontManager, menu, resource_manager::TextureManager, gamestate::battle::Battle};
 
 use super::{Renderer, PIXELS_X, PIXELS_Y};
 
