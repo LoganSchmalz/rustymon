@@ -14,7 +14,7 @@ use crate::{
     vec2::Direction,
 };
 
-use super::{battle::Battle, Screen, State};
+use super::{Screen, State};
 
 #[derive(PartialEq, Copy, Clone, Default)]
 pub enum KeyState {
@@ -101,10 +101,6 @@ impl State {
         use Control::*;
         use KeyState::*;
 
-        if !self.allow_input {
-            return false;
-        }
-
         if self.input[Menu] == Pressed {
             self.menus.interact(
                 MenuInput::Start,
@@ -162,11 +158,6 @@ impl State {
     pub fn handle_input_gameplay(&mut self, font_man: &FontManager) {
         use Control::*;
         use KeyState::*;
-
-        if !self.allow_input {
-            self.update_player_moving(MovingState::Idle);
-            return;
-        }
 
         if self.input[Menu] == Pressed {
             self.menus.open_menu(PauseMenu::new().into());
@@ -256,14 +247,33 @@ impl State {
             if self.input[Interact1] == Pressed {
                 if let Some(index) = battle.selected_stray {
                     println!("attacked {:?}", &battle.selected_stray);
-                    self.events.push(crate::gamestate::event::Event::AttackStray(index));
+                    self.events
+                        .push(crate::gamestate::event::Event::AttackStray(index));
                     battle.selected_stray = None;
                     battle.battle_state = BattleState::SelectingMove;
                 }
             } else if self.input[Left] == Pressed {
-                battle.selected_stray = battle.get_left_opponent_stray(battle.selected_stray);
+                match battle.battle_state {
+                    BattleState::SelectingOpponentStray => {
+                        battle.selected_stray =
+                            battle.get_left_opponent_stray(battle.selected_stray)
+                    }
+                    BattleState::SelectingFriendlyStray => {
+                        battle.selected_stray = battle.get_left_player_stray(battle.selected_stray)
+                    }
+                    _ => {}
+                }
             } else if self.input[Right] == Pressed {
-                battle.selected_stray = battle.get_right_opponent_stray(battle.selected_stray);
+                match battle.battle_state {
+                    BattleState::SelectingOpponentStray => {
+                        battle.selected_stray =
+                            battle.get_right_opponent_stray(battle.selected_stray)
+                    }
+                    BattleState::SelectingFriendlyStray => {
+                        battle.selected_stray = battle.get_right_player_stray(battle.selected_stray)
+                    }
+                    _ => {}
+                }
             }
         }
     }

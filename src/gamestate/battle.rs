@@ -5,6 +5,14 @@ use crate::{
     menu::{Menu, MenuManager},
 };
 
+#[derive(Clone, Default, Debug)]
+pub enum BattleState {
+    #[default]
+    SelectingMove,
+    SelectingOpponentStray,
+    SelectingFriendlyStray,
+}
+
 #[derive(Default)]
 pub struct Battle {
     pub player_strays: [Option<Stray>; 4],
@@ -130,12 +138,4 @@ impl Battle {
         //default to no stray found
         None
     }
-}
-
-#[derive(Clone, Default, Debug)]
-pub enum BattleState {
-    #[default]
-    SelectingMove,
-    SelectingOpponentStray,
-    SelectingFriendlyStray,
 }

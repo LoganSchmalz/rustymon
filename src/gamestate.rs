@@ -362,11 +362,15 @@ impl State {
         //determine correct input handler
         match &self.screen {
             Screen::Overworld(_) => {
-                if self.menus.is_open() {
-                    self.update_player_moving(MovingState::Idle);
-                    self.paused = self.handle_input_menus(font_manager);
+                if self.allow_input {
+                    if self.menus.is_open() {
+                        self.update_player_moving(MovingState::Idle);
+                        self.paused = self.handle_input_menus(font_manager);
+                    } else {
+                        self.handle_input_gameplay(font_manager);
+                    }
                 } else {
-                    self.handle_input_gameplay(font_manager);
+                    self.update_player_moving(MovingState::Idle);
                 }
 
                 if !self.paused {
@@ -377,7 +381,9 @@ impl State {
             }
             Screen::MainMenu => {}
             Screen::Battle(_) => {
+                if self.allow_input {
                 self.handle_input_battle(font_manager);
+                }
             }
         }
 
