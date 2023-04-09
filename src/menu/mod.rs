@@ -44,9 +44,19 @@ pub struct MenuManager {
     pub menu_queue: Vec<Menu>,
 }
 
+impl Default for MenuManager { 
+    fn default() -> Self {
+        Self {
+            //menus: vec![Menu::MainMenu(MainMenu::new())],
+            menus: vec![],
+            menu_queue: vec![],
+        }
+    }
+}
+
 impl MenuManager {
-    pub fn new() -> MenuManager {
-        MenuManager {
+    pub fn new() -> Self {
+        Self {
             //menus: vec![Menu::MainMenu(MainMenu::new())],
             menus: vec![],
             menu_queue: vec![],

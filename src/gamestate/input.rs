@@ -8,12 +8,13 @@ use sdl2::{
 use crate::{
     components::MovingState,
     font_manager::FontManager,
+    gamestate::battle::BattleState,
     menu::{menu_events::MenuInput, pause_menu::PauseMenu},
     render::Renderer,
     vec2::Direction,
 };
 
-use super::State;
+use super::{battle::Battle, Screen, State};
 
 #[derive(PartialEq, Copy, Clone, Default)]
 pub enum KeyState {
@@ -187,6 +188,83 @@ impl State {
             self.update_player_moving(MovingState::Moving(Direction::Right));
         } else {
             self.update_player_moving(MovingState::Idle);
+        }
+    }
+
+    pub fn handle_input_battle(&mut self, font_manager: &FontManager) {
+        use Control::*;
+        use KeyState::*;
+
+        let Screen::Battle(battle) = &mut self.screen else { panic!() };
+
+        if battle.menus.is_open() {
+            let close = if self.input[Interact1] == Pressed {
+                battle.menus.interact(
+                    MenuInput::Accept,
+                    &mut self.world,
+                    font_manager,
+                    &mut self.events,
+                )
+            } else if self.input[Interact2] == Pressed {
+                battle.menus.interact(
+                    MenuInput::Reject,
+                    &mut self.world,
+                    font_manager,
+                    &mut self.events,
+                )
+            } else if self.input[Left] == Pressed {
+                battle.menus.interact(
+                    MenuInput::Left,
+                    &mut self.world,
+                    font_manager,
+                    &mut self.events,
+                )
+            } else if self.input[Right] == Pressed {
+                battle.menus.interact(
+                    MenuInput::Right,
+                    &mut self.world,
+                    font_manager,
+                    &mut self.events,
+                )
+            } else if self.input[Up] == Pressed {
+                battle.menus.interact(
+                    MenuInput::Up,
+                    &mut self.world,
+                    font_manager,
+                    &mut self.events,
+                )
+            } else if self.input[Down] == Pressed {
+                battle.menus.interact(
+                    MenuInput::Down,
+                    &mut self.world,
+                    font_manager,
+                    &mut self.events,
+                )
+            } else {
+                false
+            };
+
+            if close {
+                battle.menus.close_menu();
+            }
+        }
+
+        if matches!(
+            battle.battle_state,
+            BattleState::SelectingOpponentStray | BattleState::SelectingFriendlyStray
+        ) {
+            if self.input[Interact1] == Pressed {
+                if let Some(index) = battle.selected_stray {
+                    println!("attacked {:?}", &battle.selected_stray);
+                    self.events.push(crate::gamestate::event::Event::AttackStray(index));
+                    battle.selected_stray = None;
+                    battle.battle_state = BattleState::SelectingMove;
+                }
+            } else if self.input[Left] == Pressed {
+                battle.selected_stray = battle.get_left_opponent_stray(battle.selected_stray);
+            } else if self.input[Right] == Pressed {
+                battle.selected_stray = battle.get_right_opponent_stray(battle.selected_stray);
+            }
         }
     }
 }

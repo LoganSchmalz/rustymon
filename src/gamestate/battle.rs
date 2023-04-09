@@ -1,14 +1,19 @@
 use std::collections::VecDeque;
 
-use crate::components::stray::{Move, Stray};
+use crate::{
+    components::stray::{Move, Stray},
+    menu::{Menu, MenuManager},
+};
 
-#[derive(Default, Clone)]
+#[derive(Default)]
 pub struct Battle {
     pub player_strays: [Option<Stray>; 4],
     pub opponent_strays: [Option<Stray>; 4],
     pub selected_move: Option<Move>,
+    pub selected_stray: Option<usize>,
     pub battle_state: BattleState,
     pub turn_order: VecDeque<usize>,
+    pub menus: MenuManager,
 }
 
 impl Battle {
@@ -45,11 +50,89 @@ impl Battle {
             selected_move: None,
             battle_state: BattleState::SelectingMove,
             turn_order,
+            selected_stray: None,
+            menus: MenuManager::new(),
         }
+    }
+
+    pub fn get_left_opponent_stray(&mut self, index: Option<usize>) -> Option<usize> {
+        //try to get next left stray
+        if let Some(index) = index {
+            for i in (0..index).rev() {
+                if self.opponent_strays[i].is_some() {
+                    return Some(i);
+                };
+            }
+        }
+        //try to get most left stray
+        for (i, s) in self.opponent_strays[0..4].iter().enumerate() {
+            if self.opponent_strays[i].is_some() {
+                return Some(i);
+            };
+        }
+        //default to no stray found
+        None
+    }
+
+    pub fn get_left_player_stray(&self, index: Option<usize>) -> Option<usize> {
+        //try to get next left stray
+        if let Some(index) = index {
+            for i in (0..index).rev() {
+                if self.player_strays[i].is_some() {
+                    return Some(i);
+                };
+            }
+        }
+        //try to get most left stray
+        for i in 0..4 {
+            if self.player_strays[i].is_some() {
+                return Some(i);
+            };
+        }
+        //default to no stray found
+        None
+    }
+
+    pub fn get_right_opponent_stray(&self, index: Option<usize>) -> Option<usize> {
+        //try to get next right stray
+        if let Some(index) = index {
+            for i in (index + 1)..4 {
+                if self.opponent_strays[i].is_some() {
+                    return Some(i);
+                };
+            }
+        }
+        //try to get most right stray
+        for i in (0..4).rev() {
+            if self.opponent_strays[i].is_some() {
+                return Some(i);
+            };
+        }
+        //default to no stray found
+        None
+    }
+
+    pub fn get_right_player_stray(&self, index: Option<usize>) -> Option<usize> {
+        //try to get next right stray
+        if let Some(index) = index {
+            for i in (index + 1)..4 {
+                if self.player_strays[i].is_some() {
+                    return Some(i);
+                };
+            }
+        }
+        //try to get most right stray
+        for i in (0..4).rev() {
+            if self.player_strays[i].is_some() {
+                return Some(i);
+            };
+        }
+        //default to no stray found
+        None
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub enum BattleState {
     #[default]
     SelectingMove,

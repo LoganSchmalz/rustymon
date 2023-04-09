@@ -6,7 +6,7 @@ use crate::{
         Collision, MovingEntity, MovingState, Position, Npc,
     },
     constants::{ROTATION_TIME, RUN_SPEED, WALK_SPEED},
-    gamestate::event::Event,
+    gamestate::{event::Event, Screen},
     vec2::{compute_direction, Direction, Vec2},
 };
 
@@ -24,6 +24,8 @@ impl State {
     pub fn update_screen(&mut self, delta_time: f32) {}
 
     pub fn update_collisions(&mut self) {
+        let Screen::Overworld(map) = &self.screen else { panic!(); };
+
         let mut collision_query = self
             .world
             .query::<(&mut Position, Option<&MovingEntity>)>()
@@ -33,7 +35,7 @@ impl State {
         //self.collisions.reserve(collision_query.iter().len());
 
         for (entity, (Position(c), moving)) in collision_query.iter() {
-            self.collisions.insert(c.to_usize(self.map.size_x), entity);
+            self.collisions.insert(c.to_usize(map.size_x), entity);
             if let Some(moving) = moving {
                 let next_pos = match moving.moving {
                     MovingState::Moving(Direction::Left) => Vec2((c.0 - 1.0).ceil(), c.1),
@@ -44,7 +46,7 @@ impl State {
                 };
 
                 self.collisions
-                    .insert(next_pos.to_usize(self.map.size_x), entity);
+                    .insert(next_pos.to_usize(map.size_x), entity);
             }
         }
     }
@@ -68,6 +70,8 @@ impl State {
     }
 
     pub fn update_moving_objects(&mut self, delta_time: f32) {
+        let Screen::Overworld(map) = &self.screen else { panic!(); };
+
         use MovingState::*;
 
         let mut moving_query = self.world.query::<(

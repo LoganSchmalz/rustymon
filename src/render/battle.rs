@@ -1,7 +1,12 @@
 use hecs::World;
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 
-use crate::{font_manager::FontManager, menu, resource_manager::TextureManager, gamestate::battle::Battle};
+use crate::{
+    font_manager::FontManager,
+    gamestate::battle::{Battle, BattleState},
+    menu,
+    resource_manager::TextureManager,
+};
 
 use super::{Renderer, PIXELS_X, PIXELS_Y};
 
@@ -14,13 +19,26 @@ impl Renderer {
         menu_man: &mut menu::MenuManager,
         world: &World,
     ) -> Result<(), String> {
-        //self.canvas.set_draw_color(Color::RGB(255, 255, 255));
-        //self.canvas.clear();
         let background = texture_manager.load("assets/backgrounds/battlebg.png")?;
         self.canvas.copy(&background, None, None)?;
 
         for (index, stray) in battle.player_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
+                if matches!(battle.battle_state, BattleState::SelectingFriendlyStray) {
+                    if let Some(i) = battle.selected_stray {
+                        if i == index {
+                            let texture = texture_manager.load("assets/UI/team_select.png")?;
+                            let dst = Rect::new(
+                                -5 + 20 * index as i32,
+                                45 + 70 + 10 * index as i32,
+                                texture.query().width,
+                                texture.query().height,
+                            );
+                            self.canvas.copy(&texture, None, dst)?;
+                        }
+                    }
+                }
+
                 let texture = texture_manager.load(&stray_data.texture)?;
                 let dst = Rect::new(
                     20 * index as i32,
@@ -40,9 +58,24 @@ impl Renderer {
 
         for (index, stray) in battle.opponent_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
+                if matches!(battle.battle_state, BattleState::SelectingOpponentStray) {
+                    if let Some(i) = battle.selected_stray {
+                        if i == index {
+                            let texture = texture_manager.load("assets/UI/enemy_select.png")?;
+                            let dst = Rect::new(
+                                -5 + 110 + 20 * index as i32,
+                                45 + 10 + 10 * index as i32,
+                                texture.query().width,
+                                texture.query().height,
+                            );
+                            self.canvas.copy(&texture, None, dst)?;
+                        }
+                    }
+                }
+
                 let texture = texture_manager.load(&stray_data.texture)?;
                 let dst = Rect::new(
-                    130 + 20 * index as i32,
+                    110 + 20 * index as i32,
                     10 + 10 * index as i32,
                     texture.query().width / 2,
                     texture.query().height,
@@ -98,12 +131,14 @@ impl Renderer {
                 self.canvas.copy(&name, None, name_rect)?;
 
                 if stray_data.cur_hp > 0 {
-                    let health_pixels = (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32;
-                    let health_slice = Rect::new( //cropping the healthbar png based on health percentage
+                    let health_pixels =
+                        (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32;
+                    let health_slice = Rect::new(
+                        //cropping the healthbar png based on health percentage
                         (79 - health_pixels) as i32,
                         0 as i32,
                         health_pixels,
-                        4
+                        4,
                     );
                     let health_rect = Rect::new(
                         (PIXELS_X - healthbars.query().width) as i32 + 6 + 6,
@@ -113,7 +148,7 @@ impl Renderer {
                         4,
                     );
                     self.canvas.copy(&healthbar, health_slice, health_rect)?; //filling the healthbar with the healthbar png
-                    //self.canvas.fill_rect(health_rect)?;
+                                                                              //self.canvas.fill_rect(health_rect)?;
                 }
             }
         }
@@ -121,10 +156,16 @@ impl Renderer {
         for (index, stray) in battle.opponent_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
                 let mut text_color = Color::RGB(31, 27, 24); //black
-                //text color for stray name based on whether or not it is their turn currentl
-                
+                                                             //text color for stray name based on whether or not it is their turn currentl
+
                 if battle.turn_order[0] > 3 {
-                    if battle.opponent_strays[battle.turn_order[0]].as_ref().unwrap().species == stray_data.species { //if it is the stray's turn
+                    if battle.opponent_strays[battle.turn_order[0]]
+                        .as_ref()
+                        .unwrap()
+                        .species
+                        == stray_data.species
+                    {
+                        //if it is the stray's turn
                         text_color = Color::RGB(167, 84, 94); //red
                     }
                 }
@@ -147,12 +188,14 @@ impl Renderer {
                 self.canvas.copy(&name, None, name_rect)?;
 
                 if stray_data.cur_hp > 0 {
-                    let health_pixels = (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32;
-                    let health_slice = Rect::new( //cropping the healthbar png based on health percentage
+                    let health_pixels =
+                        (stray_data.cur_hp as f32 / stray_data.hp as f32 * 78.0).ceil() as u32;
+                    let health_slice = Rect::new(
+                        //cropping the healthbar png based on health percentage
                         (79 - health_pixels) as i32,
                         0 as i32,
                         health_pixels,
-                        4
+                        4,
                     );
                     let health_rect = Rect::new(
                         0 as i32 + 6,
@@ -165,7 +208,7 @@ impl Renderer {
                 }
             }
         }
-        self.render_menus(world, texture_manager, font_manager, menu_man)?; //render menu (either moves menu or enemy selection)
+        self.render_menus(world, texture_manager, font_manager, &battle.menus)?; //render menu (either moves menu or enemy selection)
 
         Ok(())
     }
