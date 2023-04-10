@@ -479,6 +479,9 @@ impl State {
                             if let Some(stray) = &mut battle.player_strays[idx] {
                                 if let Some(mv) = &mut battle.selected_move {
                                     stray.cur_hp = stray.cur_hp + mv.power;
+                                    if stray.cur_hp > stray.hp {
+                                        stray.cur_hp = stray.hp;
+                                    }
                                 }
                             }
                         }
