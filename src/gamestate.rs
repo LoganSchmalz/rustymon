@@ -614,6 +614,9 @@ impl State {
                             }
                         }
                     }
+
+                    battle.battle_state = BattleState::SelectingMove;
+
                     if battle.opponent_strays.iter().all(|x| x.is_none()) {
                         battle.menus.close_menu();
                         self.transition = Transition::Transitioning {
