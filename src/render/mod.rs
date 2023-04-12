@@ -84,7 +84,7 @@ impl Renderer {
             FloorTile::GRASSPATH_LD => Rect::new(192,48,size,size),
             FloorTile::GRASSPATH_UR => Rect::new(192,64,size,size),
             FloorTile::GRASSPATH_DL => Rect::new(144,80,size,size),
-            FloorTile::GRASSPATH_H  => Rect::new(192,80,size,size),
+            FloorTile::GRASSPATH_H  => Rect::new(176,80,size,size),
         };
 
         let walltile_rects = enum_map! {
