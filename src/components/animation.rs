@@ -16,13 +16,14 @@ pub enum HumanAnimationType {
     Run,
 }
 pub struct HumanWalkAnimation {
-    pub rotation: Direction,
-    pub time: (f32, f32),
-    pub left_leg: bool,
-    pub sprinting: bool,
+    pub rotation: Direction, //the current direction the player is facing
+    pub time: (f32, f32), //contains current time and max time as a tuple
+    pub left_leg: bool, //whether or not the left leg is active (switches each step)
+    pub sprinting: bool, //whether or not the player is sprinting
 }
 
 impl HumanWalkAnimation {
+    //method that returns a rectangle in the position and size of the current sprite of the player
     pub fn get_src(&self) -> Rect {
         //calculate x coordinate of sprite
         let x = match self.rotation {
@@ -48,6 +49,8 @@ impl HumanWalkAnimation {
         Rect::new(x, y, 16, 20)
     }
 
+    //starts changing the member variables of the struct to play the animation
+    //takes in anim_type (the type of the animation, depends on the players movement), and rotation (which way the player is facing)
     pub fn play_animation(&mut self, anim_type: HumanAnimationType, rotation: Direction) {
         //this starts the animation
         self.left_leg = !self.left_leg;
@@ -60,10 +63,13 @@ impl HumanWalkAnimation {
         self.rotation = rotation;
     }
 
+    //returns whether or not the animation is playing
     pub fn is_playing(&self) -> bool {
         self.time.0 < self.time.1
     }
 
+    //updates the animation to either stop sprinting or increment the time, depending on whether the animation should be complete or not
+    //takes in delta_time (the amount we will increment the time by if the animation is not complete)
     pub fn update(&mut self, delta_time: f32) {
         if self.time.0 < self.time.1 {
             self.time.0 += delta_time;

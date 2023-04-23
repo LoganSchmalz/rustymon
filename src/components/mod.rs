@@ -32,6 +32,7 @@ pub struct WalkingPath {
 }
 
 impl WalkingPath {
+    //returns the direction the NPC should be at the current point on their path
     pub fn direction(&self) -> Direction {
         self.path[self.index]
     }
@@ -67,6 +68,7 @@ pub struct MovingEntity {
 }
 
 impl Default for MovingEntity {
+    //sets default values for a MovingEntity
     fn default() -> Self {
         Self {
             rotation: Direction::Down,
@@ -81,6 +83,7 @@ impl Default for MovingEntity {
 }
 
 impl MovingEntity {
+    //creates a new MovingEntity
     pub fn new() -> Self {
         Self { ..Self::default() }
     }

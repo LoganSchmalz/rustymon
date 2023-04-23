@@ -38,6 +38,7 @@ pub struct Move {
 }
 
 impl Move {
+    //initializes the Move slam
     pub fn slam() -> Self {
         Self { //contructor for all of slam's info
             name: String::from("Slam"),
@@ -48,6 +49,7 @@ impl Move {
         }
     }
 
+    //initializes the move flail
     pub fn flail() -> Self {
         Self { //contructor for all of flail's info
             name: String::from("Flail"),
@@ -58,6 +60,7 @@ impl Move {
         }
     } 
     
+    //initializes the move wave
     pub fn wave() -> Self {
         Self { //contructor for all of wave's info
             name: String::from("Wave"),
@@ -68,6 +71,7 @@ impl Move {
         }
     }
 
+    //initializes the move slice
     pub fn slice() -> Self {
         Self {
             name: String::from("Slice"),
@@ -78,6 +82,7 @@ impl Move {
         }
     }
 
+    //initializes the move screech
     pub fn screech() -> Self{
         Self {
             name: String::from("Screech"),
@@ -88,6 +93,7 @@ impl Move {
         }
     }
 
+    //initializes the move peck
     pub fn peck() -> Self{
         Self{
             name: String::from("Peck"),
@@ -100,6 +106,7 @@ impl Move {
 
     //all moves below are the same
 
+    //initializes the move reincarnate
     pub fn reincarnate() -> Self {
         Self { //contructor for all of reincarnate's info
             name: String::from("Reincarnate"),
@@ -110,6 +117,7 @@ impl Move {
         }
     }
 
+    //initializes the move high tide
     pub fn high_tide() -> Self {
         Self { //contructor for all of high tide's info
             name: String::from("High Tide"),
@@ -120,6 +128,7 @@ impl Move {
         }
     }
 
+    //initializes the move vortex
     pub fn vortex() -> Self {
         Self { //contructor for all of vortex's info
             name: String::from("Vortex"),
@@ -130,6 +139,7 @@ impl Move {
         }
     }
 
+    //initializes the move bash
     pub fn bash() -> Self {
         Self { //contructor for all of bash's info
             name: String::from("Bash"),
@@ -140,6 +150,7 @@ impl Move {
         }
     }
 
+    //initializes the move ram
     pub fn ram() -> Self {
         Self { //contructor for all of ram's info
             name: String::from("Ram"),
@@ -150,6 +161,7 @@ impl Move {
         }
     }
 
+    //initializes the move wisp
     pub fn wisp() -> Self {
         Self { //contructor for all of wisp's info
             name: String::from("Wisp"),
@@ -160,6 +172,7 @@ impl Move {
         }
     }
 
+    //initializes the move blitz
     pub fn blitz() -> Self {
         Self { //contructor for all of blitz's info
             name: String::from("Blitz"),
@@ -170,6 +183,7 @@ impl Move {
         }
     }
 
+    //initializes the move scratch
     pub fn scratch() -> Self {
         Self { //contructor for all of scratch's info
             name: String::from("Scratch"),
