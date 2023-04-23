@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic for rendering overworld
+// including logic for the camera and rendering overworld tiles
+/****************************************************/
 use hecs::World;
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 

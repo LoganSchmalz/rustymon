@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic for rendering the battle scene
+// including background, strays, menus, and other battle UI elements
+/****************************************************/
 use hecs::World;
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 

@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic for resizing the screen and maintaining the information displayed on the screen
+/****************************************************/
 use sdl2::video::FullscreenType;
 
 use crate::render::{PIXELS_X, PIXELS_Y};

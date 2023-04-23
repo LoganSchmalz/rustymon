@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic for rendering for all menus in the game
+/****************************************************/
 use hecs::World;
 use sdl2::{pixels::Color, rect::Rect, video::WindowContext};
 
