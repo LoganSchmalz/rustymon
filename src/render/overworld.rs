@@ -26,6 +26,8 @@ pub struct Camera {
 }
 
 impl Renderer {
+    //renders the overworld (the outside world in the game)
+    //takes in the texture manager, the font manager, the world, the current map, and the menu manager, return ok if no problems
     pub fn render_overworld(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
@@ -46,6 +48,8 @@ impl Renderer {
         Ok(())
     }
 
+    //changes the camera offset to stay focussed on the player
+    //takes in the world, returns ok if no problems
     pub fn update_camera(&mut self, world: &World) -> Result<(), String> {
         let mut q = world.query::<(&Player, &Position, &Sprite)>();
         let (_, (_player, Position(pos), sprite)) = q.iter().next().ok_or("No player found")?;
@@ -68,6 +72,8 @@ impl Renderer {
         Ok(())
     }
 
+    //renders the entities in the world
+    //takes in the world and the texture_manager, returns ok if no problems
     pub fn render_entities(
         &mut self,
         world: &World,
@@ -107,6 +113,8 @@ impl Renderer {
         Ok(())
     }
 
+    //renders the tiles in the overworld map
+    //takes in the texture manager and the map to be rendered, returns ok if no problems
     pub fn render_overworld_tiles(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
@@ -147,6 +155,8 @@ impl Renderer {
         Ok(())
     }
 
+    //renders the tiles in front of the player on the map
+    //takes in the texture manager and the current map, returns ok if no problems
     pub fn render_front_overworld_tiles(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
