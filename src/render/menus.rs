@@ -6,7 +6,6 @@ use crate::{
     font_manager::FontManager,
     menu::{
         bag_menu::BagMenu,
-        battle_select_stray::BattleSelectStray,
         main_menu::{MainMenu, MainMenuButton},
         moves_menu::MovesMenu,
         pause_menu::PauseMenu,
@@ -254,53 +253,6 @@ impl Renderer {
             //mv = move
             if let Some(move_data) = mv {
                 let surface = font_man.fonts.munro.render(&move_data.name); //render the name of the move
-
-                let surface = if idx == menu.selected {
-                    surface.blended(Color::RGB(212, 101, 99))
-                } else {
-                    surface.blended(Color::RGB(49, 41, 36))
-                };
-
-                let surface = surface.map_err(|e| e.to_string())?;
-
-                text_quad.set_width(surface.width());
-                text_quad.set_height(surface.height());
-
-                let creator = self.canvas.texture_creator();
-                let texture = creator
-                    .create_texture_from_surface(&surface)
-                    .map_err(|e| e.to_string())?;
-
-                self.canvas.copy(&texture, None, text_quad)?;
-            }
-            if idx % 2 == 0 {
-                text_quad.set_x(text_quad.x + 64 as i32)
-            } else {
-                text_quad.set_x(text_quad.x - 64 as i32);
-                text_quad.set_y(text_quad.y + 27 as i32);
-            }
-        }
-
-        Ok(())
-    }
-
-    pub(super) fn render_battle_select_stray_menu(
-        //function for rendering the moves menu
-        &mut self,
-        menu: &BattleSelectStray,
-        texture_manager: &mut TextureManager<WindowContext>,
-        font_man: &FontManager,
-    ) -> Result<(), String> {
-        let box_quad = Rect::new(0, (PIXELS_Y - 66) as i32, 132, 66); //box in bottom right corner
-        let moves_menu = texture_manager.load("assets/UI/moves_menu.png")?; //load moves menu image as a texture
-        self.canvas.copy(&moves_menu, None, box_quad)?;
-
-        let mut text_quad = Rect::new(10, (PIXELS_Y - 56) as i32, 132, 66);
-
-        for (idx, mv) in menu.stray.iter().enumerate() {
-            //mv = move
-            if let Some(move_data) = mv {
-                let surface = font_man.fonts.munro.render(&move_data); //render the name of the move
 
                 let surface = if idx == menu.selected {
                     surface.blended(Color::RGB(212, 101, 99))

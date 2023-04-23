@@ -13,7 +13,6 @@ use crate::{
     font_manager::FontManager,
     gamestate::battle::BattleState,
     menu::{
-        battle_select_stray::{self, BattleSelectStray},
         main_menu::MainMenu,
         moves_menu::MovesMenu,
         textbox::Textbox,

@@ -1,5 +1,4 @@
 pub mod bag_menu;
-pub mod battle_select_stray;
 pub mod main_menu;
 pub mod menu_events;
 pub mod moves_menu;
@@ -12,7 +11,6 @@ use crate::font_manager::FontManager;
 use crate::gamestate::event::Event;
 
 use self::bag_menu::BagMenu;
-use self::battle_select_stray::BattleSelectStray;
 use self::main_menu::MainMenu;
 use self::menu_events::{MenuCommand, MenuInput};
 use self::moves_menu::MovesMenu;
@@ -36,7 +34,6 @@ pub enum Menu {
     PauseMenu(PauseMenu),
     BagMenu(BagMenu),
     MovesMenu(MovesMenu),
-    BattleSelectStray(BattleSelectStray),
 }
 
 pub struct MenuManager {

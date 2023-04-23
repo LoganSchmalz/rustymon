@@ -8,6 +8,7 @@ use super::{
     MenuItem,
 };
 
+//the bag menu struct contains the currently selected index and the entity whose bag is open
 pub struct BagMenu {
     pub selected: usize,
     pub entity: Entity,
@@ -23,6 +24,7 @@ impl BagMenu {
 }
 
 impl MenuItem for BagMenu {
+    //the menu update logic
     fn update(&mut self, action: MenuInput, world: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         let length = if let Ok(bag) = world.query_one_mut::<&Bag>(self.entity) {
             bag.items.len()
