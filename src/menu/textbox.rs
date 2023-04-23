@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Menu logic for text boxes, which are used by multiple other menus
+/****************************************************/
 use hecs::World;
 
 use crate::font_manager::FontManager;

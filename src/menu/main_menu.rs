@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Menu logic for the main menu that appears on the starting screen
+/****************************************************/
 use super::menu_events::MenuCommand;
 use super::{MenuInput, MenuItem};
 
@@ -43,9 +47,9 @@ impl MenuItem for MainMenu {
             }
             MenuInput::Right => {
                 self.curr_button = match self.curr_button {
-                    Start => Settings, //BUTTONS[2] == Button::SettingsButton
-                    Load => Settings,  //BUTTONS[2] == Button::SettingsButton
-                    Settings => Start, //BUTTONS[0] == Button::StartButton
+                    Start => Settings, 
+                    Load => Settings,  
+                    Settings => Start, 
                 }
             }
             MenuInput::Up => {

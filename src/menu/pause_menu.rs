@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Menu logic for pause menu that occurs in game when the player presses the pause key
+/****************************************************/
 use hecs::World;
 
 use crate::components::{bag::Bag, Player};
