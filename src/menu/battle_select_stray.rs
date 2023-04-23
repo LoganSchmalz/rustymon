@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Menu logic for the stray selection menu that appears during battles
+/****************************************************/
+
 use crate::gamestate::event::Event;
 use hecs::World;
 

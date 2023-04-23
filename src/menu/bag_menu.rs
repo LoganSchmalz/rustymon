@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Menu logic for bag menu and items within it
+/****************************************************/
 use hecs::{Entity, World};
 
 use crate::components::bag::Bag;

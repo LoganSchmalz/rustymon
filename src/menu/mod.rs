@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: General data structures and logic required for all menus
+// including the menu manager data structure
+/****************************************************/
 pub mod bag_menu;
 pub mod battle_select_stray;
 pub mod main_menu;

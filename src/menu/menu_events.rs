@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Enums for general menu interactions
+/****************************************************/
 use hecs::Entity;
 
 #[derive(PartialEq, Debug, Clone, Copy)]

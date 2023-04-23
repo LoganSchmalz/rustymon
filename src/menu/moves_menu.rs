@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Menu logic for move selection that occurs in battle
+/****************************************************/
 use hecs::World;
 use crate::components::stray::Move;
 use crate::gamestate::event::Event;
