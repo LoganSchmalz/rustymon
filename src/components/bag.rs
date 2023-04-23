@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Definition of storable items and how they are stored in the bag
+/****************************************************/
 use std::fmt;
 
 #[derive(Debug, PartialEq, Clone, Copy)]

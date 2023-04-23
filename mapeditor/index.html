@@ -21,6 +21,7 @@
     <div class="toolbar">
         <div class="swatches" id="swatches"></div>
         <br>
+        <!-- Add new rows -->
         <button onclick="expandMap(0)">Add North Row</button>
         <button onclick="expandMap(1)">Add East Column</button>
         <button onclick="expandMap(2)">Add South Row</button>
@@ -33,6 +34,7 @@
         <br>
         <button onclick="exportMap()">Export</button>
         <br>
+        <!-- Function buttons for hiding and showing respective layers -->
         <input type="checkbox" id="floorCheck" name="floor" value="floor" onclick="showLayer(this.id)" checked />
         <label for="floor">Floor</label>
         <input type="checkbox" id="wallCheck" name="walls" value="walls" onclick="showLayer(this.id)" checked />
@@ -42,6 +44,7 @@
     </div>
     <hr>
     <div>
+        <!-- Containers for the grids -->
         <div class="grid" id="gridOverlay"></div>
         <div class="grid" id="gridFloor">
         </div>

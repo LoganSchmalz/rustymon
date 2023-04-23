@@ -5,11 +5,11 @@
 
 const floors = [
     {
-        "name": "NONE",
-        "id": 0,
-        "x": 16,
-        "y": 0,
-        "hasCollision": false
+        "name": "NONE", // name
+        "id": 0, // numeric id
+        "x": 16, // position, X
+        "y": 0, // position, Y
+        "hasCollision": false // if this tile has collision
     },
     {
         "name": "GRASS1",

@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic for updating the game state at every tick of the game
+// based on player input and other game state considerations
+/****************************************************/
 use std::collections::HashMap;
 
 use crate::{
