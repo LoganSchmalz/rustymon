@@ -30,6 +30,8 @@ pub struct Battle {
 }
 
 impl Battle {
+    //creates a new Battle
+    //takes in player_strays (a list of 4 optional Strays that will be on the player's team), and opponent_strays (a list of 4 optional Strays that will be against the player)
     pub fn new(player_strays: [Option<Stray>; 4], opponent_strays: [Option<Stray>; 4]) -> Battle {
         let mut turn_order = VecDeque::new();
         let mut strays: Vec<&Option<Stray>> = vec![];
@@ -70,6 +72,8 @@ impl Battle {
     }
 
     //calculates the nearest stray on the left for the opponents when selecting a stray to attack
+    //takes in an optional index which is the current index of the selected stray
+    //returns an optional index of the leftward stray, or None of no stray is found
     pub fn get_left_opponent_stray(&mut self, index: Option<usize>) -> Option<usize> {
         //try to get next left stray
         if let Some(index) = index {
@@ -90,6 +94,8 @@ impl Battle {
     }
 
     //calculates the nearest stray on the left for the player when selecting a stray to attack
+    //takes in an optional index which is the current index of the selected stray
+    //returns an optional index of the leftward stray, or None of no stray is found
     pub fn get_left_player_stray(&self, index: Option<usize>) -> Option<usize> {
         //try to get next left stray
         if let Some(index) = index {
@@ -110,6 +116,8 @@ impl Battle {
     }
 
     //calculates the nearest stray on the right for the opponents when selecting a stray to attack
+    //takes in an optional index which is the current index of the selected stray
+    //returns an optional index of the rightward stray, or None of no stray is found
     pub fn get_right_opponent_stray(&self, index: Option<usize>) -> Option<usize> {
         //try to get next right stray
         if let Some(index) = index {
@@ -130,6 +138,8 @@ impl Battle {
     }
 
     //calculates the nearest stray on the right for the player when selecting a stray to attack
+    //takes in an optional index which is the current index of the selected stray
+    //returns an optional index of the rightward stray, or None of no stray is found
     pub fn get_right_player_stray(&self, index: Option<usize>) -> Option<usize> {
         //try to get next right stray
         if let Some(index) = index {
