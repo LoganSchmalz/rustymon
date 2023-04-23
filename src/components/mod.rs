@@ -36,6 +36,7 @@ impl WalkingPath {
         self.path[self.index]
     }
 
+    //this function goes to the next direction for the npc walking path or loops around
     pub fn advance(&mut self) {
         self.index += 1;
         if self.index >= self.path.len() {
