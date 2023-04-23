@@ -13,8 +13,8 @@ pub enum Direction {
     Right,
 }
 
+//compute the game direction between two vec2s for the purposes of calculating the correct moving velocity
 pub fn compute_direction(pos_from: Vec2, pos_to: Vec2) -> Direction {
-    //compute direction (non-normalized vector)
     let dx = pos_to.0 - pos_from.0;
     let dy = pos_to.1 - pos_from.1;
 
@@ -32,23 +32,27 @@ pub fn compute_direction(pos_from: Vec2, pos_to: Vec2) -> Direction {
 }
 
 impl Vec2 {
+    //rounds a vec2 to the nearest integer coordinates
     #[inline]
     pub fn round_to_tile(&self) -> Vec2 {
         Vec2(self.0.round(), self.1.round())
     }
 
+    //rounds a vec2 to the nearest integer coordinates and assumes it's positive for the purposes of grabbing data from the tilemap
     #[inline]
     pub fn to_usize(self, size_x: usize) -> usize {
         let Vec2(x, y) = self.round_to_tile();
         x as usize + y as usize * size_x
     }
 
+    //does a dist^2 calculation in case it's needed
     #[inline]
     #[allow(dead_code)]
     pub fn dist2(&self, rhs: Vec2) -> f32 {
         (self.0 - rhs.0) * (self.0 - rhs.0) + (self.1 - rhs.1) * (self.1 - rhs.1)
     }
 
+    //does a dist calculation
     #[inline]
     #[allow(dead_code)]
     pub fn dist(&self, rhs: Vec2) -> f32 {
@@ -56,6 +60,7 @@ impl Vec2 {
     }
 }
 
+//implementing adding two vectors
 impl ops::Add<Vec2> for Vec2 {
     type Output = Vec2;
 
@@ -65,6 +70,7 @@ impl ops::Add<Vec2> for Vec2 {
     }
 }
 
+//implement subtracting two vectors
 impl ops::Sub<Vec2> for Vec2 {
     type Output = Vec2;
 

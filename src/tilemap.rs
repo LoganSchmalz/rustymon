@@ -115,6 +115,7 @@ impl TileMap {
         let mapfolder = Path::new(str.as_str());
         println!("{}", mapfolder.to_str().unwrap());
 
+        //load dimensions of tilemap
         let dim: Vec<usize> = fs::read_to_string(mapfolder.join("dim.txt"))
             .unwrap_or_else(|_| panic!("{}dim.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
@@ -130,6 +131,7 @@ impl TileMap {
         let size_x = dim.get(0).unwrap();
         let size_y = dim.get(1).unwrap();
 
+        //load floors
         let floor: Vec<FloorTile> = fs::read_to_string(mapfolder.join("floor.txt"))
             .unwrap_or_else(|_| panic!("{}floor.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
@@ -147,6 +149,7 @@ impl TileMap {
             )
         }
 
+        //load walls
         let walls: Vec<WallTile> = fs::read_to_string(mapfolder.join("walls.txt"))
             .unwrap_or_else(|_| panic!("{}walls.txt not found", mapfolder.to_str().unwrap()))
             .split_whitespace()
@@ -164,6 +167,7 @@ impl TileMap {
             )
         }
 
+        //load collision map
         // filter out wall tiles that you cannot walk behind (only front wall tiles)
         let front_filter = vec![
             WallTile::ROOF_1,
@@ -204,6 +208,7 @@ impl TileMap {
         }
     }
 
+    //checks collision on the map collisions
     pub fn check_collision(&self, pos: Vec2) -> bool {
         !matches!(
             self.collision.get(pos.to_usize(self.size_x)),
@@ -214,6 +219,7 @@ impl TileMap {
             || pos.1 >= self.size_y as f32
     }
 
+    //checks encounter tiles on the map
     pub fn check_encounter(&self, pos: Vec2) -> bool {
         //if check position is encounter tile
         if let Some(tile) = self.walls.get(pos.to_usize(self.size_x)) {
