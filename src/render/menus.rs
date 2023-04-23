@@ -50,9 +50,12 @@ impl Renderer {
             _ => &empty,
         };
 
+        // loop to enable rendering the fonts and structure of the bag menu
+        // All of these are creating surfaces and titles for each item in the bag (each sub-menu)
         for (idx, (item, amount)) in items.iter().enumerate() {
             let item_str = item.to_string();
 
+            // item name
             let item_surface = font_man.fonts.munro.render(&item_str);
             let item_surface = if idx == menu.selected {
                 item_surface.blended(Color::RGB(0, 183, 235))
@@ -61,6 +64,7 @@ impl Renderer {
             };
             let item_surface = item_surface.map_err(|e| e.to_string())?;
 
+            // item amount
             let amount_str = amount.to_string();
             let amount_surface = font_man.fonts.munro.render(&amount_str);
             let amount_surface = if idx == menu.selected {
@@ -88,6 +92,7 @@ impl Renderer {
                 .create_texture_from_surface(&amount_surface)
                 .map_err(|e| e.to_string())?;
 
+            // render textures
             self.canvas.copy(&item_texture, None, text_quad)?;
             self.canvas.copy(&amount_texture, None, amount_quad)?;
 
@@ -103,11 +108,14 @@ impl Renderer {
         texture_manager: &mut TextureManager<WindowContext>,
         _font_man: &FontManager,
     ) -> Result<(), String> {
+        // load textures into the texture manager
         let titlescreen = texture_manager.load("assets/backgrounds/titlescreen.png")?;
         let start_button = texture_manager.load("assets/UI/STARTbutton.png")?;
         let load_button = texture_manager.load("assets/UI/SAVELOADbutton.png")?;
         let settings_button = texture_manager.load("assets/UI/SETTINGSbutton.png")?;
 
+        // render the main menu background textures
+        // change button colors based on selected button
         let start_src = if menu.curr_button == MainMenuButton::Start {
             Rect::new(0, 24, 72, 24)
         } else {
@@ -136,6 +144,7 @@ impl Renderer {
         let load_quad = Rect::new(102, 122, 16, 18);
         let settings_quad = Rect::new(121, 122, 16, 18);
 
+        // render
         self.canvas.copy(&titlescreen, None, screen_quad)?;
         self.canvas.copy(&start_button, start_src, start_quad)?;
         self.canvas.copy(&load_button, load_src, load_quad)?;
@@ -156,6 +165,7 @@ impl Renderer {
         // create new quad over the textbox texture (which is 41 px tall)
         let box_quad = Rect::new(0, (PIXELS_Y - 41) as i32, PIXELS_X, 41u32);
 
+        // renders layered textbox attributes onto textbox texture
         let surface_top = font_man
             .fonts
             .munro
@@ -193,6 +203,7 @@ impl Renderer {
         let texture_bot = creator
             .create_texture_from_surface(&surface_bot)
             .map_err(|e| e.to_string())?;
+        // copy the different textbox components into the canvas
         self.canvas.copy(&text_box, None, box_quad)?;
         self.canvas.copy(&texture_top, None, text_quad_top)?;
         self.canvas.copy(&texture_bot, None, text_quad_bot)?;
@@ -216,15 +227,17 @@ impl Renderer {
 
         let mut text_quad = Rect::new(180, 10, 0, 0);
 
+        // render the textures for the pause menu
         for (idx, item) in menu.items.iter().enumerate() {
             let surface = font_man.fonts.munro.render(item);
+            // generates surface rectangles for all of the pause menu items
             let surface = if idx == menu.selected {
                 surface.blended(Color::RGB(0, 183, 235))
             } else {
                 surface.blended(Color::RGB(40, 40, 40))
             };
             let surface = surface.map_err(|e| e.to_string())?;
-
+        
             text_quad.set_width(surface.width());
             text_quad.set_height(surface.height());
 
@@ -233,6 +246,7 @@ impl Renderer {
                 .create_texture_from_surface(&surface)
                 .map_err(|e| e.to_string())?;
 
+            // renders to canvas
             self.canvas.copy(&texture, None, text_quad)?;
 
             text_quad.set_y(text_quad.y + surface.height() as i32 + 4);
@@ -255,6 +269,7 @@ impl Renderer {
 
         for (idx, mv) in menu.moves.iter().enumerate() {
             //mv = move
+            // for given moves, render into the menu box
             if let Some(move_data) = mv {
                 let surface = font_man.fonts.munro.render(&move_data.name); //render the name of the move
 
