@@ -13,6 +13,7 @@ pub struct Sprite {
 }
 
 impl Sprite {
+    //the default for character sprites is to shift them up a bit so they look like they are centered on the tile
     pub fn character(str: String) -> Self {
         Self {
             texture: str,

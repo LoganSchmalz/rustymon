@@ -18,6 +18,7 @@ use crate::{
 use super::State;
 
 impl State {
+    //this just loops through animations and increases their time
     pub fn update_animations(&mut self, delta_time: f32) {
         let mut animation_query = self.world.query::<&mut HumanWalkAnimation>();
 
@@ -28,6 +29,7 @@ impl State {
 
     pub fn update_screen(&mut self, delta_time: f32) {}
 
+    //this updates the collision hashmap to remember where entitites are for collision and interaction
     pub fn update_collisions(&mut self) {
         let Screen::Overworld(map) = &self.screen else { panic!(); };
 
@@ -56,6 +58,7 @@ impl State {
         }
     }
 
+    //updates player moving state
     pub fn update_player_moving(&mut self, moving_state: MovingState) {
         let mut moving = self
             .world
@@ -65,6 +68,7 @@ impl State {
         moving.try_moving = moving_state;
     }
 
+    //updates player sprinting state
     pub fn update_player_sprinting(&mut self, sprinting: bool) {
         let mut moving = self
             .world
@@ -74,6 +78,7 @@ impl State {
         moving.try_sprinting = sprinting;
     }
 
+    //runs physics for every object that is capable of moving
     pub fn update_moving_objects(&mut self, delta_time: f32) {
         let Screen::Overworld(map) = &self.screen else { panic!(); };
 

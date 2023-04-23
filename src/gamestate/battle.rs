@@ -49,6 +49,7 @@ impl Battle {
             }
         }
 
+        //computes the turn order after combining all the strays into one list
         turn_order.make_contiguous().sort_by(|a, b| {
             strays[*b]
                 .as_ref()
@@ -68,6 +69,7 @@ impl Battle {
         }
     }
 
+    //calculates the nearest stray on the left for the opponents when selecting a stray to attack
     pub fn get_left_opponent_stray(&mut self, index: Option<usize>) -> Option<usize> {
         //try to get next left stray
         if let Some(index) = index {
@@ -87,6 +89,7 @@ impl Battle {
         None
     }
 
+    //calculates the nearest stray on the left for the player when selecting a stray to attack
     pub fn get_left_player_stray(&self, index: Option<usize>) -> Option<usize> {
         //try to get next left stray
         if let Some(index) = index {
@@ -106,6 +109,7 @@ impl Battle {
         None
     }
 
+    //calculates the nearest stray on the right for the opponents when selecting a stray to attack
     pub fn get_right_opponent_stray(&self, index: Option<usize>) -> Option<usize> {
         //try to get next right stray
         if let Some(index) = index {
@@ -125,6 +129,7 @@ impl Battle {
         None
     }
 
+    //calculates the nearest stray on the right for the player when selecting a stray to attack
     pub fn get_right_player_stray(&self, index: Option<usize>) -> Option<usize> {
         //try to get next right stray
         if let Some(index) = index {
