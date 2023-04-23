@@ -40,6 +40,8 @@ pub enum Control {
 
 impl State {
     //this function turns control keys into what they are supposed to do in the game
+    //takes in a keycode (the key pressed by the user)
+    //returns the control option (the change the player is making)
     fn get_control(&mut self, key: Keycode) -> Option<Control> {
         use Control::*;
 
@@ -105,6 +107,8 @@ impl State {
     }
 
     //this updates menus based on the current state of the input
+    //takes in a font manager
+    //returns true if the input is valid
     pub fn handle_input_menus(&mut self, font_manager: &FontManager) -> bool {
         use Control::*;
         use KeyState::*;
@@ -164,6 +168,7 @@ impl State {
     }
 
     //this updates gameplay based on the current state of the input
+    //takes in a font manager
     pub fn handle_input_gameplay(&mut self, font_man: &FontManager) {
         use Control::*;
         use KeyState::*;
@@ -192,6 +197,7 @@ impl State {
     }
 
     //this updates battles based on the current state of the input
+    //takes in a font manager
     pub fn handle_input_battle(&mut self, font_manager: &FontManager) {
         use Control::*;
         use KeyState::*;

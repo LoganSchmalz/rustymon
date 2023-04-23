@@ -8,7 +8,6 @@ use std::{clone::Clone, collections::HashMap};
 use hecs::{CommandBuffer, Entity, World};
 use rand::{distributions::Uniform, rngs::ThreadRng, Rng};
 use sdl2::{rect::Rect, video::WindowContext};
-
 use enum_map::EnumMap;
 use std::collections::VecDeque;
 

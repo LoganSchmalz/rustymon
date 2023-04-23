@@ -19,6 +19,7 @@ use super::State;
 
 impl State {
     //this just loops through animations and increases their time
+    //takes in a delta_time (the amount to increment the time by each update)
     pub fn update_animations(&mut self, delta_time: f32) {
         let mut animation_query = self.world.query::<&mut HumanWalkAnimation>();
 
@@ -27,7 +28,7 @@ impl State {
         }
     }
 
-    pub fn update_screen(&mut self, delta_time: f32) {}
+    //pub fn update_screen(&mut self, delta_time: f32) {}
 
     //this updates the collision hashmap to remember where entitites are for collision and interaction
     pub fn update_collisions(&mut self) {
@@ -59,6 +60,7 @@ impl State {
     }
 
     //updates player moving state
+    //takes in the moving_state (how the player should currently be moving)
     pub fn update_player_moving(&mut self, moving_state: MovingState) {
         let mut moving = self
             .world
@@ -69,6 +71,7 @@ impl State {
     }
 
     //updates player sprinting state
+    //takes in sprinting (true if the player is sprinting)
     pub fn update_player_sprinting(&mut self, sprinting: bool) {
         let mut moving = self
             .world
@@ -79,6 +82,7 @@ impl State {
     }
 
     //runs physics for every object that is capable of moving
+    //takes in delta_time (how much to increment the time by each update)
     pub fn update_moving_objects(&mut self, delta_time: f32) {
         let Screen::Overworld(map) = &self.screen else { panic!(); };
 
