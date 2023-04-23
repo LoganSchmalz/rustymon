@@ -60,6 +60,7 @@ impl MenuManager {
         }
     }
 
+    //this function handles the logic for opening a new menu on the stack
     pub fn open_menu(&mut self, next_menu: Menu) {
         if self.menus.len() == 0 {
             //if no menu is open
@@ -73,6 +74,7 @@ impl MenuManager {
         }
     }
 
+    //this function handles the logic for closing a menu on the stack
     pub fn close_menu(&mut self) -> bool {
         self.menus.pop();
         if self.menu_queue.len() > 0 {
@@ -85,10 +87,12 @@ impl MenuManager {
         false
     }
 
+    //checks if a menu is open
     pub fn is_open(&self) -> bool {
         !self.menus.is_empty()
     }
 
+    //processes menucommands that tell the manager to open and close menus
     fn process_command(
         &mut self,
         command: MenuCommand,
@@ -110,6 +114,7 @@ impl MenuManager {
         false
     }
 
+    //handles input and sends it to the correct menu
     pub fn interact(
         &mut self,
         action: MenuInput,

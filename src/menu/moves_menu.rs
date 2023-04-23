@@ -7,6 +7,7 @@ use super::{
     MenuItem,
 };
 
+//the moves menu contains the list of moves and the selected index
 pub struct MovesMenu {
     pub moves: [Option<Move>; 4],
     pub selected: usize,
@@ -20,6 +21,7 @@ impl MovesMenu {
 }
 
 impl MenuItem for MovesMenu {
+    //the menu update logic
     fn update(&mut self, action: MenuInput, world: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         let length = 4; //currently hardcoding length (the number of possible selections) as 4, may need to change to allow for less than 4 moves
         match action{ //check the user input to decide whether to activate a move or to scroll through moves

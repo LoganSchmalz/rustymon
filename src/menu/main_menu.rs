@@ -26,6 +26,7 @@ use hecs::World;
 use MainMenuButton::*;
 
 impl MenuItem for MainMenu {
+    //the menu update logic
     fn update(&mut self, action: MenuInput, _: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         match action {
             MenuInput::Accept => {

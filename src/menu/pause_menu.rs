@@ -8,6 +8,7 @@ use super::{
     MenuItem,
 };
 
+//the pause menu contains the list of pause menu items and the selected index
 #[derive(Default)]
 pub struct PauseMenu {
     pub items: Vec<String>,
@@ -28,6 +29,7 @@ impl PauseMenu {
 }
 
 impl MenuItem for PauseMenu {
+    //the menu update logic
     fn update(&mut self, action: MenuInput, world: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         match action {
             MenuInput::Down => {

@@ -23,6 +23,7 @@ impl Textbox {
 }
 
 impl MenuItem for Textbox {
+    //the menu update logic
     fn update(&mut self, action: MenuInput, _: &mut World, events: &mut Vec<Event>) -> Option<MenuCommand> {
         match action {
             MenuInput::Accept | MenuInput::Reject => {
@@ -37,6 +38,7 @@ impl MenuItem for Textbox {
 }
 
 impl Textbox {
+    //special handling for advancing textboxes instead of immediately closing them
     fn advance_text(&mut self) -> bool {
         self.text_v.drain(0..2);
         self.text_v.is_empty()
