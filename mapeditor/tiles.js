@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Nathan Dodson
+// Description: List of all Rustymon tiles and their respective data
+/****************************************************/
+
 const floors = [
     {
         "name": "NONE",

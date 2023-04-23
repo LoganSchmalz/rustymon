@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Tucker McCulloch
+// Description: JavaScript functions for generating GUI and 
+// performing logic for editing, saving, and loading maps for the Rustymon map editor
+/****************************************************/
 const BRUSH_SCALE = 3;
 
 var SELECTED_TILE = floors[1];

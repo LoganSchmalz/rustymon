@@ -1,3 +1,7 @@
+/****************************************************
+Created by: Tucker McCulloch
+Description: Styling and rendering for Rustymon map editor
+****************************************************/
 :root {
     --brush-scale: 3;
     image-rendering: optimizeSpeed;             /* STOP SMOOTHING, GIVE ME SPEED  */
