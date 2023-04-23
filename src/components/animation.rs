@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic for character sprite animations
+/****************************************************/
+
 use sdl2::rect::Rect;
 
 use crate::{

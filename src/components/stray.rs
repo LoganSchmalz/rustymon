@@ -1,3 +1,9 @@
+/****************************************************/
+// Created by: Tucker McCulloch
+// Description: Data structures for strays and related information including types and moves
+// also contains defintions for all individual strays, moves, types, and kinds of moves
+/****************************************************/
+
 use std::{clone::Clone};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Data structures and logic required for other components including items, NPCs and logic for moving NPCs
+/****************************************************/
+
 //use std::sync::Arc;
 
 use self::bag::Item;

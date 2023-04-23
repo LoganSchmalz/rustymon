@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: General input handling for gameplay and menus
+/****************************************************/
 use enum_map::Enum;
 use sdl2::{
     event::{Event, WindowEvent},

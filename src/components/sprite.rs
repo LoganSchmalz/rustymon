@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Sprite definitions for characters and items
+/****************************************************/
+
 use sdl2::rect::Rect;
 
 pub struct Sprite {

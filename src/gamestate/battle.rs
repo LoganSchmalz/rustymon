@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Battle data structure for storing all battle information
+// including strays, state, moves, turn order, and necessary menus
+/****************************************************/
 use std::collections::VecDeque;
 
 use crate::{
