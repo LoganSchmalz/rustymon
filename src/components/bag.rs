@@ -25,6 +25,7 @@ impl Bag {
         Bag { items: vec![] }
     }
 
+    //this function looks through the list of items already in the bag and if it is already there it adds the new items and if not it adds a new instance to the list
     pub fn add_item(&mut self, item: Item, amount: u32) -> bool {
         let i = self.items.iter_mut().position(|i| i.0 == item);
         match i {
