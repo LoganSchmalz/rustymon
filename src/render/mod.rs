@@ -1,3 +1,8 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Data and logic needed by other rendering functions
+// including storing all textures and other information needed to render the game properly
+/****************************************************/
 use enum_map::{enum_map, EnumMap};
 use hecs::World;
 use sdl2::{
