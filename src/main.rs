@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic for the main loop of the game which intializes and updates the game
+/****************************************************/
 mod components;
 mod constants;
 mod font_manager;

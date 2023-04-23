@@ -1,9 +1,8 @@
-use std::{clone::Clone, collections::HashMap};
-
-use hecs::{CommandBuffer, Entity, World};
-use rand::{distributions::Uniform, rngs::ThreadRng, Rng};
-use sdl2::{rect::Rect, video::WindowContext};
-
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic and data structures for storing and interacting with the state of the game
+// including information about the world as well as updating and transitioning between states of the game
+/****************************************************/
 use enum_map::EnumMap;
 use std::collections::VecDeque;
 

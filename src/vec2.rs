@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic for 2 dimensional vectors for storing positions
+/****************************************************/
 use std::{cmp::Ordering, ops};
 
 use serde::{Deserialize, Serialize};

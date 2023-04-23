@@ -1,3 +1,8 @@
+
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Enums for tiles and data structures and logic for storing and rendering the tilemap
+/****************************************************/
 use enum_map::Enum;
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;

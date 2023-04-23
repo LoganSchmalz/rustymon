@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Constant values needed by other game files
+/****************************************************/
 pub const TILE_SIZE: i32 = 16;
 
 pub const RANDOM_ENCOUNTER_CHANCE: f32 = 0.1;

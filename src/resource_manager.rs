@@ -1,3 +1,6 @@
+/****************************************************/
+// Description: Data structures for managing resources
+/****************************************************/
 extern crate sdl2;
 
 use sdl2::image::{LoadTexture};

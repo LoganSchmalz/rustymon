@@ -1,3 +1,7 @@
+/****************************************************/
+// Created by: Logan Schmalz
+// Description: Logic for organizing and rendering text
+/****************************************************/
 use regex::Regex;
 use sdl2::ttf::{Font, Sdl2TtfContext};
 
