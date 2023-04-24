@@ -15,8 +15,9 @@ use crate::{
 
 use super::{Renderer, PIXELS_X, PIXELS_Y};
 
+// within the render loop, these functions are called to render their resepctive states
 impl Renderer {
-    pub fn render_battle(
+    pub fn render_battle( // render battle, pass in managers + contexts
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
         font_manager: &FontManager,
@@ -24,26 +25,31 @@ impl Renderer {
         menu_man: &mut menu::MenuManager,
         world: &World,
     ) -> Result<(), String> {
-        let background = texture_manager.load("assets/backgrounds/battlebg.png")?;
-        self.canvas.copy(&background, None, None)?;
+        let background = texture_manager.load("assets/backgrounds/battlebg.png")?; // set bg image for battle
+        self.canvas.copy(&background, None, None)?; // render bg to canvas
 
-        for (index, stray) in battle.player_strays.iter().enumerate() {
-            if let Some(stray_data) = stray {
+        for (index, stray) in battle.player_strays.iter().enumerate() { // start the battle loop to iterate through each stray until the battle ends
+            if let Some(stray_data) = stray { // verify stray
+                // distinguish between stray selection and enemy turns in the battle state
                 if matches!(battle.battle_state, BattleState::SelectingFriendlyStray) {
+                    // verify selection
                     if let Some(i) = battle.selected_stray {
-                        if i == index {
+                        if i == index { // if stray is a player stray
+                            // load the stray selection interface context
                             let texture = texture_manager.load("assets/UI/team_select.png")?;
+                            // move the UI element across the different strays
                             let dst = Rect::new(
                                 -5 + 20 * index as i32,
                                 45 + 70 + 10 * index as i32,
                                 texture.query().width,
                                 texture.query().height,
                             );
+                            // render
                             self.canvas.copy(&texture, None, dst)?;
                         }
                     }
                 }
-
+                // load stray textures and place on map
                 let texture = texture_manager.load(&stray_data.texture)?;
                 let dst = Rect::new(
                     20 * index as i32,
@@ -57,16 +63,18 @@ impl Renderer {
                     texture.query().width / 2,
                     texture.query().height,
                 );
+                // render
                 self.canvas.copy(&texture, slice, dst)?;
             }
         }
 
+        // opponent stray rendering loop
         for (index, stray) in battle.opponent_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
                 if matches!(battle.battle_state, BattleState::SelectingOpponentStray) {
                     if let Some(i) = battle.selected_stray {
                         if i == index {
-                            let texture = texture_manager.load("assets/UI/enemy_select.png")?;
+                            let texture = texture_manager.load("assets/UI/enemy_select.png")?; // texture to select enemy stray
                             let dst = Rect::new(
                                 -5 + 110 + 20 * index as i32,
                                 45 + 10 + 10 * index as i32,
@@ -90,6 +98,8 @@ impl Renderer {
             }
         }
 
+        // render healthbar textures with health data
+        // updates on loop
         let healthbars = texture_manager.load("assets/UI/healthbars.png")?;
         self.canvas.copy(
             &healthbars,
@@ -110,9 +120,10 @@ impl Renderer {
         let creator = self.canvas.texture_creator();
         let healthbar = texture_manager.load("assets/UI/healthbar.png")?;
 
+        // loop to render new health and status information for each player stray
         for (index, stray) in battle.player_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
-                let text_color = //text color for stray name based on whether or not it is their turn currentl
+                let text_color = // text color for stray name based on whether or not it is their turn currentl
                 if battle.player_strays[battle.turn_order[0]].as_ref().unwrap().species == stray_data.species { //if it is the stray's turn
                     Color::RGB(167, 84, 94) //red
                 } else {
@@ -158,6 +169,7 @@ impl Renderer {
             }
         }
 
+        // loop to render new health and status information for each opponent stray
         for (index, stray) in battle.opponent_strays.iter().enumerate() {
             if let Some(stray_data) = stray {
                 let mut text_color = Color::RGB(31, 27, 24); //black
@@ -218,6 +230,7 @@ impl Renderer {
         Ok(())
     }
 
+    // render the winning menu after a win
     pub fn _render_win(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
@@ -229,6 +242,7 @@ impl Renderer {
         Ok(())
     }
 
+    // render the losing menu after a loss
     pub fn _render_loss(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,

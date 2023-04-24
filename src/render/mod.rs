@@ -49,6 +49,7 @@ pub struct Renderer {
 }
 
 impl Renderer {
+    //creates a new Renderer given the current canvas
     pub fn new(canvas: Canvas<Window>) -> Renderer {
         let size = TILE_SIZE as u32;
         let floortile_rects = enum_map! {
@@ -148,10 +149,13 @@ impl Renderer {
         }
     }
 
+    //runs present on the canvas
     pub fn present(&mut self) {
         self.canvas.present();
     }
 
+    //renders a transition
+    //takes in a texture manager and the transition we want to render, returns ok if no problems
     pub fn render_transition(
         &mut self,
         texture_manager: &mut TextureManager<WindowContext>,
@@ -198,6 +202,8 @@ impl Renderer {
         Ok(())
     }
 
+    //renders menus
+    //takes in the world, the font manager, and the menu manager, and returns ok if no problems
     pub fn render_menus(
         &mut self,
         world: &World,
