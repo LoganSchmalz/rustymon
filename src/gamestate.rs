@@ -80,48 +80,69 @@ pub struct State {
 }
 
 impl Default for State {
+    //default constructor for State object
+    //initializes world, command buffer, menus, and all entities within the map including the player
     fn default() -> Self {
         let mut world = World::new();
         let mut cmd = CommandBuffer::new();
 
         //here we create a bunch of example entities for the default world
+        //spawn player
         let player = world.spawn((
+            //entity type
             Player,
+            //position
             Position(Vec2(14f32, 15f32)),
+            //movement of entity
             MovingEntity::new(),
+            //texture for entity
             Sprite::character(String::from("assets/char-sprites/augosprite.png")),
+            //collision for entity
             Collision,
+            //initial animation state
             HumanWalkAnimation {
                 rotation: Direction::Down,
                 time: (1.0, 0.0),
                 left_leg: true,
                 sprinting: false,
             },
+            //inventory
             Bag::new(),
         ));
 
+        //spawn door object
         let _door = world.spawn((
+            //position
             Position(Vec2(2f32, 0f32)),
+            //texture
             Sprite {
                 texture: String::from("assets/tiles/tilesprites.png"),
                 src: Rect::new(96, 0, 16, 16),
                 ..Default::default()
             },
+            //collision
             Collision,
         ));
 
+        //spawn dad NPC
         let _dad = world.spawn((
+            //position
             Position(Vec2(16f32, 16f32)),
+            //movement
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
                 try_moving: MovingState::Moving(Direction::Left),
                 rotation: Direction::Left,
                 ..Default::default()
             },
+            //texture
             Sprite::character(String::from("assets/char-sprites/dadsprite.png")),
+            //collision
             Collision,
             Npc {
+                //interaction dialogue
                 says: "Hi hungry, I'm dad! Nice try, little child --> you are bad!".to_string(),
+                //walking path
                 path: Some(WalkingPath {
                     path: vec![
                         Direction::Left,
@@ -132,6 +153,7 @@ impl Default for State {
                     index: 0,
                 }),
             },
+            //initial animation state
             HumanWalkAnimation {
                 rotation: Direction::Left,
                 time: (1.0, 0.0),
@@ -140,18 +162,25 @@ impl Default for State {
             },
         ));
 
+        //spawn shaman NPC
         let _shaman = world.spawn((
+            //position
             Position(Vec2(30f32, 15f32)),
+            //movement
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
                 try_moving: MovingState::Moving(Direction::Left),
                 rotation: Direction::Left,
                 ..Default::default()
             },
+            //texture
             Sprite::character(String::from("assets/char-sprites/shamansprite.png")),
+            //collision
             Collision,
             Npc {
+                //interaction dialogue
                 says: "You have much to learn.".to_string(),
+                //walking path
                 path: Some(WalkingPath {
                     path: vec![
                         Direction::Left,
@@ -162,6 +191,7 @@ impl Default for State {
                     index: 0,
                 }),
             },
+            //initial animation state
             HumanWalkAnimation {
                 rotation: Direction::Left,
                 time: (1.0, 0.0),
@@ -170,18 +200,25 @@ impl Default for State {
             },
         ));
 
+        //spawn sika NPC
         let _sika = world.spawn((
+            //position
             Position(Vec2(30f32, 24f32)),
+            //movement
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
                 try_moving: MovingState::Moving(Direction::Left),
                 rotation: Direction::Left,
                 ..Default::default()
             },
+            //texture
             Sprite::character(String::from("assets/char-sprites/sikasprite.png")),
+            //collision
             Collision,
             Npc {
+                //interaction dialogue
                 says: "You are small".to_string(),
+                //walking path
                 path: Some(WalkingPath {
                     path: vec![
                         Direction::Up,
@@ -192,6 +229,7 @@ impl Default for State {
                     index: 0,
                 }),
             },
+            //initial animation state
             HumanWalkAnimation {
                 rotation: Direction::Left,
                 time: (1.0, 0.0),
@@ -200,18 +238,26 @@ impl Default for State {
             },
         ));
 
+
+        //spawn mom NPC
         let _mom = world.spawn((
+            //position
             Position(Vec2(16f32, 24f32)),
+            //movement
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
                 try_moving: MovingState::Moving(Direction::Left),
                 rotation: Direction::Left,
                 ..Default::default()
             },
+            //texture
             Sprite::character(String::from("assets/char-sprites/momsprite.png")),
+            //collision
             Collision,
             Npc {
+                //interaction dialogue
                 says: "Son, I'm not real.".to_string(),
+                //walking path
                 path: Some(WalkingPath {
                     path: vec![
                         Direction::Up,
@@ -222,6 +268,7 @@ impl Default for State {
                     index: 0,
                 }),
             },
+            //initial animation state
             HumanWalkAnimation {
                 rotation: Direction::Left,
                 time: (1.0, 0.0),
@@ -230,18 +277,25 @@ impl Default for State {
             },
         ));
 
+        //spawn Ilasiak NPC
         let _ilasiak = world.spawn((
+            //position
             Position(Vec2(22f32, 18f32)),
+            //movement
             MovingEntity {
                 moving: MovingState::Moving(Direction::Left),
                 try_moving: MovingState::Moving(Direction::Left),
                 rotation: Direction::Left,
                 ..Default::default()
             },
+            //texture
             Sprite::character(String::from("assets/char-sprites/ilasiaksprite.png")),
+            //collision
             Collision,
             Npc {
+                //interaction dialogue
                 says: "Hey bub, move outta the way!".to_string(),
+                //walking path
                 path: Some(WalkingPath {
                     path: vec![
                         Direction::Up,
@@ -252,6 +306,7 @@ impl Default for State {
                     index: 0,
                 }),
             },
+            //initial animation state
             HumanWalkAnimation {
                 rotation: Direction::Left,
                 time: (1.0, 0.0),
@@ -260,29 +315,42 @@ impl Default for State {
             },
         ));
 
+        //spawn berry object
         let _berry1 = world.spawn((
+            //position
             Position(Vec2(16f32, 8f32)),
+            //texture
             Sprite::berry(),
+            //collision
             Collision,
+            //type of entity
             GroundItem {
                 item: bag::Item::Berry,
                 amount: 1,
             },
         ));
 
+        //spawn berry object
         let _berry2 = world.spawn((
+            //position
             Position(Vec2(16f32, 16f32)),
+            //texture
             Sprite::berry(),
+            //collision
             Collision,
+            //type of entity
             GroundItem {
                 item: bag::Item::Berry,
                 amount: 1,
             },
         ));
 
+        //open menu manager
         let mut menus = MenuManager::new();
+        //open starting menu
         menus.open_menu(MainMenu::new().into());
 
+        //initialize all variables in State
         Self {
             screen: Screen::Overworld(TileMap::load(0)),
             next_screen: Screen::Overworld(TileMap::load(0)),
@@ -303,6 +371,9 @@ impl Default for State {
 }
 
 impl State {
+    //function for rendering the entire game
+    //takes in the game state (self), renderer, texture manager, font manager, time, and the tilemap
+    //returns success or failure
     pub fn render(
         &mut self,
         renderer: &mut Renderer,
@@ -315,6 +386,7 @@ impl State {
         match &mut self.screen {
             Screen::MainMenu => {}
             Screen::Overworld(map) => {
+                //render overworld if we are in the overworld
                 renderer.render_overworld(
                     texture_manager,
                     font_manager,
@@ -324,6 +396,7 @@ impl State {
                 )?;
             }
             Screen::Battle(battle) => {
+                //render battle if we are in battle
                 renderer.render_battle(
                     //render battle screen dynamically
                     texture_manager,
@@ -336,6 +409,7 @@ impl State {
         }
 
         if let Transition::Transitioning { time, full, .. } = &mut self.transition {
+            //render transition for constant amount of time
             if *time <= FADE_TIME {
                 *time += delta_time;
             } else {
@@ -352,11 +426,15 @@ impl State {
             renderer.render_transition(texture_manager, &self.transition)?;
         }
 
+        //perform rendering on canvas
         renderer.present();
 
         Ok(())
     }
 
+    //function for updating the state of the game
+    //takes in the current game state, time, tilemap, and font manager
+    //returns success or failure
     pub fn update(
         &mut self,
         delta_time: f32,
@@ -366,6 +444,7 @@ impl State {
         //determine correct input handler
         match &self.screen {
             Screen::Overworld(_) => {
+                //handle overworld input if in overworld, including handling input for menus opened while in the overworld
                 if self.allow_input {
                     if self.menus.is_open() {
                         self.update_player_moving(MovingState::Idle);
@@ -385,6 +464,7 @@ impl State {
             }
             Screen::MainMenu => {}
             Screen::Battle(_) => {
+                //handle battle input while in battle
                 if self.allow_input {
                     self.handle_input_battle(font_manager);
                 }
@@ -392,19 +472,26 @@ impl State {
         }
 
         if !self.paused {
+            //process game events as long as the game is not paused
             self.process_events(font_manager);
         }
         Ok(())
     }
 
+    //function for processing game events
+    //takes in the currrent state and the font manager
     pub fn process_events(&mut self, font_man: &FontManager) {
+        //while there are events in the queue, perform the event
         while let Some(event) = self.events.pop() {
             match event {
                 Event::PlayerMoved(pos) => {
+                    //if the player moved, process all possible consequences
                     if let Screen::Overworld(map) = &self.screen {
                         if map.check_encounter(pos)
+                            //if encounter occurred
                             && self.rng.gen::<f32>() <= RANDOM_ENCOUNTER_CHANCE
                         {
+                            //set next screen to battle
                             self.next_screen = Screen::Battle(Battle::new(
                                 [
                                     Some(Stray::cespae(true)),
@@ -419,16 +506,19 @@ impl State {
                                     Some(Stray::omikae(false)),
                                 ],
                             ));
+                            //set and run transition
                             self.transition = Transition::Transitioning {
                                 transition_type: TransitionType::Fade,
                                 time: 0.0,
                                 full: false,
                             };
+                            //freeze character
                             self.allow_input = false;
                         }
                     }
                 }
                 Event::TransitionFull => {
+                    //after transition is done, swap screens and open necessary menus
                     std::mem::swap(&mut self.screen, &mut self.next_screen);
                     if matches!(self.screen, Screen::Battle(_)) {
                         if let Screen::Battle(battle) = &mut self.screen {
@@ -447,17 +537,20 @@ impl State {
                 }
 
                 Event::NpcMoved(entity) => {
+                    //process consequences of NPC movement
                     let (moving, npc) = self
                         .world
                         .query_one_mut::<(&mut MovingEntity, &mut Npc)>(entity)
                         .unwrap();
                     if let Some(path) = &mut npc.path {
+                        //move NPC in direction defined by their path
                         path.advance();
                         moving.rotation = path.direction();
                         moving.try_moving = MovingState::Moving(path.direction());
                     }
                 }
                 Event::BattleAttack(selection) => {
+                    //process move selection in battles
                     println!("{:?}", &selection); //print the selected move
                     let Screen::Battle(battle) = &mut self.screen else { panic!() };
                     match selection.kind {
@@ -474,11 +567,14 @@ impl State {
                     battle.menus.close_menu(); //close move menu
                 }
                 Event::AttackStray(idx) => {
+                    //process attacks in battles 
                     let Screen::Battle(battle) = &mut self.screen else { panic!() };
 
                     battle.selected_stray = None;
 
+                    //display selection menu based on type of move selected
                     match battle.battle_state {
+                        //target friendly strays
                         BattleState::SelectingFriendlyStray => {
                             if let Some(stray) = &mut battle.player_strays[idx] {
                                 if let Some(mv) = &mut battle.selected_move {
@@ -489,6 +585,7 @@ impl State {
                                 }
                             }
                         }
+                        //target enemy strays
                         BattleState::SelectingOpponentStray => {
                             if let Some(stray) = &mut battle.opponent_strays[idx] {
                                 let rand_int: f32 = self.rng.gen();
@@ -508,6 +605,7 @@ impl State {
                         _ => panic!("something bad happened"),
                     }
 
+                    //run AI for enemy strays
                     'opponent_ai: loop {
                         println!("broken");
                         //TODO: REMOVE THIS  LOOP, INSTEAD OF JUST ITERATING OVER TURN ORDER UNTIL YOU GET TO A PLAYER-OWNED STRAY, THERE SHOULD BE ENEMY AI
@@ -592,10 +690,12 @@ impl State {
                                 .as_ref()
                                 .unwrap();
                             if rand_int < (mv.accuracy as f32 / 100 as f32) {
+                                //calculate damage
                                 damage = mv.power;
                             }
                             if let Some(p_stray) = &mut battle.player_strays[rand_p_stray] {
                                 p_stray.cur_hp -= damage; //subtract hp from selected stray by the amount of damage the move does
+                                //display text stating what the stray just did
                                 battle.menus.open_menu(
                                     Textbox::new(
                                         &("".to_owned()
@@ -616,14 +716,17 @@ impl State {
                                 );
                                 //TODO fix bug where only one enemy turn displays at a time
                                 if p_stray.cur_hp <= 0 {
+                                    //kill stray if it has no hp
                                     battle.player_strays[rand_p_stray] = None;
                                 }
                             }
                         }
                     }
 
+                    //go to next battle state
                     battle.battle_state = BattleState::SelectingMove;
 
+                    //check for win condition (all enemy strays dead), end battle and show win screen
                     if battle.opponent_strays.iter().all(|x| x.is_none()) {
                         battle.menus.close_menu();
                         self.transition = Transition::Transitioning {
@@ -633,6 +736,7 @@ impl State {
                         };
                         self.allow_input = false;
                     }
+                    //check for loss condition (all player strays dead), end battle and show loss screen
                     if battle.player_strays.iter().all(|x| x.is_none()) {
                         battle.menus.close_menu();
                         self.transition = Transition::Transitioning {
@@ -647,15 +751,21 @@ impl State {
         }
     }
 
+    //function for checking for collisions between entities
+    //takes in a position and returns a bool
     pub fn check_collision(&self, position: &Vec2) -> bool {
         let Screen::Overworld(map) = &self.screen else { panic!(); };
         map.check_collision(*position)
             || self.collisions.contains_key(&position.to_usize(map.size_x))
     }
 
+    //function for player interaction with entities
+    //takes in the font manager
     pub fn try_player_interaction(&mut self, font_man: &FontManager) {
+        //player should only be able to interact with entities in the overworld
         let Screen::Overworld(map) = &self.screen else { panic!(); };
 
+        //check for position of player
         let (&Position(Vec2(x, y)), moving) = self
             .world
             .query_one_mut::<(&Position, &MovingEntity)>(self.player)
